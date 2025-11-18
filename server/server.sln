@@ -5,9 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api", "api\api.csproj", "{1973A697-3004-4310-B801-C7F7CF639325}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "datasccess", "datasccess", "{C0AABCB0-9214-E2AC-E4AD-41463BC8A549}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dataaccess", "datasccess\dataaccess.csproj", "{FDD3296B-8619-4DE1-B2A4-D415327C72A2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dataaccess", "dataasccess\dataaccess.csproj", "{FDD3296B-8619-4DE1-B2A4-D415327C72A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,8 +44,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{FDD3296B-8619-4DE1-B2A4-D415327C72A2} = {C0AABCB0-9214-E2AC-E4AD-41463BC8A549}
 	EndGlobalSection
 EndGlobal
