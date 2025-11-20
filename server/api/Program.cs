@@ -4,10 +4,12 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using api.Models;
 using api.Services;
+using dataaccess;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var connectionString = ConnectionStringHelper.BuildPostgresConnectionString();
 Env.Load();
 builder.Configuration.AddEnvironmentVariables();
 builder.Services.Configure<JwtSettings>(options =>
@@ -36,6 +38,9 @@ builder.Services
         };
     });
 
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(connectionString)
+);
 builder.Services.AddAuthorization();
 builder.Services.AddCors();
 builder.Services.AddControllers();
