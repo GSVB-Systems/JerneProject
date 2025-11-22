@@ -10,11 +10,15 @@ export default function LoginPage() {
 
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const handleSubmit = async (e) => {
+        const res = await fetch("http://localhost:5099/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password })
+        });
 
-        console.log("Username:", username);
-        console.log("Password:", password);
+        const data = await res.json();
+        localStorage.setItem("token", data.token);
 
         navigate('dashboard');
 
