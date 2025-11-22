@@ -45,6 +45,13 @@ builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
+app.UseCors(config => config
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .AllowAnyOrigin()
+    .SetIsOriginAllowed(x => true)
+);
+
 app.UseAuthentication();
 app.UseAuthorization();
 

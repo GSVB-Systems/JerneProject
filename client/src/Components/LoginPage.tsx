@@ -1,66 +1,72 @@
-import { useState } from "react";
+import { useState, FormEvent } from "react";
+import { useNavigate } from "react-router";
 import logo from "../../resources/LoginLogo.png";
-import {Outlet, useNavigate} from "react-router";
-
-
 
 export default function LoginPage() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-
+    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        const res = await fetch("http://localhost:5099/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username, password })
-        });
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setError(null);
 
-        const data = await res.json();
-        localStorage.setItem("token", data.token);
+        try {
+            const res = await fetch("http://localhost:5099/auth/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password }),
+            });
 
-        navigate('dashboard');
+            if (!res.ok) {
+                setError("Invalid credentials");
+                return;
+            }
 
+            const data = await res.json();
+            if (data?.token) {
+                localStorage.setItem("token", data.token);
+                navigate("/dashboard");
+            } else {
+                setError("No token returned");
+            }
+        } catch {
+            setError("Network error");
+        }
     };
 
-    return <>
-
-
-
-
-        <div style={styles.container}>
-            <form style={styles.form} onSubmit={handleSubmit}>
-                <img src={logo} alt="Club Logo" style={styles.logo} />
-                <h2>Login</h2>
-
-                <input
-                    type="username"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    style={styles.input}
-                    required
-                />
-
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    style={styles.input}
-                    required
-                />
-
-                <button type="submit" style={styles.button}>
-                    Login
-                </button>
-            </form>
-        </div>
-    </>
+    return (
+        <>
+            <div style={styles.container}>
+                <form style={styles.form} onSubmit={handleSubmit}>
+                    <img src={logo} alt="Club Logo" style={styles.logo} />
+                    <h2>Login</h2>
+                    <input
+                        type="text"
+                        placeholder="Username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        style={styles.input}
+                        required
+                    />
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        style={styles.input}
+                        required
+                    />
+                    {error && <div style={{ color: "red", fontSize: "14px" }}>{error}</div>}
+                    <button type="submit" style={styles.button}>Login</button>
+                </form>
+            </div>
+        </>
+    );
 }
 
-const styles = {
+const styles: Record<string, React.CSSProperties> = {
     container: {
         display: "flex",
         height: "75vh",
@@ -86,7 +92,7 @@ const styles = {
     },
     button: {
         padding: "10px",
-        background: "Red",
+        background: "red",
         color: "white",
         border: "none",
         borderRadius: "8px",
