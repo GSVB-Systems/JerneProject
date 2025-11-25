@@ -1,4 +1,8 @@
-namespace DefaultNamespace;
+namespace api.Controllers;
+
+using dataaccess.Entities;
+using api.Services;
+using service.Services;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,7 +25,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(string id)
     {
         var user = await _userService.GetByIdAsync(id);
         return user == null ? NotFound() : Ok(user);
@@ -35,14 +39,14 @@ public class UsersController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, User user)
+    public async Task<IActionResult> Update(string id, User user)
     {
         var updated = await _userService.UpdateAsync(id, user);
         return updated == null ? NotFound() : Ok(updated);
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<IActionResult> Delete(string id)
     {
         var deleted = await _userService.DeleteAsync(id);
         return deleted ? NoContent() : NotFound();

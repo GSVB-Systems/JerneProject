@@ -1,6 +1,6 @@
 using dataaccess;
 using dataaccess.Entities;
-namespace Service;
+namespace Service.Repositories;
 
 public interface IUserRepository : IRepository<User>
 {

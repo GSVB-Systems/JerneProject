@@ -6,11 +6,14 @@ using api.Models;
 using api.Services;
 using dataaccess;
 using Microsoft.EntityFrameworkCore;
-
+using service.Services;
+using Service.Repositories;
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = ConnectionStringHelper.BuildPostgresConnectionString();
+
+
 Env.Load();
+var connectionString = ConnectionStringHelper.BuildPostgresConnectionString();
 builder.Configuration.AddEnvironmentVariables();
 builder.Services.Configure<JwtSettings>(options =>
 {
@@ -41,6 +44,13 @@ builder.Services
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString)
 );
+
+
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBoardRepository, BoardRepository>();
+builder.Services.AddScoped<IBoardService, BoardService>();
 builder.Services.AddAuthorization();
 builder.Services.AddCors();
 builder.Services.AddControllers();
