@@ -22,7 +22,7 @@ builder.Services.AddSingleton<TokenService>();
 
 var secret = builder.Configuration["JWT_SECRET"]!;
 var key = Encoding.UTF8.GetBytes(secret);
-
+//hey
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
