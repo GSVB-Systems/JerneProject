@@ -1,6 +1,6 @@
 import {type FormEvent, useState,} from "react";
 import { useNavigate } from "react-router";
-import logo from "../../resources/LoginLogo.png";
+import logo from "../../resources/Logo1.png";
 
 export default function LoginPage() {
     const [username, setUsername] = useState("");
@@ -27,7 +27,7 @@ export default function LoginPage() {
             const data = await res.json();
             if (data?.token) {
                 localStorage.setItem("token", data.token);
-                navigate("/dashboard");
+                navigate("/");
             } else {
                 setError("No token returned");
             }
@@ -43,8 +43,9 @@ export default function LoginPage() {
                     <img src={logo} alt="Club Logo" style={styles.logo} />
                     <h2>Login</h2>
                     <input
+                        //type="email"
                         type="text"
-                        placeholder="Username"
+                        placeholder="Email"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         style={styles.input}
@@ -69,10 +70,9 @@ export default function LoginPage() {
 const styles: Record<string, React.CSSProperties> = {
     container: {
         display: "flex",
-        height: "75vh",
         justifyContent: "center",
         alignItems: "center",
-        background: "#f5f5f5",
+        height: "100vh",
     },
     form: {
         padding: "30px",
@@ -100,7 +100,7 @@ const styles: Record<string, React.CSSProperties> = {
         fontSize: "16px",
     },
     logo: {
-        width: "120px",
-        margin: "0 auto 10px auto",
+        width: "200px",
+        margin: "auto",
     },
 };

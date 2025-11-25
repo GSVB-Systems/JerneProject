@@ -15,15 +15,15 @@ function App() {
                 children: [
                     {
                         index: true,
-                        element: <LoginPage/>
-                    },
-                    {
-                        path: '/dashboard',
                         element: (
                             <ProtectedRoute>
                                 <Dashboard/>
                             </ProtectedRoute>
                         )
+                    },
+                    {
+                        path: '/login',
+                        element: <LoginPage/>
                     }
                 ]
             }

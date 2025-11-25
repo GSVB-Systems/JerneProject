@@ -1,36 +1,22 @@
-import logo from "../../resources/LoginLogo.png"; // ← adjust path to your logo file
+import Navbar from "./Navbar.tsx";
+import SelectableBoard from "./Board.tsx";
 
 export default function Dashboard() {
     return (
-        <div >
-            {/* Logo in upper left corner */}
-            <img src={logo} alt="Logo"  />
+        <div className="flex flex-col min-h-screen w-full">
+            <Navbar/>
+            <SelectableBoard/>
 
-            {/* Main text */}
             <h1 style={styles.title}>Welcome</h1>
         </div>
     );
 }
 
 const styles = {
-    container: {
-        height: "100vh",
-        width: "100vw",
-        background: "#f5f5f5",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        position: "relative",
-    },
-    logo: {
-        width: "120px",
-        position: "absolute",
-        top: "20px",
-        left: "20px",
-    },
     title: {
         fontSize: "48px",
         fontWeight: "bold",
         margin: 0,
+        textAlign: "center"
     },
 };
