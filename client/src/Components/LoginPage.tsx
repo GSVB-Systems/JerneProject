@@ -1,4 +1,4 @@
-import { useState, FormEvent } from "react";
+import {type FormEvent, useState,} from "react";
 import { useNavigate } from "react-router";
 import logo from "../../resources/LoginLogo.png";
 

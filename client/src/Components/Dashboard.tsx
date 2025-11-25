@@ -2,9 +2,9 @@ import logo from "../../resources/LoginLogo.png"; // ← adjust path to your log
 
 export default function Dashboard() {
     return (
-        <div style={styles.container}>
+        <div >
             {/* Logo in upper left corner */}
-            <img src={logo} alt="Logo" style={styles.logo} />
+            <img src={logo} alt="Logo"  />
 
             {/* Main text */}
             <h1 style={styles.title}>Welcome</h1>
