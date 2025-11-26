@@ -7,7 +7,7 @@ using api.Services;
 namespace api.Controllers;
 
 [ApiController]
-[Route("auth")]
+[Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
     private readonly TokenService _tokenService;

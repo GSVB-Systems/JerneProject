@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 Env.Load();
-var connectionString = ConnectionStringHelper.BuildPostgresConnectionString();
+var connectionString = builder.Configuration.GetConnectionString("AppDb") ?? ConnectionStringHelper.BuildPostgresConnectionString();
 builder.Configuration.AddEnvironmentVariables();
 builder.Services.Configure<JwtSettings>(options =>
 {

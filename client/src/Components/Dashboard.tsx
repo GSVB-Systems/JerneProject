@@ -7,16 +7,7 @@ export default function Dashboard() {
             <Navbar/>
             <SelectableBoard/>
 
-            <h1 style={styles.title}>Welcome</h1>
+            <h1>Welcome</h1>
         </div>
     );
-}
-
-const styles = {
-    title: {
-        fontSize: "48px",
-        fontWeight: "bold",
-        margin: 0,
-        textAlign: "center"
-    },
 };
