@@ -51,6 +51,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBoardRepository, BoardRepository>();
 builder.Services.AddScoped<IBoardService, BoardService>();
+builder.Services.AddScoped<service.Services.PasswordService>();
+
 builder.Services.AddAuthorization();
 builder.Services.AddCors();
 builder.Services.AddControllers();
