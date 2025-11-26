@@ -24,5 +24,8 @@
         <ProjectReference Include="..\dataaccess\dataaccess.csproj" />
         <ProjectReference Include="..\service\service.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Services\" />
+    </ItemGroup>
 
     </Project>

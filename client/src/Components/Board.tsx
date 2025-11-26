@@ -44,7 +44,7 @@ export default function MultiSelectableBoard() {
                         disabled={!selected.includes(num) && selected.length >= MAX_SELECTION}
                         className={`aspect-square flex items-center justify-center rounded-xl border text-lg font-semibold transition ${
                             selected.includes(num)
-                                ? "!bg-blue-300 !text- !border-blue-600"
+                                ? "!bg-red-300 !text- !border-red-600"
                                 : selected.length >= MAX_SELECTION
                                     ? "bg-gray-300 border-gray-400 cursor-not-allowed opacity-50"
                                     : "bg-base-200 border-base-300 hover:bg-base-300"

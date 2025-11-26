@@ -1,7 +1,6 @@
 namespace api.Controllers;
 
 using dataaccess.Entities;
-using api.Services;
 using service.Services;
 
 using Microsoft.AspNetCore.Mvc;

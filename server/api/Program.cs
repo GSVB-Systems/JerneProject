@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using api.Models;
-using api.Services;
 using dataaccess;
 using Microsoft.EntityFrameworkCore;
+using service.Models;
 using service.Services;
 using Service.Repositories;
 var builder = WebApplication.CreateBuilder(args);
@@ -25,7 +25,7 @@ builder.Services.AddSingleton<TokenService>();
 
 var secret = builder.Configuration["JWT_SECRET"]!;
 var key = Encoding.UTF8.GetBytes(secret);
-//hey
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
