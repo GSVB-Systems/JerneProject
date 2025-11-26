@@ -12,6 +12,7 @@ export default function MultiSelectableBoard() {
 
     const MAX_SELECTION = 8;
     const MIN_SELECTION = 5;
+    const BOARD_SIZE = 16;
 
     const toggle = (num: number) => {
         setSelected((prev) => {
@@ -30,16 +31,17 @@ export default function MultiSelectableBoard() {
         return PRICE_CONFIG[selected.length]?.toString() || "—";
     };
 
-    const isValid = selected.length >= 5 && selected.length <= 8;
+    const isValid = selected.length >= MIN_SELECTION && selected.length <= MAX_SELECTION;
 
+    // Board IU Size
     return (
         <div className="w-full max-w-lg mx-auto p-4">
             <div className="grid grid-cols-4 gap-3">
-                {Array.from({ length: 16 }, (_, i) => i + 1).map((num) => (
+                {Array.from({ length: BOARD_SIZE }, (_, i) => i + 1).map((num) => (
                     <button
                         key={num}
                         onClick={() => toggle(num)}
-                        disabled={!selected.includes(num) && selected.length >= 8}
+                        disabled={!selected.includes(num) && selected.length >= MAX_SELECTION}
                         className={`aspect-square flex items-center justify-center rounded-xl border text-lg font-semibold transition ${
                             selected.includes(num)
                                 ? "!bg-blue-300 !text- !border-blue-600"
