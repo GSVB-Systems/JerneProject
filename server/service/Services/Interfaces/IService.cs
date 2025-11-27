@@ -1,4 +1,4 @@
-namespace service.Services;
+namespace service.Services.Interfaces;
 
 public interface IService<T> where T : class
 {

@@ -1,13 +1,9 @@
 using dataaccess.Entities;
 using Service.Repositories;
+using service.Services.Interfaces;
 
 namespace service.Services;
 
-
-public interface IBoardService : IService<Board>
-{
-    
-}
 public class BoardService : Service<Board>, IBoardService
 {
     public BoardService(IBoard boardRepository) : base(boardRepository)

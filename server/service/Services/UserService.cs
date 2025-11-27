@@ -2,14 +2,9 @@ using dataaccess.Entities;
 using Service.Repositories;
 using System.Threading.Tasks;
 using service.Services;
+using service.Services.Interfaces;
 
 namespace service.Services;
-
-public interface IUserService : IService<User>
-{    
-    Task<User> RegisterUserAsync(User user, string plainPassword);
-    Task<bool> VerifyUserPasswordAsync(string userId, string plainPassword);
-}
 
 public class UserService : Service<User>, IUserService
 {
