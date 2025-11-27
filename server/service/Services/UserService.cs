@@ -8,13 +8,13 @@ namespace service.Services;
 
 public class UserService : Service<User>, IUserService
 {
-    private readonly IUser _userRepository;
+    private readonly IUserRepository _userRepositoryRepository;
     private readonly PasswordService _passwordService;
 
-    public UserService(IUser userRepository, PasswordService passwordService)
-        : base(userRepository)
+    public UserService(IUserRepository userRepositoryRepository, PasswordService passwordService)
+        : base(userRepositoryRepository)
     {
-        _userRepository = userRepository;
+        _userRepositoryRepository = userRepositoryRepository;
         _passwordService = passwordService;
     }
 
@@ -30,8 +30,8 @@ public class UserService : Service<User>, IUserService
         user.IsActive = true;
         user.Balance = 0;
 
-        await _userRepository.AddAsync(user);
-        await _userRepository.SaveChangesAsync();
+        await _userRepositoryRepository.AddAsync(user);
+        await _userRepositoryRepository.SaveChangesAsync();
 
         return user;
     }
@@ -54,8 +54,8 @@ public class UserService : Service<User>, IUserService
     {
         user.Hash = _passwordService.HashPassword(user.Hash);
 
-        await _userRepository.AddAsync(user);
-        await _userRepository.SaveChangesAsync();
+        await _userRepositoryRepository.AddAsync(user);
+        await _userRepositoryRepository.SaveChangesAsync();
         return user;
     }
 }

@@ -10,6 +10,7 @@ using service.Models;
 using service.Services;
 using Service.Repositories;
 using service.Repositories.Interfaces;
+using service.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,9 +60,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepositoryRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IBoardRepository, BoardRepository>();
+builder.Services.AddScoped<IBoardRepository, BoardRepositoryRepository>();
 builder.Services.AddScoped<IBoardService, BoardService>();
 builder.Services.AddScoped<service.Services.PasswordService>();
 

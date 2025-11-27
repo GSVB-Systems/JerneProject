@@ -1,10 +1,11 @@
+using dataaccess;
 using dataaccess.Entities;
 
 namespace Service.Repositories;
 
-public class WinningBoardRepository : Repository<WinningBoard>, IWinningboard
+public class WinningBoardRepository : Repository<WinningBoard>, IWinningboardRepository
 {
-    public WinningBoardRepository(AppContext context) : base(context)
+    public WinningBoardRepository(AppDbContext context) : base(context)
     {
     }
     

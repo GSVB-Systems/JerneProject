@@ -3,6 +3,7 @@ using service.Repositories.Interfaces;
 
 namespace Service.Repositories;
 
-public interface IBoard : IRepository<Board>
+public interface IUserRepository : IRepository<User>
 {
+    
 }
