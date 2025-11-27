@@ -13,10 +13,10 @@ public interface IUserService : IService<User>
 
 public class UserService : Service<User>, IUserService
 {
-    private readonly IUserRepository _userRepository;
+    private readonly IUser _userRepository;
     private readonly PasswordService _passwordService;
 
-    public UserService(IUserRepository userRepository, PasswordService passwordService)
+    public UserService(IUser userRepository, PasswordService passwordService)
         : base(userRepository)
     {
         _userRepository = userRepository;

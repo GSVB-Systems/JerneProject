@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using api.Models;
 using dataaccess;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using service.Models;
 using service.Services;
@@ -13,6 +14,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 Env.Load();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        // Globally require users to be authenticated
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
 var connectionString = builder.Configuration.GetConnectionString("AppDb") ?? ConnectionStringHelper.BuildPostgresConnectionString();
 builder.Configuration.AddEnvironmentVariables();
 builder.Services.Configure<JwtSettings>(options =>

@@ -2,12 +2,9 @@ using dataaccess;
 using dataaccess.Entities;
 namespace Service.Repositories;
 
-public interface IUserRepository : IRepository<User>
-{
-    
-}
 
-public class UserRepository : Repository<User>, IUserRepository
+
+public class UserRepository : Repository<User>, IUser
 {
     public UserRepository(AppDbContext context) : base(context)
     {

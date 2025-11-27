@@ -10,7 +10,7 @@ public interface IBoardService : IService<Board>
 }
 public class BoardService : Service<Board>, IBoardService
 {
-    public BoardService(IBoardRepository boardRepository) : base(boardRepository)
+    public BoardService(IBoard boardRepository) : base(boardRepository)
     {
     }
 }
