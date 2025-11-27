@@ -1,9 +1,7 @@
 // csharp
 using dataaccess.Entities;
-using service.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using System.Reflection;
+using service.Services.Interfaces;
 
 namespace api.Controllers
 {
