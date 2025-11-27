@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using service.Models;
 using service.Services;
 using Service.Repositories;
+using service.Repositories.Interfaces;
+
 var builder = WebApplication.CreateBuilder(args);
 
 

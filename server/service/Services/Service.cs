@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Service.Repositories;
 using dataaccess;
+using service.Repositories.Interfaces;
 using service.Services.Interfaces;
 
 namespace service.Services;

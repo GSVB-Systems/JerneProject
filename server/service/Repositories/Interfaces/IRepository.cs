@@ -1,8 +1,4 @@
-
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
-namespace Service.Repositories;
+namespace service.Repositories.Interfaces;
 
 public interface IRepository<T> where T : class
 {

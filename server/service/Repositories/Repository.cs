@@ -3,6 +3,7 @@ using dataaccess;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using service.Repositories.Interfaces;
 
 namespace Service.Repositories;
 
