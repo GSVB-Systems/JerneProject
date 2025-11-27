@@ -1,4 +1,5 @@
 ﻿import logo from "../../resources/Logo1.png";
+import {Link} from "react-router-dom";
 
 export default function Navbar({ DKK = 0 }) {
     const formattedDKK = new Intl.NumberFormat("da-DK", {
@@ -12,7 +13,7 @@ export default function Navbar({ DKK = 0 }) {
         <div className="navbar bg-base-100 shadow-sm w-full">
             {/* Left side: Logo */}
             <div className="flex-1">
-                <a className="btn btn-ghost btn-circle normal-case w-16">
+                <a href="/" className="btn btn-ghost btn-circle normal-case w-16">
                     <img src={logo} alt="Logo"  />
                 </a>
             </div>
@@ -41,12 +42,27 @@ export default function Navbar({ DKK = 0 }) {
                     </div>
 
                     {/* Dropdown menu */}
-                    <ul
-                        tabIndex={0}
-                        className="menu menu-sm dropdown-content bg-base-100 rounded-box z-50 mt-3 w-52 p-2 shadow">
-                        <li><a>Profile</a></li>
-                        <li><a>Settings</a></li>
-                        <li><a>Logout</a></li>
+                    <ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-100 rounded-box z-50 mt-3 w-52 p-2 shadow">
+                        <li>
+                            <Link to="/profile" className="w-full text-left block">
+                                Profil
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to="/aktiveboards" className="w-full text-left block">
+                                Aktive Boards
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to="/boardhistory" className="w-full text-left block">
+                                Board Historik
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to="/login" className="w-full text-left block" onClick={() => localStorage.clear()}>
+                                Log ud
+                            </Link>
+                        </li>
                     </ul>
                 </div>
             </div>
