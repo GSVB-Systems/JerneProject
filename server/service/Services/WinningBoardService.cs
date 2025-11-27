@@ -5,7 +5,7 @@ namespace service.Services;
 
 public class WinningBoardService : Service<WinningBoard>
 {
-    public WinningBoardService(IWinningboard winningBoardRepository) : base(winningBoardRepository)
+    public WinningBoardService(IWinningboardRepository winningBoardRepository) : base(winningBoardRepository)
     {
     }
     

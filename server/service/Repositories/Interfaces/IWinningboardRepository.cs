@@ -3,6 +3,7 @@ using service.Repositories.Interfaces;
 
 namespace Service.Repositories;
 
-public interface ITransaction : IRepository<Transaction>
+public interface IWinningboardRepository: IRepository<WinningBoard>
 {
+    
 }

@@ -6,7 +6,7 @@ namespace service.Services;
 
 public class BoardService : Service<Board>, IBoardService
 {
-    public BoardService(IBoard boardRepository) : base(boardRepository)
+    public BoardService(IBoardRepository boardRepositoryRepository) : base(boardRepositoryRepository)
     {
     }
 }
