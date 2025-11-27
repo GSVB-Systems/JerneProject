@@ -1,5 +1,5 @@
-import Navbar from "./Navbar.tsx";
-import SelectableBoard from "./Board.tsx";
+import Navbar from "./Navbar";
+import SelectableBoard from "./Board";
 
 export default function Dashboard() {
     return (
