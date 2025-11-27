@@ -3,12 +3,29 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using api.Models;
-using api.Services;
+using dataaccess;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using service.Models;
+using service.Services;
+using Service.Repositories;
+using service.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+
 Env.Load();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        // Globally require users to be authenticated
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
+var connectionString = builder.Configuration.GetConnectionString("AppDb") ?? ConnectionStringHelper.BuildPostgresConnectionString();
 builder.Configuration.AddEnvironmentVariables();
 builder.Services.Configure<JwtSettings>(options =>
 {
@@ -36,6 +53,18 @@ builder.Services
         };
     });
 
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(connectionString)
+);
+
+
+builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBoardRepository, BoardRepository>();
+builder.Services.AddScoped<IBoardService, BoardService>();
+builder.Services.AddScoped<service.Services.PasswordService>();
+
 builder.Services.AddAuthorization();
 builder.Services.AddCors();
 builder.Services.AddControllers();
@@ -44,6 +73,13 @@ builder.Services.AddProblemDetails();
 
 
 var app = builder.Build();
+
+app.UseCors(config => config
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+    .AllowAnyOrigin()
+    .SetIsOriginAllowed(x => true)
+);
 
 app.UseAuthentication();
 app.UseAuthorization();

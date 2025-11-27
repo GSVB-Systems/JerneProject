@@ -1,13 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using api.Models;
-using api.Services;
-
+using Microsoft.AspNetCore.Authorization;
+using service.Models;
+using service.Services;
 
 
 namespace api.Controllers;
 
 [ApiController]
-[Route("auth")]
+[Route("api/[controller]")]
+[AllowAnonymous]
 public class AuthController : ControllerBase
 {
     private readonly TokenService _tokenService;

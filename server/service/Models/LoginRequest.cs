@@ -1,4 +1,4 @@
-namespace api.Models;
+namespace service.Models;
 
 public class LoginRequest
 {

@@ -1,0 +1,23 @@
+# fly.toml app configuration file generated for jerneproject-client1 on 2025-11-26T11:36:26+01:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'jerneproject-client1'
+primary_region = 'arn'
+
+[build]
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  size = 'shared-cpu-1x'
+
+[[env]]
+  BACKEND_URL = "https://jerneproject-server1.fly.dev"
