@@ -6,7 +6,7 @@ using service.Services.Interfaces;
 namespace api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class BoardsController : ControllerBase
     {
         private readonly IBoardService _boardService;

@@ -2,11 +2,11 @@ using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using api;
 using api.Models;
 using dataaccess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using service.Models;
 using service.Services;
 using Service.Repositories;
 using service.Repositories.Interfaces;
@@ -60,9 +60,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IUserRepository, UserRepositoryRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IBoardRepository, BoardRepositoryRepository>();
+builder.Services.AddScoped<IBoardRepository, BoardRepository>();
 builder.Services.AddScoped<IBoardService, BoardService>();
 builder.Services.AddScoped<service.Services.PasswordService>();
 
@@ -81,13 +81,13 @@ app.UseCors(config => config
     .AllowAnyOrigin()
     .SetIsOriginAllowed(x => true)
 );
-
+app.UseOpenApi();
+app.UseSwaggerUi();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseOpenApi();
-app.UseSwaggerUi();
+
 
 app.Run();

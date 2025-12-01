@@ -10,5 +10,9 @@
         <ProjectReference Include="..\dataaccess\dataaccess.csproj" />
         <PackageReference Include="BCrypt.Net-Next" Version="4.0.2" />
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Contracts\Contracts.csproj" />
+    </ItemGroup>
     
 </Project>

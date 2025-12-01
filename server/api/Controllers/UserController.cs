@@ -1,11 +1,9 @@
+using Microsoft.AspNetCore.Mvc;
 using service.Services.Interfaces;
+using Contracts.UserDTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace api.Controllers;
-
-using dataaccess.Entities;
-
-
-using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -17,7 +15,8 @@ public class UsersController : ControllerBase
     {
         _userService = userService;
     }
-
+    
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -31,18 +30,19 @@ public class UsersController : ControllerBase
         var user = await _userService.GetByIdAsync(id);
         return user == null ? NotFound() : Ok(user);
     }
-
+    
+    [AllowAnonymous]
     [HttpPost]
-    public async Task<IActionResult> Create(User user)
+    public async Task<IActionResult> Create(RegisterUserDto dto)
     {
-        var created = await _userService.CreateAsync(user);
+        var created = await _userService.RegisterUserAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = created.UserID }, created);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, User user)
+    public async Task<IActionResult> Update(string id, UserDto dto)
     {
-        var updated = await _userService.UpdateAsync(id, user);
+        var updated = await _userService.UpdateAsync(id, dto);
         return updated == null ? NotFound() : Ok(updated);
     }
 
