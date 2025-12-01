@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using service.Services.Interfaces;
 
 namespace api.Controllers;

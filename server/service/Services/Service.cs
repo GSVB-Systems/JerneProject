@@ -1,4 +1,3 @@
-// csharp
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Service.Repositories;
@@ -10,49 +9,49 @@ namespace service.Services;
 
 public class Service<T> : IService<T> where T : class
 {
-    protected readonly IRepository<T> RepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepository;
+    protected readonly IRepository<T> Repository;
 
-    public Service(IRepository<T> repositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepository)
+    public Service(IRepository<T> repository)
     {
-        RepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepository = repositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepository;
+        Repository = repository;
     }
 
     public virtual async Task<T?> GetByIdAsync(string id)
     {
-        return await RepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepository.GetByIdAsync(id);
+        return await Repository.GetByIdAsync(id);
     }
 
     public virtual async Task<IEnumerable<T>> GetAllAsync()
     {
-        return await RepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepository.GetAllAsync();
+        return await Repository.GetAllAsync();
     }
 
     public virtual async Task<T> CreateAsync(T entity)
     {
-        await RepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepository.AddAsync(entity);
-        await RepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepository.SaveChangesAsync();
+        await Repository.AddAsync(entity);
+        await Repository.SaveChangesAsync();
         return entity;
     }
 
     public virtual async Task<T?> UpdateAsync(string id, T entity)
     {
-        var existing = await RepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepository.GetByIdAsync(id);
+        var existing = await Repository.GetByIdAsync(id);
         if (existing == null)
             return null;
 
-        await RepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepository.UpdateAsync(entity);
-        await RepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepository.SaveChangesAsync();
+        await Repository.UpdateAsync(entity);
+        await Repository.SaveChangesAsync();
         return entity;
     }
 
     public virtual async Task<bool> DeleteAsync(string id)
     {
-        var existing = await RepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepository.GetByIdAsync(id);
+        var existing = await Repository.GetByIdAsync(id);
         if (existing == null)
             return false;
 
-        await RepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepository.DeleteAsync(existing);
-        await RepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepositoryRepository.SaveChangesAsync();
+        await Repository.DeleteAsync(existing);
+        await Repository.SaveChangesAsync();
         return true;
     }
 }

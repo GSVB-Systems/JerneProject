@@ -60,11 +60,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IUserRepository, UserRepositoryRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IBoardRepository, BoardRepositoryRepository>();
+builder.Services.AddScoped<IBoardRepository, BoardRepository>();
 builder.Services.AddScoped<IBoardService, BoardService>();
-builder.Services.AddScoped<service.Services.PasswordService>();
+builder.Services.AddScoped<service.Services.PasswordService, PasswordService>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddCors();
@@ -82,12 +84,14 @@ app.UseCors(config => config
     .SetIsOriginAllowed(x => true)
 );
 
+app.UseOpenApi();
+app.UseSwaggerUi();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseOpenApi();
-app.UseSwaggerUi();
+
 
 app.Run();
