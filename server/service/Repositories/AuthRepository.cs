@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using dataaccess;
 using dataaccess.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -16,4 +17,6 @@ public class AuthRepository : Repository<User>, IAuthRepository
         return await _context.Users
             .FirstOrDefaultAsync(u => u.Email == email);
     }
+
+    
 }

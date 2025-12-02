@@ -1,4 +1,5 @@
 using api.Models;
+using Contracts.UserDTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using service.Services;
@@ -31,5 +32,12 @@ public class AuthController : ControllerBase
 
         var token = _tokenService.CreateToken(_authService.GetUserByEmailAsync(request.Username).Result);
         return Ok(new { token });
+    }
+
+    [HttpGet]
+    [Route("userinfo")]
+    public async Task<AuthResponses.AuthUserInfo?> Userinfo()
+    {
+        return _authService.GetUserByEmailAsync();
     }
 }

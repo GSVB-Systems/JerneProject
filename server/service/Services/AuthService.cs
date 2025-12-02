@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Contracts.UserDTOs;
 using dataaccess.Entities;
 using service.Repositories.Interfaces;
 using service.Services.Interfaces;
@@ -53,4 +55,6 @@ public class AuthService : IAuthService
     {
         return await _authRepository.getUserByEmailAsync(email);
     }
+
+    
 }
