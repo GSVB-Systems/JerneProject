@@ -6,6 +6,7 @@ using dataaccess.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Org.BouncyCastle.Tls;
 
 
 namespace service.Services;
@@ -18,7 +19,10 @@ public class TokenService
     {
         _settings = settings.Value;
     }
-
+    
+    public const string SignatureAlgorithm = SecurityAlgorithms.HmacSha512;
+    public const string JwtKey = "JWT_SECRET";
+    
     public string CreateToken(User user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes((string)_settings.Secret));
@@ -40,5 +44,24 @@ public class TokenService
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+    
+    public static TokenValidationParameters ValidationParameters(IConfiguration config)
+    {
+        var key = Convert.FromBase64String(config.GetValue<string>(JwtKey)!);
+        return new TokenValidationParameters
+        {
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidAlgorithms = [SignatureAlgorithm],
+            ValidateIssuerSigningKey = true,
+            TokenDecryptionKey = null,
+
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+
+            // Set to 0 when validating on the same system that created the token
+            ClockSkew = TimeSpan.Zero,
+        };
     }
 }

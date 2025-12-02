@@ -52,7 +52,26 @@ builder.Services
             ValidAudience = builder.Configuration["JWT_AUDIENCE"],
             IssuerSigningKey = new SymmetricSecurityKey(key)
         };
+
+        options.TokenValidationParameters = TokenService.ValidationParameters(
+            builder.Configuration
+        );
+        // Add this for debugging
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine($"Authentication failed: {context.Exception}");
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                Console.WriteLine("Token validated successfully");
+                return Task.CompletedTask;
+            }
+        };
     });
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString)
@@ -67,6 +86,7 @@ builder.Services.AddScoped<IBoardService, BoardService>();
 builder.Services.AddScoped<service.Services.PasswordService, PasswordService>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddCors();
@@ -94,7 +114,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseOpenApi();
-app.UseSwaggerUi();
 
 app.Run();
