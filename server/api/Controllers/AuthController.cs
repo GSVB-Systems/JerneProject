@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
 using api.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using service.Models;
 using service.Services;
 using service.Services.Interfaces;
 

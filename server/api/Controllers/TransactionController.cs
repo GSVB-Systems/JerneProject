@@ -6,6 +6,8 @@ namespace api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
+[ApiController]
+[Route("transactions")]
 public class TransactionController : ControllerBase
 {
     private readonly ITransactionService _transactionService;

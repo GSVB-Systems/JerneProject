@@ -1,12 +1,12 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using api.Models;
 using dataaccess.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Org.BouncyCastle.Tls;
-using service.Models;
+
 
 namespace service.Services;
 
@@ -17,10 +17,7 @@ public class TokenService
     public TokenService(IOptions<JwtSettings> settings)
     {
         _settings = settings.Value;
-       
     }
-    
-    
 
     public string CreateToken(User user)
     {
@@ -44,6 +41,4 @@ public class TokenService
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-    
-    
 }

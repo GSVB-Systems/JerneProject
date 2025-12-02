@@ -2,11 +2,11 @@ using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using api;
 using api.Models;
 using dataaccess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using service.Models;
 using service.Services;
 using Service.Repositories;
 using service.Repositories.Interfaces;
@@ -94,6 +94,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-
+app.UseOpenApi();
+app.UseSwaggerUi();
 
 app.Run();
