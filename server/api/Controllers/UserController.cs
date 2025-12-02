@@ -1,9 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using service.Services.Interfaces;
 using Contracts.UserDTOs;
 using Microsoft.AspNetCore.Authorization;
 
 namespace api.Controllers;
+
+using dataaccess.Entities;
+
+
+using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -15,9 +21,9 @@ public class UsersController : ControllerBase
     {
         _userService = userService;
     }
-    
-    [AllowAnonymous]
+
     [HttpGet]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> GetAll()
     {
         var users = await _userService.GetAllAsync();
@@ -30,8 +36,7 @@ public class UsersController : ControllerBase
         var user = await _userService.GetByIdAsync(id);
         return user == null ? NotFound() : Ok(user);
     }
-    
-    [AllowAnonymous]
+
     [HttpPost]
     public async Task<IActionResult> Create(RegisterUserDto dto)
     {

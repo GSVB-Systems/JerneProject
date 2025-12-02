@@ -5,7 +5,7 @@ using service.Services.Interfaces;
 namespace api.Controllers;
 
 [ApiController]
-[Route("winningboards")]
+[Route("api/[controller]")]
 public class WinningBoardController : ControllerBase
 {
     

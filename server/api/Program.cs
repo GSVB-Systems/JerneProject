@@ -64,7 +64,9 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBoardRepository, BoardRepository>();
 builder.Services.AddScoped<IBoardService, BoardService>();
-builder.Services.AddScoped<service.Services.PasswordService>();
+builder.Services.AddScoped<service.Services.PasswordService, PasswordService>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddCors();
@@ -81,13 +83,18 @@ app.UseCors(config => config
     .AllowAnyOrigin()
     .SetIsOriginAllowed(x => true)
 );
+
+app.UseHttpsRedirection();
+
 app.UseOpenApi();
 app.UseSwaggerUi();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-
+app.UseOpenApi();
+app.UseSwaggerUi();
 
 app.Run();

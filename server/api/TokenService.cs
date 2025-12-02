@@ -2,10 +2,13 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using api.Models;
+using dataaccess.Entities;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace api;
+
+namespace service.Services;
 
 public class TokenService
 {
@@ -16,15 +19,16 @@ public class TokenService
         _settings = settings.Value;
     }
 
-    public string CreateToken(string username)
+    public string CreateToken(User user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes((string)_settings.Secret));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, username),
-            new Claim("username", username)
+            new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+            new Claim("email", user.Email),
+            new Claim(ClaimTypes.Role, user.Role.ToString()),
         };
 
         var token = new JwtSecurityToken(
