@@ -20,7 +20,7 @@ public class Repository<T> : IRepository<T> where T : class
 
     public virtual async Task<T?> GetByIdAsync(string id)
     {
-        // EF Core FindAsync accepts object key values; pass the string GUID
+        
         return await _dbSet.FindAsync((object)id);
     }
 

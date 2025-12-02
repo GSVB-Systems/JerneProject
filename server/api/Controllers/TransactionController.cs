@@ -1,17 +1,18 @@
-using dataaccess.Entities;
+// csharp
 using Microsoft.AspNetCore.Mvc;
+using Contracts.TransactionDTOs;
+using Microsoft.AspNetCore.Authorization;
 using service.Services.Interfaces;
 
 namespace api.Controllers;
-[ApiController]
-[Route("api/[controller]")]
 
 [ApiController]
-[Route("transactions")]
+[Route("api/[controller]")]
+[AllowAnonymous]
 public class TransactionController : ControllerBase
 {
     private readonly ITransactionService _transactionService;
-  
+
     public TransactionController(ITransactionService transactionService)
     {
         _transactionService = transactionService;
@@ -30,18 +31,18 @@ public class TransactionController : ControllerBase
         var transaction = await _transactionService.GetByIdAsync(id);
         return transaction == null ? NotFound() : Ok(transaction);
     }
-    
+
     [HttpPost]
-    public async Task<IActionResult> Create(Transaction transaction)
+    public async Task<IActionResult> Create([FromBody] CreateTransactionDto dto)
     {
-        var created = await _transactionService.CreateAsync(transaction);
+        var created = await _transactionService.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = created.TransactionID }, created);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, Transaction transaction)
+    public async Task<IActionResult> Update(string id, [FromBody] UpdateTransactionDto dto)
     {
-        var updated = await _transactionService.UpdateAsync(id, transaction);
+        var updated = await _transactionService.UpdateAsync(id, dto);
         return updated == null ? NotFound() : Ok(updated);
     }
 
@@ -51,5 +52,4 @@ public class TransactionController : ControllerBase
         var deleted = await _transactionService.DeleteAsync(id);
         return deleted ? NoContent() : NotFound();
     }
-
 }

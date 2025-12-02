@@ -57,16 +57,14 @@ builder.Services
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString)
 );
-
-
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IBoardRepository, BoardRepository>();
 builder.Services.AddScoped<IBoardService, BoardService>();
-builder.Services.AddScoped<service.Services.PasswordService, PasswordService>();
-builder.Services.AddScoped<IAuthRepository, AuthRepository>();
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<service.Services.PasswordService>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddCors();
@@ -94,7 +92,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseOpenApi();
-app.UseSwaggerUi();
+
 
 app.Run();

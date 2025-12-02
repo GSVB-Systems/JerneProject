@@ -26,7 +26,6 @@
         <ProjectReference Include="..\Contracts\Contracts.csproj" />
     </ItemGroup>
     <ItemGroup>
-      <Folder Include="Models\UserDTOs\" />
       <Folder Include="Services\" />
     </ItemGroup>
 
