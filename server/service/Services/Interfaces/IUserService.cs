@@ -1,4 +1,3 @@
-using Contracts;
 using Contracts.UserDTOs;
 
 namespace service.Services.Interfaces;

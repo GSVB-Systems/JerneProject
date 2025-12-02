@@ -2,17 +2,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using service.Services.Interfaces;
 using Contracts.UserDTOs;
-using Microsoft.AspNetCore.Authorization;
+
 
 namespace api.Controllers;
 
-using dataaccess.Entities;
 
-
-using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/[controller]")]
+[AllowAnonymous]
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -22,7 +20,6 @@ public class UsersController : ControllerBase
         _userService = userService;
     }
 
-    [HttpGet]
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> GetAll()
     {

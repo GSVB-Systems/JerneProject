@@ -1,5 +1,7 @@
 using dataaccess.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Contracts.TransactionDTOs;
+using Microsoft.AspNetCore.Authorization;
 using service.Services.Interfaces;
 
 namespace api.Controllers;
@@ -27,18 +29,18 @@ public class TransactionController : ControllerBase
         var transaction = await _transactionService.GetByIdAsync(id);
         return transaction == null ? NotFound() : Ok(transaction);
     }
-    
+
     [HttpPost]
-    public async Task<IActionResult> Create(Transaction transaction)
+    public async Task<IActionResult> Create([FromBody] CreateTransactionDto dto)
     {
-        var created = await _transactionService.CreateAsync(transaction);
+        var created = await _transactionService.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = created.TransactionID }, created);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, Transaction transaction)
+    public async Task<IActionResult> Update(string id, [FromBody] UpdateTransactionDto dto)
     {
-        var updated = await _transactionService.UpdateAsync(id, transaction);
+        var updated = await _transactionService.UpdateAsync(id, dto);
         return updated == null ? NotFound() : Ok(updated);
     }
 

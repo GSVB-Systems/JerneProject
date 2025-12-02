@@ -27,7 +27,6 @@ public static class UserMapper
             Firstname = dto.Firstname,
             Lastname = dto.Lastname,
             Email = dto.Email,
-            // Hash left null here; service will set it
         };
 
     public static void ApplyUpdate(User target, UpdateUserDto dto)

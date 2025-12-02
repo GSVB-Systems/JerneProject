@@ -72,7 +72,6 @@ builder.Services
         };
     });
 
-
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString)
 );
@@ -87,6 +86,9 @@ builder.Services.AddScoped<service.Services.PasswordService, PasswordService>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
+
 
 builder.Services.AddAuthorization();
 builder.Services.AddCors();
