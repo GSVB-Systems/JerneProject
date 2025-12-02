@@ -43,13 +43,13 @@ public class AuthService : IAuthService
 
     public async Task<bool> verifyPasswordByEmailAsync(string email, string plainPassword)
     {
-        var user = await getUserByEmailAsync(email); // Use generic GetByIdAsync
+        var user = await GetUserByEmailAsync(email); // Use generic GetByIdAsync
         if (user == null) return false;
 
         return _passwordService.VerifyPassword(plainPassword, user.Hash);
     }
 
-    public async Task<User> getUserByEmailAsync(string email)
+    public async Task<User> GetUserByEmailAsync(string email)
     {
         return await _authRepository.getUserByEmailAsync(email);
     }

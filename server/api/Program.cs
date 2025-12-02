@@ -84,6 +84,8 @@ app.UseCors(config => config
     .SetIsOriginAllowed(x => true)
 );
 
+app.UseHttpsRedirection();
+
 app.UseOpenApi();
 app.UseSwaggerUi();
 
