@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using service.Services;
 using service.Services.Interfaces;
+using System.Security.Claims;
 
 
 namespace api.Controllers;
@@ -15,13 +16,16 @@ public class AuthController : ControllerBase
 {
     private readonly TokenService _tokenService;
     private readonly IAuthService _authService;
+    private readonly IUserService _userService;
 
-    public AuthController(TokenService tokenService, IAuthService authService)
+    public AuthController(TokenService tokenService, IAuthService authService, IUserService userService)
     {
         _tokenService = tokenService;
         _authService = authService;
+        _userService = userService;
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)
     {
@@ -31,13 +35,15 @@ public class AuthController : ControllerBase
             return Unauthorized("Invalid credentials");
 
         var token = _tokenService.CreateToken(_authService.GetUserByEmailAsync(request.Username).Result);
+       
         return Ok(new { token });
     }
 
     [HttpGet]
     [Route("userinfo")]
-    public async Task<AuthResponses.AuthUserInfo?> Userinfo()
+    public async Task<UserDto> Userinfo()
     {
-        return _authService.GetUserByEmailAsync();
+        var UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return await _userService.GetByIdAsync(UserId);
     }
 }

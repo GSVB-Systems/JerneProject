@@ -18,7 +18,15 @@ export const useAuth = () => {
     const login = async (request: LoginRequest) => {
         const response = await authClient.login(request);
         setJwt(response.jwt!);
-        navigate("/");
+        const jwt = response.jwt!;
+        const payloadBase64 = jwt.split(".")[1];
+        const payloadJson = atob(payloadBase64);
+        const payload = JSON.parse(payloadJson);
+        if (payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] === "Admin") {
+            navigate("/admin");
+        } else {
+            navigate("/");
+        }
     };
 
     const logout = async () => {

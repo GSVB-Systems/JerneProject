@@ -9,7 +9,7 @@ public class User
     public String Lastname { get; set; }
     public String Email { get; set; }
     public String Hash { get; set; }
-    public UserRole Role { get; set; } = UserRole.User;
+    public UserRole Role { get; set; }
     public bool Firstlogin { get; set; }
     public bool IsActive { get; set; }
     public decimal Balance { get; set; }

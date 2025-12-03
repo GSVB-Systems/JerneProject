@@ -10,7 +10,6 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[AllowAnonymous]
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -20,7 +19,8 @@ public class UsersController : ControllerBase
         _userService = userService;
     }
 
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "Admin")]
+    [HttpGet("getAll")]
     public async Task<IActionResult> GetAll()
     {
         var users = await _userService.GetAllAsync();
@@ -34,7 +34,8 @@ public class UsersController : ControllerBase
         return user == null ? NotFound() : Ok(user);
     }
 
-    [HttpPost]
+    [HttpPost("create")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(RegisterUserDto dto)
     {
         var created = await _userService.RegisterUserAsync(dto);

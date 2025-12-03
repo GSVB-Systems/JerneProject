@@ -7,6 +7,7 @@ using api.Models;
 using dataaccess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using NSwag;
 using service.Services;
 using Service.Repositories;
 using service.Repositories.Interfaces;
@@ -87,7 +88,6 @@ builder.Services.AddCors();
 builder.Services.AddControllers();
 builder.Services.AddOpenApiDocument();
 builder.Services.AddProblemDetails();
-
 
 var app = builder.Build();
 
