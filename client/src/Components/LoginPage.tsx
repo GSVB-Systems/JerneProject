@@ -1,12 +1,15 @@
 import {type FormEvent, useState,} from "react";
 import { useNavigate } from "react-router";
 import logo from "../../resources/Logo1.png";
+import {useAtom} from "jotai";
+import {tokenAtom} from "../atoms/token.ts";
 
 export default function LoginPage() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+    const [jwt, setJwt] = useAtom(tokenAtom);
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -26,7 +29,7 @@ export default function LoginPage() {
 
             const data = await res.json();
             if (data?.token) {
-                localStorage.setItem("token", data.token);
+                setJwt(data.token);
                 navigate("/");
             } else {
                 setError("No token returned");

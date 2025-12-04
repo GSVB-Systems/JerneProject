@@ -19,8 +19,9 @@ public class UsersController : ControllerBase
         _userService = userService;
     }
 
-    [Authorize(Roles = "Admin")]
+    
     [HttpGet("getAll")]
+    [Authorize(Roles = "User")]
     public async Task<IActionResult> GetAll()
     {
         var users = await _userService.GetAllAsync();
@@ -35,7 +36,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost("create")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "User")]
     public async Task<IActionResult> Create(RegisterUserDto dto)
     {
         var created = await _userService.RegisterUserAsync(dto);

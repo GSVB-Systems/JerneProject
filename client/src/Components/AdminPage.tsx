@@ -1,4 +1,6 @@
 import {type FormEvent, useState} from "react";
+import {authClient, userClient} from "../api-clients.ts";
+import type {RegisterUserDto} from "../models/ServerAPI.ts";
 
 export default function AdminPage() {
     const [firstName, setFirstName] = useState("");
@@ -14,19 +16,15 @@ export default function AdminPage() {
         setError(null);
 
         try {
-            const res = await fetch("/api/Users/create", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({firstName, lastName, email, password, role}),
-            });
 
-            if (!res.ok) {
-                setError("Failed to create user");
-                return;
-            }
-
-            const data = await res.json();
-            console.log("User created:", data);
+            const dto: RegisterUserDto = {
+                firstname: firstName,
+                lastname: lastName,
+                email: email,
+                password: password,
+                role: role
+            };
+            const res = await userClient.create(dto)
         } catch {
         setError("Network error");
     }
