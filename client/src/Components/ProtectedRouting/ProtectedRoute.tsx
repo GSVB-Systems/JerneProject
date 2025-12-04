@@ -1,10 +1,9 @@
 import { Navigate } from "react-router";
 import type {JSX} from "react";
-import {useAtom} from "jotai";
-import {tokenAtom} from "../atoms/token.ts";
+import {useJWT} from "../../hooks/useJWT.ts";
 
 export default function ProtectedRoute({ children }: { children: JSX.Element }) {
-    const [jwt,] = useAtom(tokenAtom);
+    const jwt = useJWT();
     const token = jwt;
 
     if (!token) {

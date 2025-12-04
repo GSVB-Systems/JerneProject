@@ -9,7 +9,7 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
-    const [jwt, setJwt] = useAtom(tokenAtom);
+    const [, setJwt] = useAtom(tokenAtom);
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();

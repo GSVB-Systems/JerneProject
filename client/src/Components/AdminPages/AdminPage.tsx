@@ -1,6 +1,8 @@
 import {type FormEvent, useState} from "react";
-import {authClient, userClient} from "../api-clients.ts";
-import type {RegisterUserDto} from "../models/ServerAPI.ts";
+import { userClient} from "../../api-clients.ts";
+import type {RegisterUserDto} from "../../models/ServerAPI.ts";
+import {Link} from "react-router-dom";
+import {useNavigate} from "react-router";
 
 export default function AdminPage() {
     const [firstName, setFirstName] = useState("");
@@ -8,7 +10,8 @@ export default function AdminPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [role, setRole] = useState("");
-    const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
+    const [, setError] = useState<string | null>(null);
 
     const closeModal = () => {
         const modal = document.getElementById('my_modal_1') as HTMLDialogElement;
@@ -36,6 +39,10 @@ export default function AdminPage() {
         }
     };
 
+    const redirectToUsers = () => {
+        navigate("/brugere");
+    }
+
 
     return (
         <div className="flex flex-col min-h-screen w-full">
@@ -43,6 +50,7 @@ export default function AdminPage() {
 
             {/* Open the modal using document.getElementById('ID').showModal() method */}
             <button className="btn" onClick={()=>document.getElementById('my_modal_1').showModal()}>Opret Bruger</button>
+            <button className={"btn"} onClick={redirectToUsers}>Se Brugere</button>
             <dialog id="my_modal_1" className="modal">
                 <div className="modal-box">
                     <h3 className="font-bold text-lg">Hello!</h3>
