@@ -55,11 +55,17 @@ export default function AdminPage() {
                         <input type="text" placeholder="Kodenavn" className="input"value={password}
                                onChange={(e) => setPassword(e.target.value)} />
                         <p className="font-bold text-md">Rolle:</p>
-                        <select defaultValue="Vælg en rolle" className="select" value={email}
-                                onChange={(e) => setRole(e.target.value)}>
-                            <option disabled={true}>Vælg en rolle</option>
-                            <option>Bruger</option>
-                            <option>Administrator</option>
+                        <select
+                            className="select"
+                            value={role}
+                            onChange={(e) => {
+                                console.log("Selected role:", e.target.value);
+                                setRole(e.target.value);
+                            }}
+                        >
+                            <option value="" disabled>Vælg en rolle</option>
+                            <option value="Bruger">Bruger</option>
+                            <option value="Administrator">Administrator</option>
                         </select>
                     </div>
                     <div className="modal-action">

@@ -2,6 +2,7 @@
 
 using Contracts.UserDTOs;
 using dataaccess.Entities;
+using dataaccess.Entities.Enums;
 
 namespace service.Mappers;
 
@@ -27,9 +28,9 @@ public static class UserMapper
             Firstname = dto.Firstname,
             Lastname = dto.Lastname,
             Email = dto.Email,
-            Role = dto.Role.ToLower() == "" ? dataaccess.Entities.Enums.UserRole.Admin : dataaccess.Entities.Enums.UserRole.User,
+            Role = dto.Role.Equals("Administrator")? UserRole.Administrator: UserRole.Bruger
         };
-
+    
     public static void ApplyUpdate(User target, UpdateUserDto dto)
     {
         if (dto.Firstname != null) target.Firstname = dto.Firstname;

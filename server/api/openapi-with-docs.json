@@ -735,8 +735,8 @@
         "type": "integer",
         "description": "",
         "x-enumNames": [
-          "User",
-          "Admin"
+          "Bruger",
+          "Administrator"
         ],
         "enum": [
           0,

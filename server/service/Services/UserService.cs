@@ -65,7 +65,6 @@ public class UserService : Service<User>, IUserService
     public async Task<UserDto> RegisterUserAsync(RegisterUserDto dto)
     {
         var entity = UserMapper.ToEntity(dto);
-        entity.Role = UserRole.User;
         entity.Hash = _passwordService.HashPassword(dto.Password);
         entity.Firstlogin = true;
         entity.IsActive = true;
