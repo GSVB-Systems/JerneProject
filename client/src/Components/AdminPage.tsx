@@ -10,25 +10,32 @@ export default function AdminPage() {
     const [role, setRole] = useState("");
     const [error, setError] = useState<string | null>(null);
 
+    const closeModal = () => {
+        const modal = document.getElementById('my_modal_1') as HTMLDialogElement;
+        modal.close();
+    };
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError(null);
 
         try {
-
             const dto: RegisterUserDto = {
                 firstname: firstName,
                 lastname: lastName,
-                email: email,
-                password: password,
-                role: role
+                email,
+                password,
+                role
             };
-            const res = await userClient.create(dto)
+
+            userClient.create(dto);
+
+            closeModal();          // <-- close modal on success
         } catch {
-        setError("Network error");
-    }
+            setError("Network error");
+        }
     };
+
 
     return (
         <div className="flex flex-col min-h-screen w-full">
@@ -40,43 +47,51 @@ export default function AdminPage() {
                 <div className="modal-box">
                     <h3 className="font-bold text-lg">Hello!</h3>
                     <p className="py-4">Udfyld nedestående felter med nødvændige oplysninger for at oprette bruger</p>
-                    <div className="flex flex-col gap-4">
+
+                    {/* FIX: Add your form here */}
+                    <form id="createUserForm" onSubmit={handleSubmit} className="flex flex-col gap-4">
                         <p className="font-bold text-md">Fornavn:</p>
-                        <input type="text" placeholder="Fornavn" className="input"
+                        <input type="text" className="input"
                                value={firstName}
                                onChange={(e) => setFirstName(e.target.value)} />
+
                         <p className="font-bold text-md">Efternavn:</p>
-                        <input type="text" placeholder="Efternavn" className="input"value={lastName}
+                        <input type="text" className="input"
+                               value={lastName}
                                onChange={(e) => setLastName(e.target.value)} />
+
                         <p className="font-bold text-md">Email:</p>
-                        <input type="text" placeholder="Email" className="input"value={email}
+                        <input type="text" className="input"
+                               value={email}
                                onChange={(e) => setEmail(e.target.value)} />
+
                         <p className="font-bold text-md">Password:</p>
-                        <input type="text" placeholder="Kodenavn" className="input"value={password}
+                        <input type="text" className="input"
+                               value={password}
                                onChange={(e) => setPassword(e.target.value)} />
+
                         <p className="font-bold text-md">Rolle:</p>
-                        <select
-                            className="select"
-                            value={role}
-                            onChange={(e) => {
-                                console.log("Selected role:", e.target.value);
-                                setRole(e.target.value);
-                            }}
-                        >
+                        <select className="select" value={role}
+                                onChange={(e) => setRole(e.target.value)}>
                             <option value="" disabled>Vælg en rolle</option>
                             <option value="Bruger">Bruger</option>
                             <option value="Administrator">Administrator</option>
                         </select>
-                    </div>
+                    </form>
+
                     <div className="modal-action">
-                        <form onSubmit={handleSubmit}>
-                            {/* if there is a button in form, it will close the modal */}
+                        <form method="dialog">
                             <button className="btn">Annuller</button>
-                            <button type="submit" className="btn" >Opret Bruger</button>
                         </form>
+
+                        {/* This now correctly submits the form above */}
+                        <button type="submit" form="createUserForm" className="btn">
+                            Opret Bruger
+                        </button>
                     </div>
                 </div>
             </dialog>
+
         </div>
     );
 }

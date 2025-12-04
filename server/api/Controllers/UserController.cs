@@ -36,7 +36,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost("create")]
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Create(RegisterUserDto dto)
     {
         var created = await _userService.RegisterUserAsync(dto);
