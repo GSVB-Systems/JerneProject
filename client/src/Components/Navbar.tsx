@@ -59,7 +59,7 @@ export default function Navbar({ DKK = 0 }) {
                             </Link>
                         </li>
                         <li>
-                            <Link to="/login" className="w-full text-left block" onClick={() => localStorage.clear()}>
+                            <Link to="/login" className="w-full text-left block" onClick={() => sessionStorage.clear()}>
                                 Log ud
                             </Link>
                         </li>

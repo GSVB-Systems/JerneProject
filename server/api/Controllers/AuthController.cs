@@ -1,8 +1,10 @@
-using Microsoft.AspNetCore.Mvc;
 using api.Models;
+using Contracts.UserDTOs;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using service.Models;
 using service.Services;
+using service.Services.Interfaces;
+using System.Security.Claims;
 
 
 namespace api.Controllers;
@@ -13,20 +15,35 @@ namespace api.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly TokenService _tokenService;
+    private readonly IAuthService _authService;
+    private readonly IUserService _userService;
 
-    public AuthController(TokenService tokenService)
+    public AuthController(TokenService tokenService, IAuthService authService, IUserService userService)
     {
         _tokenService = tokenService;
+        _authService = authService;
+        _userService = userService;
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
-    public IActionResult Login(LoginRequest request)
+    public async Task<IActionResult> Login(LoginRequest request)
     {
-        // Example: hardcoded user — replace with real user validation
-        if (request.Username != "admin" || request.Password != "password")
+        var isValid = await _authService.verifyPasswordByEmailAsync(request.Username, request.Password);
+
+        if (!isValid)
             return Unauthorized("Invalid credentials");
 
-        var token = _tokenService.CreateToken(request.Username);
+        var token = _tokenService.CreateToken(_authService.GetUserByEmailAsync(request.Username).Result);
+       
         return Ok(new { token });
+    }
+
+    [HttpGet]
+    [Route("userinfo")]
+    public async Task<UserDto> Userinfo()
+    {
+        var UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        return await _userService.GetByIdAsync(UserId);
     }
 }

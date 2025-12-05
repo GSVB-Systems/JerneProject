@@ -2,11 +2,12 @@ using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using api;
 using api.Models;
 using dataaccess;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using service.Models;
+using NSwag;
 using service.Services;
 using Service.Repositories;
 using service.Repositories.Interfaces;
@@ -43,14 +44,24 @@ builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.TokenValidationParameters = new TokenValidationParameters
+        
+
+        options.TokenValidationParameters = TokenService.ValidationParameters(
+            builder.Configuration
+        );
+        // Add this for debugging
+        options.Events = new JwtBearerEvents
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["JWT_ISSUER"],
-            ValidAudience = builder.Configuration["JWT_AUDIENCE"],
-            IssuerSigningKey = new SymmetricSecurityKey(key)
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine($"Authentication failed: {context.Exception}");
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                Console.WriteLine("Token validated successfully");
+                return Task.CompletedTask;
+            }
         };
     });
 
@@ -60,11 +71,17 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IUserRepository, UserRepositoryRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IBoardRepository, BoardRepositoryRepository>();
+builder.Services.AddScoped<IBoardRepository, BoardRepository>();
 builder.Services.AddScoped<IBoardService, BoardService>();
-builder.Services.AddScoped<service.Services.PasswordService>();
+builder.Services.AddScoped<service.Services.PasswordService, PasswordService>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
+
 
 builder.Services.AddAuthorization();
 builder.Services.AddCors();
@@ -72,8 +89,10 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApiDocument();
 builder.Services.AddProblemDetails();
 
-
 var app = builder.Build();
+
+app.GenerateApiClientsFromOpenApi("/../../client/src/models/ServerAPI.ts").GetAwaiter().GetResult();
+
 
 app.UseCors(config => config
     .AllowAnyHeader()
@@ -82,12 +101,15 @@ app.UseCors(config => config
     .SetIsOriginAllowed(x => true)
 );
 
+app.UseHttpsRedirection();
+
+app.UseOpenApi();
+app.UseSwaggerUi();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseOpenApi();
-app.UseSwaggerUi();
 
 app.Run();

@@ -1,9 +1,9 @@
-using dataaccess.Entities;
+using Contracts.UserDTOs;
 
 namespace service.Services.Interfaces;
 
-public interface IUserService : IService<User>
-{    
-    Task<User> RegisterUserAsync(User user, string plainPassword);
+public interface IUserService : IService<UserDto>
+{
+    Task<UserDto> RegisterUserAsync(RegisterUserDto dto);
     Task<bool> VerifyUserPasswordAsync(string userId, string plainPassword);
 }
