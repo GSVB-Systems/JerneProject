@@ -1,32 +1,19 @@
-import {type FormEvent, useState} from "react";
-import type {RegisterUserDto} from "../models/ServerAPI.ts";
-import {userClient} from "../api-clients.ts";
+import { useState } from "react";
+import type { RegisterUserDto } from "../models/ServerAPI.ts";
+import { userClient } from "../api-clients.ts";
 
-import AdminPage from "../Components/AdminPages/AdminPage.tsx";
+export function useCreateUser(onSuccess?: () => void) {
+  const [error, setError] = useState<string | null>(null);
 
-export const useCreateUser = async (e: FormEvent<HTMLFormElement>) => {
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [role, setRole] = useState("");
-    const [, setError] = useState<string | null>(null);
-    e.preventDefault();
+  const createUser = async (dto: RegisterUserDto) => {
     setError(null);
-
     try {
-        const dto: RegisterUserDto = {
-            firstname: firstName,
-            lastname: lastName,
-            email,
-            password,
-            role
-        };
-
-        userClient.create(dto);
-
-        AdminPage.CloseModal();          // <-- close modal on success
+      await userClient.create(dto);
+      onSuccess?.();
     } catch {
-        setError("Network error");
+      setError("Network error"); //
     }
-};
+  };
+
+  return { error, createUser };
+}

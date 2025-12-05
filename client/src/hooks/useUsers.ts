@@ -1,6 +1,5 @@
-import { useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {userClient} from "../api-clients.ts";
-
 
 
 export const useUsers = () => {
