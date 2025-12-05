@@ -1,17 +1,27 @@
+import { useEffect, useState } from "react";
 import Navbar from "../Navbar.tsx";
-import { userClient} from "../../api-clients.ts";
+import { userClient } from "../../api-clients.ts";
+
+export default function ViewUsers() {
+    const [users, setUsers] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchUsers = async () => {
+            const response = await userClient.getAll();
+
+            // Get the text content and parse it
+            const textData = await response.data?.text();
+            const parsedUsers = JSON.parse(textData);
+
+            setUsers(parsedUsers);
+            console.log("Parsed users:", parsedUsers);
+        };
+
+        fetchUsers();
+    }, []);
 
 
 
-
-export default function ViewUsers({ users }) {
-
-
-
-    const getUsers = async () => {
-        const users = userClient.getAll();
-
-    }
 
     return (
         <div className="flex flex-col min-h-screen w-full">
@@ -20,60 +30,42 @@ export default function ViewUsers({ users }) {
                 <table className="table">
                     <thead>
                     <tr>
-                        <th>
-                            <label>
-                                <input type="checkbox" className="checkbox" />
-                            </label>
-                        </th>
+                        <th></th>
                         <th>Name</th>
                         <th>Email</th>
-                        <th>Favorite Color</th>
-                        <th></th>
+                        <th>Role</th>
+                        <th>First login</th>
+                        <th>Status</th>
+                        <th>Balance</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {users && users.map((user, index) => (
-                        <tr key={index}>
+                    {users.map((user) => (
+                        <tr key={user.email}>
                             <th>
                                 <label>
                                     <input type="checkbox" className="checkbox" />
                                 </label>
                             </th>
-                            <td>
-                                <div className="flex items-center gap-3">
-                                    <div className="avatar">
-                                        <div className="mask mask-squircle h-12 w-12">
-                                            <img
-                                                src={user.avatar}
-                                                alt={user.name}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div className="font-bold">{user.name}</div>
-                                        <div className="text-sm opacity-50">{user.country}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                {user.company}
-                                <br />
-                                <span className="badge badge-ghost badge-sm">{user.email}</span>
-                            </td>
-                            <td>{user.color}</td>
-                            <th>
-                                <button className="btn btn-ghost btn-xs">details</button>
-                            </th>
+                            <td>{`${user.firstname} ${user.lastname}`}</td>
+                            <td>{user.email}</td>
+                            <td>{user.role ? "Administrator" : "Bruger"}</td>
+                            <td>{user.firstlogin ? "Yes" : "No"}</td>
+                            <td>{user.isActive ? "Active" : "Inactive"}</td>
+                            <td>{user.balance}</td>
                         </tr>
                     ))}
                     </tbody>
+
                     <tfoot>
                     <tr>
                         <th></th>
                         <th>Name</th>
                         <th>Email</th>
-                        <th>Favorite Color</th>
-                        <th></th>
+                        <th>Role</th>
+                        <th>First login</th>
+                        <th>Status</th>
+                        <th>Balance</th>
                     </tr>
                     </tfoot>
                 </table>
