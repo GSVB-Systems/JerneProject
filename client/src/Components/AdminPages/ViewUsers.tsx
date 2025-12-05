@@ -1,24 +1,9 @@
-import { useEffect, useState } from "react";
 import Navbar from "../Navbar.tsx";
-import { userClient } from "../../api-clients.ts";
+import {useUsers} from "../../hooks/useUsers.ts";
 
 export default function ViewUsers() {
-    const [users, setUsers] = useState<any[]>([]);
 
-    useEffect(() => {
-        const fetchUsers = async () => {
-            const response = await userClient.getAll();
-
-
-            // Get the text content and parse it
-            const textData = await response.data?.text();
-            const parsedUsers = JSON.parse(textData);
-
-            setUsers(parsedUsers);
-        };
-
-        fetchUsers();
-    }, []);
+    const users = useUsers()
 
 
 
@@ -37,6 +22,7 @@ export default function ViewUsers() {
                         <th>First login</th>
                         <th>Status</th>
                         <th>Balance</th>
+                        <th>Edit</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -53,21 +39,11 @@ export default function ViewUsers() {
                             <td>{user.firstlogin ? "Yes" : "No"}</td>
                             <td>{user.isActive ? "Active" : "Inactive"}</td>
                             <td>{user.balance}</td>
+                            <td><button className="btn btn-sm">Edit</button></td>
                         </tr>
                     ))}
                     </tbody>
-
-                    <tfoot>
-                    <tr>
-                        <th></th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>First login</th>
-                        <th>Status</th>
-                        <th>Balance</th>
-                    </tr>
-                    </tfoot>
+                    
                 </table>
             </div>
         </div>
