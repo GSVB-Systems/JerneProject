@@ -9,12 +9,12 @@ export default function ViewUsers() {
         const fetchUsers = async () => {
             const response = await userClient.getAll();
 
+
             // Get the text content and parse it
             const textData = await response.data?.text();
             const parsedUsers = JSON.parse(textData);
 
             setUsers(parsedUsers);
-            console.log("Parsed users:", parsedUsers);
         };
 
         fetchUsers();
