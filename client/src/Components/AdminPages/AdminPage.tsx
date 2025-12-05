@@ -3,9 +3,10 @@ import { userClient} from "../../api-clients.ts";
 import type {RegisterUserDto} from "../../models/ServerAPI.ts";
 import {Link} from "react-router-dom";
 import {useNavigate} from "react-router";
+import {handleSubmit, useUsers} from "../../hooks/useUsers.ts";
 
 export default function AdminPage() {
-    const [firstName, setFirstName] = useState("");
+    const [firstName, setFirstName] = handleSubmit("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -18,26 +19,9 @@ export default function AdminPage() {
         modal.close();
     };
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setError(null);
+    
 
-        try {
-            const dto: RegisterUserDto = {
-                firstname: firstName,
-                lastname: lastName,
-                email,
-                password,
-                role
-            };
-
-            userClient.create(dto);
-
-            closeModal();          // <-- close modal on success
-        } catch {
-            setError("Network error");
-        }
-    };
+    handleSubmit()
 
     const redirectToUsers = () => {
         navigate("/brugere");

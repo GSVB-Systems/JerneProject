@@ -43,7 +43,7 @@ export default function ViewUsers() {
                         </tr>
                     ))}
                     </tbody>
-                    
+
                 </table>
             </div>
         </div>
