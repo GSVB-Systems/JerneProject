@@ -1,9 +1,17 @@
+import type { JSX } from "react";
 import Navbar from "../Navbar";
 import { useUsers } from "../../hooks/useUsers";
+import { useNavigate } from "react-router-dom";
 
 export default function ViewUsers(): JSX.Element {
   const users = useUsers();
   const list = users ?? [];
+  const navigate = useNavigate();
+
+  const handleViewDetails = (id?: string) => {
+    if (!id) return;
+    navigate(`/brugere/${id}`);
+  };
 
   if (!users) {
     return (
@@ -74,7 +82,9 @@ export default function ViewUsers(): JSX.Element {
                   </td>
                   <td className="font-medium">{user.balance}</td>
                   <td>
-                    <button className="btn btn-sm btn-ghost">Edit</button>
+                    <button className="btn btn-sm btn-ghost" onClick={() => handleViewDetails(user.userID)} disabled={!user.userID}>
+                      Detaljer
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -104,7 +114,9 @@ export default function ViewUsers(): JSX.Element {
                   </span>
                 </div>
                 <div className="text-sm font-medium">{user.balance}</div>
-                <button className="btn btn-sm btn-ghost">Edit</button>
+                <button className="btn btn-sm btn-ghost" onClick={() => handleViewDetails(user.userID)} disabled={!user.userID}>
+                  Detaljer
+                </button>
               </div>
             </div>
           ))}

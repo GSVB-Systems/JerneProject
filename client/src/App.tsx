@@ -6,6 +6,7 @@ import ProtectedRoute from "./Components/ProtectedRouting/ProtectedRoute.tsx";
 import AdminProtectedRoute from "./Components/ProtectedRouting/AdminProtectedRouting.tsx";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router";
 import ViewUsers from "./Components/AdminPages/ViewUsers.tsx";
+import ViewUserDetails from "./Components/AdminPages/ViewUserDetails.tsx";
 
 function App() {
 
@@ -37,6 +38,14 @@ function App() {
                         element: (
                             <AdminProtectedRoute>
                                 <ViewUsers/>
+                            </AdminProtectedRoute>
+                        )
+                    },
+                    {
+                        path: '/brugere/:userId',
+                        element: (
+                            <AdminProtectedRoute>
+                                <ViewUserDetails/>
                             </AdminProtectedRoute>
                         )
                     },
