@@ -1,7 +1,7 @@
-
 using dataaccess;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using service.Repositories.Interfaces;
 
@@ -27,6 +27,11 @@ public class Repository<T> : IRepository<T> where T : class
     public virtual async Task<IEnumerable<T>> GetAllAsync()
     {
         return await _dbSet.ToListAsync();
+    }
+
+    public IQueryable<T> AsQueryable()
+    {
+        return _dbSet.AsQueryable();
     }
 
     public virtual async Task AddAsync(T entity)

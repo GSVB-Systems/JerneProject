@@ -1,10 +1,13 @@
-
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Contracts.UserDTOs;
 using dataaccess.Entities;
-using dataaccess.Entities.Enums;
+using Microsoft.EntityFrameworkCore;
 using Service.Repositories;
 using service.Mappers;
 using service.Services.Interfaces;
-using Contracts.UserDTOs;
+using Sieve.Services;
 
 namespace service.Services;
 
@@ -12,17 +15,26 @@ public class UserService : Service<User>, IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly PasswordService _passwordService;
+    private readonly ISieveProcessor _sieveProcessor;
 
-    public UserService(IUserRepository userRepository, PasswordService passwordService)
+    public UserService(IUserRepository userRepository, PasswordService passwordService, ISieveProcessor sieveProcessor)
         : base(userRepository)
     {
         _userRepository = userRepository;
         _passwordService = passwordService;
+        _sieveProcessor = sieveProcessor;
     }
     
     public async Task<IEnumerable<UserDto>> GetAllAsync()
     {
-        var users = await base.GetAllAsync();
+        return await GetAllAsync(null);
+    }
+    
+    public async Task<IEnumerable<UserDto>> GetAllAsync(UserQueryParameters? parameters)
+    {
+        var query = _userRepository.AsQueryable();
+        var processedQuery = _sieveProcessor.Apply(parameters ?? new UserQueryParameters(), query);
+        var users = await processedQuery.ToListAsync();
         return users.Select(UserMapper.ToDto);
     }
 
@@ -84,6 +96,12 @@ public class UserService : Service<User>, IUserService
         return _passwordService.VerifyPassword(plainPassword, user.Hash);
     }
 
+    // Explicit interface implementations to satisfy IService<UserDto>
+    async Task<IEnumerable<UserDto>> IService<UserDto>.GetAllAsync() => await GetAllAsync();
+    async Task<UserDto?> IService<UserDto>.GetByIdAsync(string id) => await GetByIdAsync(id);
+    async Task<UserDto> IService<UserDto>.CreateAsync(UserDto entity) => await CreateAsync(entity);
+    async Task<UserDto?> IService<UserDto>.UpdateAsync(string id, UserDto entity) => await UpdateAsync(id, entity);
+    async Task<bool> IService<UserDto>.DeleteAsync(string id) => await DeleteAsync(id);
   
     public override async Task<User> CreateAsync(User user)
     {

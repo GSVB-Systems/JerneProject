@@ -22,9 +22,9 @@ public class UsersController : ControllerBase
     
     [HttpGet("getAll")]
     [Authorize(Roles = "Administrator")]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] UserQueryParameters parameters)
     {
-        var users = await _userService.GetAllAsync();
+        var users = await _userService.GetAllAsync(parameters);
         return Ok(users);
     }
 
