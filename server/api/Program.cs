@@ -81,6 +81,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<IBoardNumberRepository, BoardNumberRepository>();
+builder.Services.AddScoped<IWinningNumberRepository, WinningNumberRepository>();
+builder.Services.AddScoped<IBoardNumberService, BoardNumberService>();
+builder.Services.AddScoped<IWinningNumberService, WinningNumberService>();
 
 
 builder.Services.AddAuthorization();

@@ -215,6 +215,162 @@
         }
       }
     },
+    "/api/BoardNumber": {
+      "get": {
+        "tags": [
+          "BoardNumber"
+        ],
+        "operationId": "BoardNumber_GetAll",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "BoardNumber"
+        ],
+        "operationId": "BoardNumber_Create",
+        "requestBody": {
+          "x-name": "boardNumber",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BoardNumber"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/BoardNumber/{id}": {
+      "get": {
+        "tags": [
+          "BoardNumber"
+        ],
+        "operationId": "BoardNumber_GetById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "BoardNumber"
+        ],
+        "operationId": "BoardNumber_Update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "boardNumber",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BoardNumber"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "BoardNumber"
+        ],
+        "operationId": "BoardNumber_Delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Transaction": {
       "get": {
         "tags": [
@@ -684,6 +840,162 @@
           }
         }
       }
+    },
+    "/api/WinningNumber": {
+      "get": {
+        "tags": [
+          "WinningNumber"
+        ],
+        "operationId": "WinningNumber_GetAll",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "WinningNumber"
+        ],
+        "operationId": "WinningNumber_Create",
+        "requestBody": {
+          "x-name": "winningBoard",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WinningNumber"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/WinningNumber/{id}": {
+      "get": {
+        "tags": [
+          "WinningNumber"
+        ],
+        "operationId": "WinningNumber_GetById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "WinningNumber"
+        ],
+        "operationId": "WinningNumber_Update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "winningNumber",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WinningNumber"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "WinningNumber"
+        ],
+        "operationId": "WinningNumber_Delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -750,10 +1062,6 @@
           "boardID": {
             "type": "string"
           },
-          "selectedNumbers": {
-            "type": "integer",
-            "format": "int32"
-          },
           "boardSize": {
             "type": "integer",
             "format": "int32"
@@ -770,6 +1078,31 @@
           },
           "userID": {
             "type": "string"
+          },
+          "numbers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BoardNumber"
+            }
+          }
+        }
+      },
+      "BoardNumber": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "boardNumberID": {
+            "type": "string"
+          },
+          "boardID": {
+            "type": "string"
+          },
+          "winningBoardID": {
+            "type": "string"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -844,13 +1177,34 @@
           "winningBoardID": {
             "type": "string"
           },
-          "winningNumbers": {
-            "type": "integer",
-            "format": "int32"
-          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "winningNumbers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WinningNumber"
+            }
+          }
+        }
+      },
+      "WinningNumber": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "winningNumberID": {
+            "type": "string"
+          },
+          "winningBoardID": {
+            "type": "string"
+          },
+          "winningBoard": {
+            "$ref": "#/components/schemas/WinningBoard"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       }

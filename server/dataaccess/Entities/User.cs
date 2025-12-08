@@ -12,6 +12,7 @@ public class User
     public UserRole Role { get; set; }
     public bool Firstlogin { get; set; }
     public bool IsActive { get; set; }
+    
     public decimal Balance { get; set; }
     public ICollection<Transaction> Transactions { get; set; }
     public ICollection<Board> Boards { get; set; }
