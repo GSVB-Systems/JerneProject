@@ -4,6 +4,22 @@ import logo from "../../resources/Logo1.png";
 import {useAtom} from "jotai";
 import {tokenAtom} from "../atoms/token.ts";
 
+function parseJwt(token: string): Record<string, any> | null {
+    try {
+        const payload = token.split(".")[1];
+        const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+        const json = decodeURIComponent(
+            atob(base64)
+                .split("")
+                .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+                .join("")
+        );
+        return JSON.parse(json);
+    } catch {
+        return null;
+    }
+}
+
 export default function LoginPage() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -28,9 +44,41 @@ export default function LoginPage() {
             }
 
             const data = await res.json();
+
             if (data?.token) {
                 setJwt(data.token);
-                navigate("/");
+
+                const payload = parseJwt(data.token);
+                const id = payload?.id ?? payload?.sub;
+                if (!id) {
+                    setError("Token missing user id");
+                    return;
+                }
+
+                try {
+                    const userRes = await fetch(`/api/Users/${id}`, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${data.token}`,
+                        },
+                    });
+
+                    if (!userRes.ok) {
+                        setError("Failed to fetch user");
+                        return;
+                    }
+
+                    const user = await userRes.json() as { firstlogin?: boolean };
+
+                    if (user?.firstlogin === true) {
+                        navigate("/firstlogin");
+                    } else {
+                        navigate("/");
+                    }
+                } catch {
+                    setError("Failed to fetch user");
+                }
             } else {
                 setError("No token returned");
             }
