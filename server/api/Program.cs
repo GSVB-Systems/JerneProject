@@ -85,6 +85,10 @@ builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.Configure<SieveOptions>(builder.Configuration.GetSection("Sieve"));
 builder.Services.AddScoped<ISieveProcessor, SieveProcessor>();
+builder.Services.AddScoped<IBoardNumberRepository, BoardNumberRepository>();
+builder.Services.AddScoped<IWinningNumberRepository, WinningNumberRepository>();
+builder.Services.AddScoped<IBoardNumberService, BoardNumberService>();
+builder.Services.AddScoped<IWinningNumberService, WinningNumberService>();
 
 
 builder.Services.AddAuthorization();
