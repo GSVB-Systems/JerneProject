@@ -40,7 +40,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> Create(RegisterUserDto dto)
     {
         var created = await _userService.RegisterUserAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = created.UserID }, created);
+        return Ok(created);
     }
 
     [HttpPut("{id}")]
