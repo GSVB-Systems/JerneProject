@@ -269,7 +269,7 @@ export default function ViewUserDetails(): JSX.Element {
               </button>
               <button
                 type="submit"
-                className={`btn btn-primary ${saving ? "loading" : ""}`}
+                className={`btn btn ${saving ? "loading" : ""}`}
                 disabled={saving || !formState}
               >
                 {saving ? "Gemmer…" : "Gem ændringer"}
