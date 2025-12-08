@@ -1,25 +1,56 @@
 import type { JSX } from "react";
-import Navbar from "../Navbar";
 import { useUsers } from "../../hooks/useUsers";
+import type {
+  SortField,
+  StatusFilter,
+  RoleFilter,
+  FirstLoginFilter,
+} from "../../hooks/useUsers";
+import Navbar from "../Navbar";
 import { useNavigate } from "react-router-dom";
 
 export default function ViewUsers(): JSX.Element {
-  const users = useUsers();
-  const list = users ?? [];
   const navigate = useNavigate();
+  const {
+    users: list,
+    total,
+    page,
+      totalPages,
+    visibleStart,
+    visibleEnd,
+    loading,
+    error,
+    searchTerm,
+    statusFilter,
+    roleFilter,
+    firstLoginFilter,
+    sortField,
+    sortDirection,
+    setSearchTerm,
+    setStatusFilter,
+    setRoleFilter,
+    setFirstLoginFilter,
+    setSortField,
+    toggleSortDirection,
+    toggleSort,
+    handlePageChange,
+    resetFilters,
+  } = useUsers();
 
   const handleViewDetails = (id?: string) => {
     if (!id) return;
     navigate(`/brugere/${id}`);
   };
 
-  if (!users) {
+  const showEmptyState = !loading && list.length === 0 && !error;
+
+  if (loading && list.length === 0) {
     return (
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="loader mb-4" /> {/* replace with your spinner if available */}
+            <div className="loader mb-4" />
             <p className="text-sm text-gray-500">Loading users…</p>
           </div>
         </main>
@@ -27,101 +58,194 @@ export default function ViewUsers(): JSX.Element {
     );
   }
 
-  if (list.length === 0) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-1 flex items-center justify-center">
-          <p className="text-gray-600">No users found.</p>
-        </main>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col min-h-screen  w-full bg-base-100">
+    <div className="flex flex-col min-h-screen w-full bg-base-100">
       <Navbar />
-      <main className="p-6 max-w-6xl mx-auto w-full">
-        <h1 className="text-2xl font-semibold mb-4">Users</h1>
+      <main className="p-6 max-w-6xl mx-auto w-full space-y-6">
+        <header className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <h1 className="text-2xl font-semibold">Users</h1>
+          <p className="text-sm text-gray-500">{`Total users: ${total}`}</p>
+        </header>
 
-        {/* Desktop table */}
-        <div className="overflow-x-auto hidden md:block shadow rounded-lg">
-          <table className="table w-full">
-            <thead>
-              <tr>
-                <th />
-                <th className="text-left">Name</th>
-                <th className="text-left">Email</th>
-                <th>Role</th>
-                <th>First login</th>
-                <th>Status</th>
-                <th>Balance</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
+        <section className="bg-base-200 rounded-lg p-4 space-y-4">
+          <div className="grid gap-4 md:grid-cols-4">
+            <label className="form-control">
+              <span className="label-text text-sm font-medium">Søg</span>
+              <input className="input input-bordered w-full" placeholder="Navn eller email" type="text" value={searchTerm} onChange={(event) => {
+                setSearchTerm(event.target.value);
+              }} />
+            </label>
+            <label className="form-control">
+              <span className="label-text text-sm font-medium">Status</span>
+              <select className="select select-bordered w-full" value={statusFilter} onChange={(event) => {
+                setStatusFilter(event.target.value as StatusFilter);
+              }}>
+                <option value="all">Alle</option>
+                <option value="active">Aktive</option>
+                <option value="inactive">Inaktive</option>
+              </select>
+            </label>
+            <label className="form-control">
+              <span className="label-text text-sm font-medium">Rolle</span>
+              <select className="select select-bordered w-full" value={roleFilter} onChange={(event) => {
+                setRoleFilter(event.target.value as RoleFilter);
+              }}>
+                <option value="all">Alle roller</option>
+                <option value="admin">Administrator</option>
+                <option value="user">Bruger</option>
+              </select>
+            </label>
+            <label className="form-control">
+              <span className="label-text text-sm font-medium">Første login</span>
+              <select className="select select-bordered w-full" value={firstLoginFilter} onChange={(event) => {
+                setFirstLoginFilter(event.target.value as FirstLoginFilter);
+              }}>
+                <option value="all">Alle</option>
+                <option value="yes">Ja</option>
+                <option value="no">Nej</option>
+              </select>
+            </label>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 text-sm">
+            <button className="btn btn-sm" onClick={resetFilters} type="button">
+              Nulstil filtre
+            </button>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Sorter:</span>
+              <select className="select select-bordered select-sm" value={sortField} onChange={(event) => {
+                setSortField(event.target.value as SortField);
+              }}>
+                {SORTABLE_COLUMNS.map((column) => (
+                  <option key={column.field} value={column.field}>
+                    {column.label}
+                  </option>
+                ))}
+              </select>
+              <button className="btn btn-sm" onClick={toggleSortDirection} type="button">
+                {sortDirection === "asc" ? "Stigende" : "Faldende"}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {error && (
+          <div className="alert alert-error">
+            <span>{error}</span>
+          </div>
+        )}
+
+        {showEmptyState ? (
+          <div className="flex flex-1 items-center justify-center py-10">
+            <p className="text-gray-600">Ingen brugere matcher dette filter.</p>
+          </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto hidden md:block shadow rounded-lg">
+              <table className="table w-full">
+                <thead>
+                  <tr>
+                    <th />
+                    {TABLE_COLUMNS.map((column) => (
+                      <th key={column.field} className={column.align ?? "text-left"}>
+                        <button className="flex items-center gap-2" onClick={() => toggleSort(column.field)} type="button">
+                          {column.label}
+                          {sortField === column.field && <span className="text-xs text-gray-500"></span>}
+                        </button>
+                      </th>
+                    ))}
+                    <th />
+                  </tr>
+                </thead>
+                <tbody>
+                  {list.map((user) => (
+                    <tr key={user.email}>
+                      <th>
+                        <label>
+                          <input className="checkbox" type="checkbox" />
+                        </label>
+                      </th>
+                      <td>{`${user.firstname ?? ""} ${user.lastname ?? ""}`.trim() || "N/A"}</td>
+                      <td className="opacity-90">{user.email}</td>
+                      <td>{user.role ? "Administrator" : "Bruger"}</td>
+                      <td>{user.firstlogin ? "Ja" : "Nej"}</td>
+                      <td>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+                          {user.isActive ? "Aktiv" : "Inaktiv"}
+                        </span>
+                      </td>
+                      <td className="font-medium">{user.balance ?? 0}</td>
+                      <td>
+                        <button className="btn btn-sm btn-ghost" disabled={!user.userID} onClick={() => handleViewDetails(user.userID)}>
+                          Detaljer
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="md:hidden space-y-3">
               {list.map((user) => (
-                <tr key={user.email}>
-                  <th>
-                    <label>
-                      <input type="checkbox" className="checkbox" />
-                    </label>
-                  </th>
-                  <td>{`${user.firstname} ${user.lastname}`}</td>
-                  <td className="opacity-90">{user.email}</td>
-                  <td>{user.role ? "Administrator" : "Bruger"}</td>
-                  <td>{user.firstlogin ? "Yes" : "No"}</td>
-                  <td>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        user.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {user.isActive ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td className="font-medium">{user.balance}</td>
-                  <td>
-                    <button className="btn btn-sm btn-ghost" onClick={() => handleViewDetails(user.userID)} disabled={!user.userID}>
+                <div key={user.email} className="card card-compact bg-base-200 p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-lg font-semibold">{`${user.firstname ?? ""} ${user.lastname ?? ""}`.trim() || "N/A"}</div>
+                      <div className="text-sm text-gray-500">{user.email}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm">{user.role ? "Admin" : "User"}</div>
+                      <div className="text-xs text-gray-500">{user.firstlogin ? "First login" : ""}</div>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between">
+                    <div className="text-sm">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+                        {user.isActive ? "Active" : "Inactive"}
+                      </span>
+                    </div>
+                    <div className="text-sm font-medium">{user.balance ?? 0}</div>
+                    <button className="btn btn-sm btn-ghost" disabled={!user.userID} onClick={() => handleViewDetails(user.userID)}>
                       Detaljer
                     </button>
-                  </td>
-                </tr>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
 
-        {/* Mobile stacked cards */}
-        <div className="md:hidden space-y-3">
-          {list.map((user) => (
-            <div key={user.email} className="card card-compact bg-base-200 p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-lg font-semibold">{`${user.firstname} ${user.lastname}`}</div>
-                  <div className="text-sm text-gray-500">{user.email}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm">{user.role ? "Admin" : "User"}</div>
-                  <div className="text-xs text-gray-500">{user.firstlogin ? "First login" : ""}</div>
-                </div>
-              </div>
-
-              <div className="mt-3 flex items-center justify-between">
-                <div className="text-sm">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
-                    {user.isActive ? "Active" : "Inactive"}
-                  </span>
-                </div>
-                <div className="text-sm font-medium">{user.balance}</div>
-                <button className="btn btn-sm btn-ghost" onClick={() => handleViewDetails(user.userID)} disabled={!user.userID}>
-                  Detaljer
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between pt-4">
+              <p className="text-sm text-gray-600">{`Showing ${visibleStart}-${visibleEnd} of ${total}`}</p>
+              <div className="flex items-center gap-2">
+                <button className="btn btn-sm" disabled={page === 1} onClick={() => handlePageChange("prev")} type="button">
+                  Tidligere
+                </button>
+                <span className="text-sm font-medium">{`Page ${page} of ${totalPages}`}</span>
+                <button className="btn btn-sm" disabled={page >= totalPages} onClick={() => handlePageChange("next")} type="button">
+                  Næste
                 </button>
               </div>
             </div>
-          ))}
-        </div>
+          </>
+        )}
       </main>
     </div>
   );
 }
+
+const TABLE_COLUMNS: ColumnDefinition[] = [
+  { field: "firstname", label: "Navn" },
+  { field: "email", label: "Email" },
+  { field: "role", label: "Rolle" },
+  { field: "firstlogin", label: "Første login" },
+  { field: "isActive", label: "Status", align: "text-center" },
+  { field: "balance", label: "Balance", align: "text-right" },
+];
+
+const SORTABLE_COLUMNS = TABLE_COLUMNS;
+
+type ColumnDefinition = {
+  field: SortField;
+  label: string;
+  align?: string;
+};

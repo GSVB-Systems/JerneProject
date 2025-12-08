@@ -9,6 +9,7 @@
     <ItemGroup>
         <ProjectReference Include="..\dataaccess\dataaccess.csproj" />
         <PackageReference Include="BCrypt.Net-Next" Version="4.0.2" />
+        <PackageReference Include="Sieve" Version="2.5.5" />
     </ItemGroup>
 
     <ItemGroup>

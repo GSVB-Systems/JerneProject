@@ -3,11 +3,21 @@ import js from "@eslint/js";
 import globals from "globals";
 import reactHooks from "eslint-plugin-react-hooks";
 import react from "eslint-plugin-react";
+import tseslint from "typescript-eslint";
 
 export default [
     {
-        files: ["**/*.{js,jsx,ts,tsx}"],
+        ignores: ["dist/**"],
+    },
+    ...tseslint.configs.recommended,
+    {
+        files: ["src/**/*.{ts,tsx}", "src/**/*.{js,jsx}"],
         languageOptions: {
+            parser: tseslint.parser,
+            parserOptions: {
+                project: ["./tsconfig.app.json", "./tsconfig.node.json"],
+                tsconfigRootDir: import.meta.dirname,
+            },
             ecmaVersion: "latest",
             sourceType: "module",
             globals: {
@@ -35,7 +45,7 @@ export default [
             "semi": ["error", "always"],
             "quotes": ["error", "double"],
             "no-unused-vars": "warn",
-            "no-console": "warn"
+            "no-console": "warn",
         },
         settings: {
             react: {
