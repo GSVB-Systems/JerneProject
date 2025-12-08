@@ -12,8 +12,8 @@ using dataaccess;
 namespace dataaccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251208095545_ModifiedBoards")]
-    partial class ModifiedBoards
+    [Migration("20251208175222_AddedSubscriptionExpiresAtToUsers")]
+    partial class AddedSubscriptionExpiresAtToUsers
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -135,6 +135,9 @@ namespace dataaccess.Migrations
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("SubscriptionExpiresAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("UserID");
 

@@ -12,4 +12,6 @@ public class UserDto
     public bool Firstlogin { get; set; }
     public bool IsActive { get; set; }
     public decimal Balance { get; set; }
+    public DateTime? SubscriptionExpiresAtUtc { get; set; }
+    public int? DaysUntilExpiry { get; set; }
 }

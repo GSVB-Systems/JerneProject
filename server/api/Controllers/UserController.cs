@@ -10,6 +10,7 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[AllowAnonymous]
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -18,11 +19,10 @@ public class UsersController : ControllerBase
     {
         _userService = userService;
     }
-
     
     [HttpGet("getAll")]
     [Authorize(Roles = "Administrator")]
-    public async Task<IActionResult> GetAll([FromQuery] UserQueryParameters parameters)
+    public async Task<IActionResult> GetAllAsync([FromQuery] UserQueryParameters parameters)
     {
         var users = await _userService.GetAllAsync(parameters);
         return Ok(users);
@@ -55,5 +55,22 @@ public class UsersController : ControllerBase
     {
         var deleted = await _userService.DeleteAsync(id);
         return deleted ? NoContent() : NotFound();
+    }
+    
+    [HttpGet("{id}/subscription")]
+    [Authorize]
+    public async Task<IActionResult> IsSubscriptionActive(string id)
+    {
+        var isActive = await _userService.IsSubscriptionActiveAsync(id);
+        return Ok(new { isActive });
+    }
+    
+    [HttpPost("{id}/extend")]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> ExtendSubscription(string id, [FromQuery] int months)
+    {
+        if (months <= 0) return BadRequest("Months must be greater than zero.");
+        var updated = await _userService.ExtendSubscriptionAsync(id, months);
+        return updated == null ? NotFound() : Ok(updated);
     }
 }

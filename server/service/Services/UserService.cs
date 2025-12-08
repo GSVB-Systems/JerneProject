@@ -74,6 +74,7 @@ public class UserService : Service<User>, IUserService
         return await base.DeleteAsync(id);
     }
     
+    //har addet 1 linje her som sætter subscription expiry til et år frem ved registrering
     public async Task<UserDto> RegisterUserAsync(RegisterUserDto dto)
     {
         var entity = UserMapper.ToEntity(dto);
@@ -81,12 +82,15 @@ public class UserService : Service<User>, IUserService
         entity.Firstlogin = true;
         entity.IsActive = true;
         entity.Balance = 0;
+        entity.SubscriptionExpiresAt = DateTime.UtcNow.AddYears(1);
 
         await _userRepository.AddAsync(entity);
         await _userRepository.SaveChangesAsync();
 
         return UserMapper.ToDto(entity);
     }
+    
+    
 
     public async Task<bool> VerifyUserPasswordAsync(string userId, string plainPassword)
     {
@@ -94,6 +98,36 @@ public class UserService : Service<User>, IUserService
         if (user == null) return false;
 
         return _passwordService.VerifyPassword(plainPassword, user.Hash);
+    }
+
+    public async Task<bool> IsSubscriptionActiveAsync(string userId)
+    {
+        var user = await base.GetByIdAsync(userId);
+        if (user == null) return false;
+        return IsSubscriptionActiveHelper(user);
+    }
+    
+    private static bool IsSubscriptionActiveHelper(User user)
+    {
+        if (user == null) return false;
+        return user.SubscriptionExpiresAt.HasValue && user.SubscriptionExpiresAt.Value > DateTime.UtcNow;
+    }
+
+    public async Task<UserDto?> ExtendSubscriptionAsync(string userId, int months)
+    {
+        var user = await base.GetByIdAsync(userId);
+        if (user == null) return null;
+
+        var baseTime = user.SubscriptionExpiresAt.HasValue && user.SubscriptionExpiresAt.Value > DateTime.UtcNow
+            ? user.SubscriptionExpiresAt.Value
+            : DateTime.UtcNow;
+
+        user.SubscriptionExpiresAt = baseTime.AddMonths(months);
+
+        await _userRepository.UpdateAsync(user);
+        await _userRepository.SaveChangesAsync();
+
+        return UserMapper.ToDto(user);
     }
 
     // Explicit interface implementations to satisfy IService<UserDto>
