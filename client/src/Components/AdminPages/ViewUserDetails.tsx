@@ -116,7 +116,7 @@ export default function ViewUserDetails(): JSX.Element {
                   <dd className="font-medium">{user.role ? "Administrator" : "Bruger"}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-gray-500">Første login</dt>
+                  <dt className="text-gray-500">Nulstil adgangskode ved næste login</dt>
                   <dd className="font-medium">{user.firstlogin ? "Ja" : "Nej"}</dd>
                 </div>
               </dl>
