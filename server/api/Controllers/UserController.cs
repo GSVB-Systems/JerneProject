@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using service.Services.Interfaces;
 using Contracts.UserDTOs;
+using Contracts;
 
 
 namespace api.Controllers;
@@ -22,7 +23,7 @@ public class UsersController : ControllerBase
     
     [HttpGet("getAll")]
     [Authorize(Roles = "Administrator")]
-    public async Task<IActionResult> GetAllAsync([FromQuery] UserQueryParameters parameters)
+    public async Task<ActionResult<PagedResult<UserDto>>> GetAll([FromQuery] UserQueryParameters parameters)
     {
         var users = await _userService.GetAllAsync(parameters);
         return Ok(users);

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Contracts.UserDTOs;
+using Contracts;
 using dataaccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using Service.Repositories;
@@ -25,17 +26,27 @@ public class UserService : Service<User>, IUserService
         _sieveProcessor = sieveProcessor;
     }
     
-    public async Task<IEnumerable<UserDto>> GetAllAsync()
+    public async Task<PagedResult<UserDto>> GetAllAsync()
     {
         return await GetAllAsync(null);
     }
     
-    public async Task<IEnumerable<UserDto>> GetAllAsync(UserQueryParameters? parameters)
+    public async Task<PagedResult<UserDto>> GetAllAsync(UserQueryParameters? parameters)
     {
         var query = _userRepository.AsQueryable();
-        var processedQuery = _sieveProcessor.Apply(parameters ?? new UserQueryParameters(), query);
+        var sieveModel = parameters ?? new UserQueryParameters();
+
+        var totalCount = await query.CountAsync();
+        var processedQuery = _sieveProcessor.Apply(sieveModel, query);
         var users = await processedQuery.ToListAsync();
-        return users.Select(UserMapper.ToDto);
+
+        return new PagedResult<UserDto>
+        {
+            Items = users.Select(UserMapper.ToDto).ToList(),
+            TotalCount = totalCount,
+            Page = sieveModel.Page ?? 1,
+            PageSize = sieveModel.PageSize ?? users.Count
+        };
     }
 
     public async Task<UserDto?> GetByIdAsync(string id)
@@ -131,7 +142,7 @@ public class UserService : Service<User>, IUserService
     }
 
     // Explicit interface implementations to satisfy IService<UserDto>
-    async Task<IEnumerable<UserDto>> IService<UserDto>.GetAllAsync() => await GetAllAsync();
+    async Task<IEnumerable<UserDto>> IService<UserDto>.GetAllAsync() => (await GetAllAsync()).Items;
     async Task<UserDto?> IService<UserDto>.GetByIdAsync(string id) => await GetByIdAsync(id);
     async Task<UserDto> IService<UserDto>.CreateAsync(UserDto entity) => await CreateAsync(entity);
     async Task<UserDto?> IService<UserDto>.UpdateAsync(string id, UserDto entity) => await UpdateAsync(id, entity);
