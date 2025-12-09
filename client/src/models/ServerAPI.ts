@@ -577,7 +577,7 @@ export class TransactionClient {
         return Promise.resolve<FileResponse>(null as any);
     }
 
-    getAllTransactionsByUserId(userId: string | undefined, filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<FileResponse> {
+    getAllTransactionsByUserId(userId: string | undefined, filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagedResultOfTransactionDto> {
         let url_ = this.baseUrl + "/api/Transaction/getAllTransactionsByUserId?";
         if (userId === null)
             throw new globalThis.Error("The parameter 'userId' cannot be null.");
@@ -596,7 +596,7 @@ export class TransactionClient {
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                "Accept": "application/octet-stream"
+                "Accept": "application/json"
             }
         };
 
@@ -605,26 +605,21 @@ export class TransactionClient {
         });
     }
 
-    protected processGetAllTransactionsByUserId(response: Response): Promise<FileResponse> {
+    protected processGetAllTransactionsByUserId(response: Response): Promise<PagedResultOfTransactionDto> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as PagedResultOfTransactionDto;
+            return result200;
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<FileResponse>(null as any);
+        return Promise.resolve<PagedResultOfTransactionDto>(null as any);
     }
 
     getById(id: string): Promise<FileResponse> {
@@ -1575,6 +1570,21 @@ export interface BoardNumber {
     boardID?: string;
     winningBoardID?: string;
     number?: number;
+}
+
+export interface PagedResultOfTransactionDto {
+    items?: TransactionDto[];
+    totalCount?: number;
+    page?: number;
+    pageSize?: number;
+}
+
+export interface TransactionDto {
+    transactionID?: string;
+    transactionString?: string;
+    transactionDate?: string;
+    amount?: number;
+    userID?: string;
 }
 
 export interface CreateTransactionDto {

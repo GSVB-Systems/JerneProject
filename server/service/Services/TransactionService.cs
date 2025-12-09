@@ -65,7 +65,7 @@ public class TransactionService : Service<Transaction>, ITransactionService
 
     public async Task<PagedResult<TransactionDto>> getAllByUserIdAsync(string userId, TransactionQueryParameters? parameters)
     {
-        var query = _transactionRepository.AsQueryable();
+        var query = _transactionRepository.AsQueryable().Where(t => t.UserID == userId);
         var sieveModel = parameters ?? new TransactionQueryParameters();
         var totalCount = await query.CountAsync();
         var processedQuery = _sieveProcessor.Apply(sieveModel, query);
