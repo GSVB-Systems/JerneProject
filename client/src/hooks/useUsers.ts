@@ -7,6 +7,12 @@ const DEFAULT_PAGE_SIZE = 25;
 const DEFAULT_SORT_FIELD: SortField = "firstname";
 const DEFAULT_SORT_DIRECTION: SortDirection = "asc";
 
+const sanitizeSearchTerm = (value: string): string | null => {
+  const normalized = value.trim().replace(/[|,"]/g, " ").replace(/\s+/g, " ").trim();
+  if (!normalized) return null;
+  return normalized.includes(" ") ? `"${normalized}"` : normalized;
+};
+
 export type StatusFilter = "all" | "active" | "inactive";
 export type RoleFilter = "all" | "admin" | "user";
 export type FirstLoginFilter = "all" | "yes" | "no";
@@ -22,6 +28,7 @@ type UseUsersResult = {
   visibleStart: number;
   visibleEnd: number;
   loading: boolean;
+  hasLoadedOnce: boolean;
   error: string | null;
   searchTerm: string;
   statusFilter: StatusFilter;
@@ -50,25 +57,6 @@ const coerceNumber = (value: unknown, fallback = 0): number => {
   return fallback;
 };
 
-const extractUsersPayload = (payload: unknown, fallbackLength = 0): { list: UserDto[]; total: number } => {
-  if (Array.isArray(payload)) {
-    return { list: payload as UserDto[], total: payload.length };
-  }
-
-  if (payload && typeof payload === "object") {
-    const container = payload as Record<string, unknown>;
-    const candidate = container.items ?? container.data ?? container.results ?? container.users;
-    const list = Array.isArray(candidate) ? (candidate as UserDto[]) : [];
-    const total = coerceNumber(
-      container.total ?? container.totalCount ?? container.count ?? container.totalItems ?? (list.length || fallbackLength),
-      list.length || fallbackLength,
-    );
-    return { list, total };
-  }
-
-  return { list: [], total: fallbackLength };
-};
-
 const buildSieveFilters = (
   search: string,
   status: StatusFilter,
@@ -76,9 +64,9 @@ const buildSieveFilters = (
   firstLogin: FirstLoginFilter,
 ): string | null => {
   const parts: string[] = [];
-  const sanitized = search.trim().replace(/[|,]/g, " ");
+  const sanitized = sanitizeSearchTerm(search);
   if (sanitized) {
-    parts.push(`firstname@=*${sanitized}*|lastname@=*${sanitized}*|email@=*${sanitized}*`);
+    parts.push(`firstname@=${sanitized}|lastname@=${sanitized}|email@=${sanitized}`);
   }
 
   if (status === "active") {
@@ -106,10 +94,11 @@ export const useUsers = (): UseUsersResult => {
   const [users, setUsers] = useState<UserDto[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [page, setPage] = useState(1);
-  const pageSize = DEFAULT_PAGE_SIZE;
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [sortField, setSortFieldState] = useState<SortField>(DEFAULT_SORT_FIELD);
   const [sortDirection, setSortDirectionState] = useState<SortDirection>(DEFAULT_SORT_DIRECTION);
   const [searchTerm, setSearchTermState] = useState("");
@@ -132,17 +121,22 @@ export const useUsers = (): UseUsersResult => {
     setError(null);
     try {
       const response = await userClient.getAll(filters, sorts, page, pageSize);
-      const textData = await response.data?.text();
-      const payload = textData ? JSON.parse(textData) : null;
-      const { list, total: totalCount } = extractUsersPayload(payload, pageSize);
+      const list = Array.isArray(response?.items) ? response.items : [];
+      const totalCount = coerceNumber(response?.totalCount, list.length);
+      const serverPageSize = coerceNumber(response?.pageSize, DEFAULT_PAGE_SIZE) || DEFAULT_PAGE_SIZE;
+      const serverPage = coerceNumber(response?.page, page) || 1;
+
       setUsers(list);
       setTotal(totalCount);
+      setPageSize(serverPageSize);
+      setPage(serverPage);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load users.");
       setUsers([]);
       setTotal(0);
     } finally {
       setLoading(false);
+      setHasLoadedOnce(true);
     }
   }, [filters, page, pageSize, sorts]);
 
@@ -230,6 +224,7 @@ export const useUsers = (): UseUsersResult => {
     visibleStart,
     visibleEnd,
     loading,
+    hasLoadedOnce,
     error,
     searchTerm,
     statusFilter,

@@ -1,10 +1,10 @@
+import { useMemo } from "react";
 import type { JSX } from "react";
 import { useUsers } from "../../hooks/useUsers";
 import type {
   SortField,
   StatusFilter,
   RoleFilter,
-  FirstLoginFilter,
 } from "../../hooks/useUsers";
 import Navbar from "../Navbar";
 import { useNavigate } from "react-router-dom";
@@ -19,23 +19,36 @@ export default function ViewUsers(): JSX.Element {
     visibleStart,
     visibleEnd,
     loading,
+    hasLoadedOnce,
     error,
     searchTerm,
     statusFilter,
     roleFilter,
-    firstLoginFilter,
     sortField,
     sortDirection,
     setSearchTerm,
     setStatusFilter,
     setRoleFilter,
-    setFirstLoginFilter,
     setSortField,
     toggleSortDirection,
     toggleSort,
     handlePageChange,
     resetFilters,
   } = useUsers();
+
+  const debouncedSearch = useMemo(() => {
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+    return (value: string) => {
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        setSearchTerm(value);
+      }, 300);
+    };
+  }, [setSearchTerm]);
+
+  const handleSearchChange = (value: string) => {
+    debouncedSearch(value);
+  };
 
   const handleViewDetails = (id?: string) => {
     if (!id) return;
@@ -71,8 +84,8 @@ export default function ViewUsers(): JSX.Element {
           <div className="grid gap-4 md:grid-cols-4">
             <label className="form-control">
               <span className="label-text text-sm font-medium">Søg</span>
-              <input className="input input-bordered w-full" placeholder="Navn eller email" type="text" value={searchTerm} onChange={(event) => {
-                setSearchTerm(event.target.value);
+              <input className="input input-bordered w-full" placeholder="Navn eller email" type="text" defaultValue={searchTerm} onChange={(event) => {
+                handleSearchChange(event.target.value);
               }} />
             </label>
             <label className="form-control">
@@ -95,17 +108,7 @@ export default function ViewUsers(): JSX.Element {
                 <option value="user">Bruger</option>
               </select>
             </label>
-            <label className="form-control">
-              <span className="label-text text-sm font-medium">Første login</span>
-              <select className="select select-bordered w-full" value={firstLoginFilter} onChange={(event) => {
-                setFirstLoginFilter(event.target.value as FirstLoginFilter);
-              }}>
-                <option value="all">Alle</option>
-                <option value="yes">Ja</option>
-                <option value="no">Nej</option>
-              </select>
-            </label>
-          </div>
+           </div>
           <div className="flex flex-wrap items-center gap-3 text-sm">
             <button className="btn btn-sm" onClick={resetFilters} type="button">
               Nulstil filtre
@@ -136,7 +139,7 @@ export default function ViewUsers(): JSX.Element {
 
         {showEmptyState ? (
           <div className="flex flex-1 items-center justify-center py-10">
-            <p className="text-gray-600">Ingen brugere matcher dette filter.</p>
+            <p className="text-gray-600">{hasLoadedOnce ? "Ingen brugere matcher dette filter." : "Indtast for at søge."}</p>
           </div>
         ) : (
           <>
@@ -167,7 +170,6 @@ export default function ViewUsers(): JSX.Element {
                       <td>{`${user.firstname ?? ""} ${user.lastname ?? ""}`.trim() || "N/A"}</td>
                       <td className="opacity-90">{user.email}</td>
                       <td>{user.role ? "Administrator" : "Bruger"}</td>
-                      <td>{user.firstlogin ? "Ja" : "Nej"}</td>
                       <td>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
                           {user.isActive ? "Aktiv" : "Inaktiv"}
@@ -195,7 +197,6 @@ export default function ViewUsers(): JSX.Element {
                     </div>
                     <div className="text-right">
                       <div className="text-sm">{user.role ? "Admin" : "User"}</div>
-                      <div className="text-xs text-gray-500">{user.firstlogin ? "First login" : ""}</div>
                     </div>
                   </div>
 
@@ -237,7 +238,6 @@ const TABLE_COLUMNS: ColumnDefinition[] = [
   { field: "firstname", label: "Navn" },
   { field: "email", label: "Email" },
   { field: "role", label: "Rolle" },
-  { field: "firstlogin", label: "Første login" },
   { field: "isActive", label: "Status", align: "text-center" },
   { field: "balance", label: "Balance", align: "text-right" },
 ];

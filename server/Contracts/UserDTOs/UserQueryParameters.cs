@@ -5,3 +5,4 @@ namespace Contracts.UserDTOs;
 public class UserQueryParameters : SieveModel
 {
 }
+
