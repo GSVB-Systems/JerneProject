@@ -728,6 +728,79 @@
         }
       }
     },
+    "/api/Users/{id}/subscription": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "Users_IsSubscriptionActive",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Users/{id}/extend": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "Users_ExtendSubscription",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "months",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/WinningBoard": {
       "get": {
         "tags": [
@@ -1083,6 +1156,16 @@
           "balance": {
             "type": "number",
             "format": "decimal"
+          },
+          "subscriptionExpiresAtUtc": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "daysUntilExpiry": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
           }
         }
       },

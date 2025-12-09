@@ -133,6 +133,9 @@ namespace dataaccess.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("SubscriptionExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("UserID");
 
                     b.ToTable("Users");

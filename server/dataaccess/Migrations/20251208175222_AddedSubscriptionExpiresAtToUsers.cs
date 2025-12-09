@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace dataaccess.Migrations
 {
     /// <inheritdoc />
-    public partial class ModifiedBoards : Migration
+    public partial class AddedSubscriptionExpiresAtToUsers : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -23,6 +23,7 @@ namespace dataaccess.Migrations
                     Role = table.Column<string>(type: "text", nullable: false),
                     Firstlogin = table.Column<bool>(type: "boolean", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    SubscriptionExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Balance = table.Column<decimal>(type: "numeric", nullable: false)
                 },
                 constraints: table =>

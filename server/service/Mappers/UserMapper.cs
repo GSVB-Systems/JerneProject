@@ -18,7 +18,11 @@ public static class UserMapper
             Role = u.Role,
             Firstlogin = u.Firstlogin,
             IsActive = u.IsActive,
-            Balance = u.Balance
+            Balance = u.Balance,
+            SubscriptionExpiresAtUtc = u.SubscriptionExpiresAt?.ToUniversalTime(),
+            DaysUntilExpiry = u.SubscriptionExpiresAt.HasValue
+                ? (int)Math.Max(0, Math.Ceiling((u.SubscriptionExpiresAt.Value - DateTime.UtcNow).TotalDays))
+                : (int?)null
         };
 
     public static User ToEntity(RegisterUserDto dto) =>
