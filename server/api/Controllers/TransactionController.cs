@@ -16,10 +16,18 @@ public class TransactionController : ControllerBase
         _transactionService = transactionService;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetAll()
+    [HttpGet("getAllTransactions")]
+    public async Task<IActionResult> GetAllTransactions()
     {
         var transactions = await _transactionService.GetAllAsync();
+        return Ok(transactions);
+    }
+
+    [HttpGet("getAllTransactionsByUserId")]
+    [Authorize(Roles = "Administrator, Bruger")]
+    public async Task<IActionResult> GetAllTransactionsByUserId([FromQuery] string userId, [FromQuery] TransactionQueryParameters parameters)
+    {
+        var transactions = await _transactionService.getAllByUserIdAsync(userId, parameters);
         return Ok(transactions);
     }
 
