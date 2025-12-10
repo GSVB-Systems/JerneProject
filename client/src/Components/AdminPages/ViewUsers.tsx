@@ -8,9 +8,29 @@ import type {
 } from "../../hooks/useUsers";
 import Navbar from "../Navbar";
 import { useNavigate } from "react-router-dom";
+import { useCreateUser } from "../../hooks/useCreateUser";
 
 export default function ViewUsers(): JSX.Element {
   const navigate = useNavigate();
+  const closeModal = () => {
+    const modal = document.getElementById("create_user_modal") as HTMLDialogElement | null;
+    modal?.close();
+  };
+
+  const { error: createUserError, formValues, updateField, createUser } = useCreateUser(() => {
+    closeModal();
+  });
+
+  const openModal = () => {
+    const modal = document.getElementById("create_user_modal") as HTMLDialogElement | null;
+    modal?.showModal();
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await createUser();
+  };
+
   const {
     users: list,
     total,
@@ -64,7 +84,7 @@ export default function ViewUsers(): JSX.Element {
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="loader mb-4" />
-            <p className="text-sm text-gray-500">Loading users…</p>
+            <p className="text-sm text-gray-500">Indlæser brugere…</p>
           </div>
         </main>
       </div>
@@ -76,9 +96,65 @@ export default function ViewUsers(): JSX.Element {
       <Navbar />
       <main className="p-6 max-w-6xl mx-auto w-full space-y-6">
         <header className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <h1 className="text-2xl font-semibold">Users</h1>
-          <p className="text-sm text-gray-500">{`Total users: ${total}`}</p>
+          <h1 className="text-2xl font-semibold">Brugere</h1>
+          <div className="flex flex-row items-center gap-4">
+            <button className="btn" onClick={openModal}>
+              Opret Bruger
+            </button>
+            <p className="text-sm text-gray-500">{`Antal brugere: ${total}`}</p>
+          </div>
         </header>
+
+
+        <dialog id="create_user_modal" className="modal">
+          <div className="modal-box max-w-lg">
+            <h3 className="font-bold text-lg">Opret bruger</h3>
+            <p className="py-2 text-sm text-gray-600">Udfyld felterne for at oprette en ny bruger.</p>
+
+            <form className="flex flex-col gap-4 mt-4" id="createUserForm" onSubmit={handleSubmit}>
+              <label className="flex flex-col">
+                <span className="font-medium text-sm">Fornavn</span>
+                <input className="input" id="firstname" onChange={(event) => updateField("firstname", event.target.value)} placeholder="Fornavn" required type="text" value={formValues.firstname ?? ""} />
+              </label>
+
+              <label className="flex flex-col">
+                <span className="font-medium text-sm">Efternavn</span>
+                <input className="input" id="lastname" onChange={(event) => updateField("lastname", event.target.value)} placeholder="Efternavn" required type="text" value={formValues.lastname ?? ""} />
+              </label>
+
+              <label className="flex flex-col">
+                <span className="font-medium text-sm">Email</span>
+                <input className="input" id="email" onChange={(event) => updateField("email", event.target.value)} placeholder="navn@eksempel.dk" required type="email" value={formValues.email ?? ""} />
+              </label>
+
+              <label className="flex flex-col">
+                <span className="font-medium text-sm">Password</span>
+                <input className="input" id="password" onChange={(event) => updateField("password", event.target.value)} placeholder="Adgangskode" required type="password" value={formValues.password ?? ""} />
+              </label>
+
+              <label className="flex flex-col">
+                <span className="font-medium text-sm">Rolle</span>
+                <select className="select" id="role" onChange={(event) => updateField("role", event.target.value)} required value={formValues.role ?? ""}>
+                  <option disabled value="">
+                    Vælg en rolle
+                  </option>
+                  <option value="Bruger">Bruger</option>
+                  <option value="Administrator">Administrator</option>
+                </select>
+              </label>
+              <div className="modal-action flex justify-end gap-2 pt-2">
+                <button className="btn btn-ghost" onClick={closeModal} type="button">
+                  Annuller
+                </button>
+                <button className="btn" type="submit">
+                  Opret Bruger
+                </button>
+              </div>
+            </form>
+
+            {createUserError && <p className="text-red-500 mt-3">{createUserError}</p>}
+          </div>
+        </dialog>
 
         <section className="bg-base-200 rounded-lg p-4 space-y-4">
           <div className="grid gap-4 md:grid-cols-4">
@@ -147,8 +223,7 @@ export default function ViewUsers(): JSX.Element {
               <table className="table w-full">
                 <thead>
                   <tr>
-                    <th />
-                    {TABLE_COLUMNS.map((column) => (
+                                        {TABLE_COLUMNS.map((column) => (
                       <th key={column.field} className={column.align ?? "text-left"}>
                         <button className="flex items-center gap-2" onClick={() => toggleSort(column.field)} type="button">
                           {column.label}
@@ -162,11 +237,7 @@ export default function ViewUsers(): JSX.Element {
                 <tbody>
                   {list.map((user) => (
                     <tr key={user.email}>
-                      <th>
-                        <label>
-                          <input className="checkbox" type="checkbox" />
-                        </label>
-                      </th>
+
                       <td>{`${user.firstname ?? ""} ${user.lastname ?? ""}`.trim() || "N/A"}</td>
                       <td className="opacity-90">{user.email}</td>
                       <td>{user.role ? "Administrator" : "Bruger"}</td>
@@ -216,12 +287,12 @@ export default function ViewUsers(): JSX.Element {
             </div>
 
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between pt-4">
-              <p className="text-sm text-gray-600">{`Showing ${visibleStart}-${visibleEnd} of ${total}`}</p>
+              <p className="text-sm text-gray-600">{`Viser ${visibleStart}-${visibleEnd} of ${total}`}</p>
               <div className="flex items-center gap-2">
                 <button className="btn btn-sm" disabled={page === 1} onClick={() => handlePageChange("prev")} type="button">
                   Tidligere
                 </button>
-                <span className="text-sm font-medium">{`Page ${page} of ${totalPages}`}</span>
+                <span className="text-sm font-medium">{`Side ${page} af ${totalPages}`}</span>
                 <button className="btn btn-sm" disabled={page >= totalPages} onClick={() => handlePageChange("next")} type="button">
                   Næste
                 </button>
