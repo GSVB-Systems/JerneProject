@@ -8,6 +8,8 @@ import { createBrowserRouter, Outlet, RouterProvider } from "react-router";
 import ViewUsers from "./Components/AdminPages/ViewUsers.tsx";
 import ViewUserDetails from "./Components/AdminPages/ViewUserDetails.tsx";
 import FirstLoginPage from "./Components/FirstLoginPage.tsx";
+import UserTransactions from "./Components/TransactionPages/UserTransactions.tsx";
+import UserProtectedRoute from "./Components/ProtectedRouting/UserProtectedRouting.tsx";
 
 function App() {
 
@@ -32,6 +34,14 @@ function App() {
                             <ProtectedRoute>
                                 <BoardHistory/>
                             </ProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/transactions",
+                        element: (
+                            <UserProtectedRoute>
+                                <UserTransactions/>
+                            </UserProtectedRoute>
                         )
                     },
                     {

@@ -1,3 +1,4 @@
+using Contracts;
 using dataaccess.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Contracts.TransactionDTOs;
@@ -24,6 +25,14 @@ public class TransactionController : ControllerBase
     {
         var result = await _transactionService.GetAllAsync(sieveModel);
         return Ok(result);
+    }
+
+    [HttpGet("getAllTransactionsByUserId")]
+    [Authorize(Roles = "Administrator, Bruger")]
+    public async Task<ActionResult<PagedResult<TransactionDto>>>  GetAllTransactionsByUserId([FromQuery] string userId, [FromQuery] TransactionQueryParameters parameters)
+    {
+        var transactions = await _transactionService.getAllByUserIdAsync(userId, parameters);
+        return Ok(transactions);
     }
 
     [HttpGet("{id}")]

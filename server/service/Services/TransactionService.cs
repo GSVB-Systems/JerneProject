@@ -65,17 +65,25 @@ namespace service.Services
             await _transactionRepository.UpdateAsync(existing);
             await _transactionRepository.SaveChangesAsync();
 
-            return TransactionMapper.ToDto(existing);
-        }
+    public async Task<PagedResult<TransactionDto>> getAllByUserIdAsync(string userId, TransactionQueryParameters? parameters)
+    {
+        var query = _transactionRepository.AsQueryable().Where(t => t.UserID == userId);
+        var sieveModel = parameters ?? new TransactionQueryParameters();
+        var totalCount = await query.CountAsync();
+        var processedQuery = _sieveProcessor.Apply(sieveModel, query);
+        var transactions = await processedQuery.ToListAsync();
 
-        public async Task<bool> DeleteAsync(string id)
+        return new PagedResult<TransactionDto>
         {
-            var existing = await _transactionRepository.GetByIdAsync(id);
-            if (existing == null) return false;
+            Items = transactions.Select(TransactionMapper.ToDto).ToList(), // toList quickfix until getAllAsync is fixed
+            TotalCount = totalCount,
+            Page = sieveModel.Page ?? 1,
+            PageSize = sieveModel.PageSize ?? transactions.Count
+        };
+    }
 
-            await _transactionRepository.DeleteAsync(existing);
-            await _transactionRepository.SaveChangesAsync();
-            return true;
-        }
+    public async Task<bool> DeleteAsync(string id)
+    {
+        return await base.DeleteAsync(id);
     }
 }

@@ -1,13 +1,19 @@
 ﻿import logo from "../../resources/Logo1.png";
 import {Link} from "react-router-dom";
+import {useNavigate} from "react-router";
 
 export default function Navbar({ DKK = 0 }) {
+    const navigate = useNavigate();
     const formattedDKK = new Intl.NumberFormat("da-DK", {
         style: "currency",
         currency: "DKK",
         currencyDisplay: "code",
         minimumFractionDigits: 0,
     }).format(DKK);
+
+    function handlePointsClick() {
+        navigate("/transactions");
+    }
 
     return (
         <div className="navbar bg-base-100 shadow-sm w-full">
@@ -22,7 +28,7 @@ export default function Navbar({ DKK = 0 }) {
             <div className="flex-none flex items-center gap-4">
 
                 {/* Points indicator */}
-                <div className="btn btn-ghost normal-case text-lg">
+                <div className="btn btn-ghost normal-case text-lg" onClick={handlePointsClick}>
                     {formattedDKK}
                 </div>
 
