@@ -155,17 +155,18 @@ export default function UserTransactions(): JSX.Element {
                 <tbody>
                   {transactions.map((tx) => (
                     <tr key={tx.transactionID}>
-                      <td>
-                        <div className="font-medium whitespace-nowrap">
-                          {new Date(tx.transactionDate ?? "").toLocaleString() || "-"}
-                        </div>
-                      </td>
+                      <td className="opacity-90">{tx.transactionString ?? "-"}</td>
                       <td className="whitespace-nowrap">
                         <span className={tx.amount && tx.amount > 0 ? "text-green-600" : "text-red-600"}>
                           {tx.amount?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? "0,00"}
                         </span>
                       </td>
-                      <td className="opacity-90">{tx.transactionString ?? "-"}</td>
+
+                      <td>
+                        <div className="font-medium whitespace-nowrap">
+                          {new Date(tx.transactionDate ?? "").toLocaleString() || "-"}
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -210,9 +211,9 @@ export default function UserTransactions(): JSX.Element {
 }
 
 const TABLE_COLUMNS: ColumnDefinition[] = [
+  { field: "transactionString", label: "Beskrivelse" },
   { field: "transactionDate", label: "Dato" },
   { field: "amount", label: "Beløb", align: "text-right" },
-  { field: "transactionString", label: "Beskrivelse" },
 ];
 
 const SORTABLE_COLUMNS = TABLE_COLUMNS;
