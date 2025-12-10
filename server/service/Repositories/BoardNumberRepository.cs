@@ -2,7 +2,7 @@
 using dataaccess.Entities;
 using service.Repositories.Interfaces;
 
-namespace Service.Repositories;
+namespace service.Repositories;
 
 public class BoardNumberRepository : Repository<BoardNumber>, IBoardNumberRepository
 {

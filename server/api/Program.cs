@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using NSwag;
 using service.Services;
-using Service.Repositories;
+using service.Repositories;
 using service.Repositories.Interfaces;
 using service.Services.Interfaces;
 using Sieve.Models;

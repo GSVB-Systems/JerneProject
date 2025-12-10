@@ -59,12 +59,56 @@
         }
       }
     },
-    "/Boards": {
+    "/Board": {
       "get": {
         "tags": [
-          "Boards"
+          "Board"
         ],
-        "operationId": "Boards_GetAll",
+        "operationId": "Board_GetAll",
+        "parameters": [
+          {
+            "name": "Filters",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Sorts",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 4
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -81,15 +125,15 @@
       },
       "post": {
         "tags": [
-          "Boards"
+          "Board"
         ],
-        "operationId": "Boards_Create",
+        "operationId": "Board_Create",
         "requestBody": {
-          "x-name": "board",
+          "x-name": "dto",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Board"
+                "$ref": "#/components/schemas/CreateBoardDto"
               }
             }
           },
@@ -111,12 +155,12 @@
         }
       }
     },
-    "/Boards/{id}": {
+    "/Board/{id}": {
       "get": {
         "tags": [
-          "Boards"
+          "Board"
         ],
-        "operationId": "Boards_GetById",
+        "operationId": "Board_GetById",
         "parameters": [
           {
             "name": "id",
@@ -144,9 +188,9 @@
       },
       "put": {
         "tags": [
-          "Boards"
+          "Board"
         ],
-        "operationId": "Boards_Update",
+        "operationId": "Board_Update",
         "parameters": [
           {
             "name": "id",
@@ -159,11 +203,11 @@
           }
         ],
         "requestBody": {
-          "x-name": "board",
+          "x-name": "dto",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Board"
+                "$ref": "#/components/schemas/UpdateBoardDto"
               }
             }
           },
@@ -186,9 +230,9 @@
       },
       "delete": {
         "tags": [
-          "Boards"
+          "Board"
         ],
-        "operationId": "Boards_Delete",
+        "operationId": "Board_Delete",
         "parameters": [
           {
             "name": "id",
@@ -221,6 +265,50 @@
           "BoardNumber"
         ],
         "operationId": "BoardNumber_GetAll",
+        "parameters": [
+          {
+            "name": "Filters",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Sorts",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 4
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -241,11 +329,11 @@
         ],
         "operationId": "BoardNumber_Create",
         "requestBody": {
-          "x-name": "boardNumber",
+          "x-name": "dto",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/BoardNumber"
+                "$ref": "#/components/schemas/CreateBoardNumberDto"
               }
             }
           },
@@ -315,11 +403,11 @@
           }
         ],
         "requestBody": {
-          "x-name": "boardNumber",
+          "x-name": "dto",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/BoardNumber"
+                "$ref": "#/components/schemas/UpdateBoardNumberDto"
               }
             }
           },
@@ -376,7 +464,51 @@
         "tags": [
           "Transaction"
         ],
-        "operationId": "Transaction_GetAllTransactions",
+        "operationId": "Transaction_GetAll",
+        "parameters": [
+          {
+            "name": "Filters",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Sorts",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 4
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -717,7 +849,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UserDto"
+                "$ref": "#/components/schemas/UpdateUserDto"
               }
             }
           },
@@ -881,6 +1013,50 @@
           "WinningBoard"
         ],
         "operationId": "WinningBoard_GetAll",
+        "parameters": [
+          {
+            "name": "Filters",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Sorts",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 4
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -901,11 +1077,11 @@
         ],
         "operationId": "WinningBoard_Create",
         "requestBody": {
-          "x-name": "winningBoard",
+          "x-name": "dto",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/WinningBoard"
+                "$ref": "#/components/schemas/CreateWinningBoardDto"
               }
             }
           },
@@ -975,11 +1151,11 @@
           }
         ],
         "requestBody": {
-          "x-name": "winningBoard",
+          "x-name": "dto",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/WinningBoard"
+                "$ref": "#/components/schemas/UpdateWinningBoardDto"
               }
             }
           },
@@ -1037,6 +1213,50 @@
           "WinningNumber"
         ],
         "operationId": "WinningNumber_GetAll",
+        "parameters": [
+          {
+            "name": "Filters",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Sorts",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 4
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -1057,11 +1277,11 @@
         ],
         "operationId": "WinningNumber_Create",
         "requestBody": {
-          "x-name": "winningBoard",
+          "x-name": "dto",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/WinningNumber"
+                "$ref": "#/components/schemas/CreateWinningNumberDto"
               }
             }
           },
@@ -1131,11 +1351,11 @@
           }
         ],
         "requestBody": {
-          "x-name": "winningNumber",
+          "x-name": "dto",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/WinningNumber"
+                "$ref": "#/components/schemas/UpdateWinningNumberDto"
               }
             }
           },
@@ -1255,26 +1475,16 @@
           1
         ]
       },
-      "Board": {
+      "CreateBoardDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "boardID": {
-            "type": "string"
-          },
           "boardSize": {
             "type": "integer",
             "format": "int32"
           },
-          "isActive": {
-            "type": "boolean"
-          },
           "isRepeating": {
             "type": "boolean"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
           },
           "userID": {
             "type": "string"
@@ -1282,27 +1492,54 @@
           "numbers": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/BoardNumber"
+              "$ref": "#/components/schemas/CreateBoardNumberDto"
             }
           }
         }
       },
-      "BoardNumber": {
+      "CreateBoardNumberDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "boardNumberID": {
-            "type": "string"
-          },
-          "boardID": {
-            "type": "string"
-          },
-          "winningBoardID": {
-            "type": "string"
-          },
           "number": {
             "type": "integer",
             "format": "int32"
+          },
+          "winningBoardID": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateBoardDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "boardSize": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "isRepeating": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateBoardNumberDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "number": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "winningBoardID": {
+            "type": "string"
           }
         }
       },
@@ -1441,41 +1678,80 @@
           }
         }
       },
-      "WinningBoard": {
+      "UpdateUserDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "winningBoardID": {
+          "firstname": {
             "type": "string"
           },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
+          "lastname": {
+            "type": "string"
           },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/UserRole"
+              }
+            ]
+          },
+          "isActive": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "balance": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true
+          }
+        }
+      },
+      "CreateWinningBoardDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
           "winningNumbers": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/WinningNumber"
+              "$ref": "#/components/schemas/CreateWinningNumberDto"
             }
           }
         }
       },
-      "WinningNumber": {
+      "CreateWinningNumberDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "winningNumberID": {
-            "type": "string"
-          },
-          "winningBoardID": {
-            "type": "string"
-          },
-          "winningBoard": {
-            "$ref": "#/components/schemas/WinningBoard"
-          },
           "number": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "UpdateWinningBoardDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "winningNumbers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateWinningNumberDto"
+            }
+          }
+        }
+      },
+      "UpdateWinningNumberDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "number": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
           }
         }
       }

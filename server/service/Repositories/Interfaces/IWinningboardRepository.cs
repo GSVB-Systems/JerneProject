@@ -1,7 +1,6 @@
 using dataaccess.Entities;
-using service.Repositories.Interfaces;
 
-namespace Service.Repositories;
+namespace service.Repositories.Interfaces;
 
 public interface IWinningboardRepository: IRepository<WinningBoard>
 {

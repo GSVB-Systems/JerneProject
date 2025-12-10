@@ -1,26 +1,28 @@
 // csharp
-using dataaccess.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Contracts;
+using Contracts.BoardDTOs;
 using service.Services.Interfaces;
+using Sieve.Models;
 
 namespace api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class BoardsController : ControllerBase
+    public class BoardController : ControllerBase
     {
         private readonly IBoardService _boardService;
 
-        public BoardsController(IBoardService boardService)
+        public BoardController(IBoardService boardService)
         {
             _boardService = boardService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] SieveModel? sieveModel)
         {
-            var boards = await _boardService.GetAllAsync();
-            return Ok(boards);
+            var result = await _boardService.GetAllAsync(sieveModel);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
@@ -31,25 +33,16 @@ namespace api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Board board)
+        public async Task<IActionResult> Create([FromBody] CreateBoardDto dto)
         {
-            var created = await _boardService.CreateAsync(board);
-
-            object? idValue = null;
-            if (created != null)
-            {
-                var type = created.GetType();
-                var prop = type.GetProperty("Id") ?? type.GetProperty("BoardID") ?? type.GetProperty("BoardId");
-                idValue = prop?.GetValue(created);
-            }
-
-            return CreatedAtAction(nameof(GetById), new { id = idValue }, created);
+            var created = await _boardService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = created?.BoardID }, created);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, Board board)
+        public async Task<IActionResult> Update(string id, [FromBody] UpdateBoardDto dto)
         {
-            var updated = await _boardService.UpdateAsync(id, board);
+            var updated = await _boardService.UpdateAsync(id, dto);
             return updated == null ? NotFound() : Ok(updated);
         }
 

@@ -1,6 +1,8 @@
 ﻿using dataaccess.Entities;
 using Microsoft.AspNetCore.Mvc;
 using service.Services.Interfaces;
+using Sieve.Models;
+using Contracts.BoardNumberDTOs;
 
 namespace api.Controllers;
 
@@ -16,10 +18,10 @@ public class BoardNumberController : ControllerBase
     }
     
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] SieveModel? sieveModel)
     {
-        var boardNumbers = await _boardNumberService.GetAllAsync();
-        return Ok(boardNumbers);
+        var result = await _boardNumberService.GetAllAsync(sieveModel);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
@@ -30,16 +32,16 @@ public class BoardNumberController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<IActionResult> Create(BoardNumber boardNumber)
+    public async Task<IActionResult> Create([FromBody] CreateBoardNumberDto dto)
     {
-        var created = await _boardNumberService.CreateAsync(boardNumber);
+        var created = await _boardNumberService.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = created.BoardNumberID }, created);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, BoardNumber boardNumber)
+    public async Task<IActionResult> Update(string id, [FromBody] UpdateBoardNumberDto dto)
     {
-        var updated = await _boardNumberService.UpdateAsync(id, boardNumber);
+        var updated = await _boardNumberService.UpdateAsync(id, dto);
         return updated == null ? NotFound() : Ok(updated);
     }
     

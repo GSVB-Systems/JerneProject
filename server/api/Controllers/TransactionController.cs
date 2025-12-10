@@ -4,8 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Contracts.TransactionDTOs;
 using Microsoft.AspNetCore.Authorization;
 using service.Services.Interfaces;
+using Sieve.Models;
 
 namespace api.Controllers;
+
+[AllowAnonymous]
 [ApiController]
 [Route("api/[controller]")]
 public class TransactionController : ControllerBase
@@ -16,12 +19,12 @@ public class TransactionController : ControllerBase
     {
         _transactionService = transactionService;
     }
-
-    [HttpGet("getAllTransactions")]
-    public async Task<IActionResult> GetAllTransactions()
+    
+    [HttpGet]
+    public async Task<IActionResult> GetAll([FromQuery] SieveModel? sieveModel)
     {
-        var transactions = await _transactionService.GetAllAsync();
-        return Ok(transactions);
+        var result = await _transactionService.GetAllAsync(sieveModel);
+        return Ok(result);
     }
 
     [HttpGet("getAllTransactionsByUserId")]

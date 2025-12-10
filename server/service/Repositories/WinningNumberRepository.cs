@@ -2,7 +2,7 @@
 using dataaccess.Entities;
 using service.Repositories.Interfaces;
 
-namespace Service.Repositories;
+namespace service.Repositories;
 
 public class WinningNumberRepository : Repository<WinningNumber>, IWinningNumberRepository
 {

@@ -40,12 +40,12 @@ public class UsersController : ControllerBase
     [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Create(RegisterUserDto dto)
     {
-        var created = await _userService.RegisterUserAsync(dto);
+        var created = await _userService.CreateAsync(dto);
         return Ok(created);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, UserDto dto)
+    public async Task<IActionResult> Update(string id, UpdateUserDto dto)
     {
         var updated = await _userService.UpdateAsync(id, dto);
         return updated == null ? NotFound() : Ok(updated);

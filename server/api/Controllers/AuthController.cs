@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using service.Services;
 using service.Services.Interfaces;
+using service.Mappers;
 using System.Security.Claims;
 
 
@@ -43,7 +44,12 @@ public class AuthController : ControllerBase
     [Route("userinfo")]
     public async Task<UserDto> Userinfo()
     {
-        var UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        return await _userService.GetByIdAsync(UserId);
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                     ?? throw new InvalidOperationException("Missing user id claim");
+
+        var user = await _userService.GetByIdAsync(userId)
+                   ?? throw new KeyNotFoundException($"User {userId} not found.");
+
+        return UserMapper.ToDto(user);
     }
 }

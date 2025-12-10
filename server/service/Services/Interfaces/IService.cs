@@ -1,10 +1,16 @@
+using Contracts;
+using Sieve.Models;
+
 namespace service.Services.Interfaces;
 
-public interface IService<T> where T : class
+public interface IService<T, TCreate, TUpdate> 
+    where T : class
+    where TCreate : class
+    where TUpdate : class
 {
     Task<T?> GetByIdAsync(string id);
-    Task<IEnumerable<T>> GetAllAsync();
-    Task<T> CreateAsync(T entity);
-    Task<T?> UpdateAsync(string id, T entity);
+    Task<PagedResult<T>> GetAllAsync(SieveModel? parameters);
+    Task<T> CreateAsync(TCreate createDto);
+    Task<T?> UpdateAsync(string id, TUpdate updateDto);
     Task<bool> DeleteAsync(string id);
 }

@@ -1,18 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Contracts.UserDTOs;
 using Contracts;
 using dataaccess.Entities;
 using Microsoft.EntityFrameworkCore;
-using Service.Repositories;
+using service.Repositories;
+using service.Repositories.Interfaces;
 using service.Mappers;
 using service.Services.Interfaces;
+using Sieve.Models;
 using Sieve.Services;
 
 namespace service.Services;
 
-public class UserService : Service<User>, IUserService
+public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly PasswordService _passwordService;
@@ -26,12 +25,13 @@ public class UserService : Service<User>, IUserService
         _sieveProcessor = sieveProcessor;
     }
     
-    public async Task<PagedResult<UserDto>> GetAllAsync()
+    public async Task<UserDto?> GetByIdAsync(string id)
     {
-        return await GetAllAsync(null);
+        var user = await base.GetByIdAsync(id);
+        return user == null ? null : UserMapper.ToDto(user);
     }
-    
-    public async Task<PagedResult<UserDto>> GetAllAsync(UserQueryParameters? parameters)
+
+    public async Task<PagedResult<UserDto>> GetAllAsync(SieveModel? parameters)
     {
         var query = _userRepository.AsQueryable();
         var sieveModel = parameters ?? new UserQueryParameters();
@@ -49,16 +49,35 @@ public class UserService : Service<User>, IUserService
         };
     }
 
-    public async Task<UserDto?> GetByIdAsync(string id)
+    public override async Task<User> CreateAsync(RegisterUserDto createDto)
     {
-        var user = await base.GetByIdAsync(id);
-        return user == null ? null : UserMapper.ToDto(user);
+        var entity = UserMapper.ToEntity(createDto);
+        entity.Hash = _passwordService.HashPassword(createDto.Password);
+        entity.Firstlogin = true;
+        entity.IsActive = true;
+        entity.Balance = 0;
+        entity.SubscriptionExpiresAt = DateTime.UtcNow.AddYears(1);
+
+        await _userRepository.AddAsync(entity);
+        await _userRepository.SaveChangesAsync();
+
+        return entity;
     }
 
-    public Task<UserDto> CreateAsync(UserDto entity)
+    public async Task<UserDto?> UpdateAsync(string id, UpdateUserDto updateDto)
     {
-        throw new NotSupportedException("skal lige finde ud af hvad jeg gør her - lige nu bruger controlleren bare RegisterUser");
+        var existing = await base.GetByIdAsync(id);
+        if (existing == null) return null;
+
+        
+        UserMapper.ApplyUpdate(existing, updateDto);
+
+        await _userRepository.UpdateAsync(existing);
+        await _userRepository.SaveChangesAsync();
+
+        return UserMapper.ToDto(existing);
     }
+
 
     public async Task<UserDto?> UpdateAsync(string id, UserDto dto)
     {
@@ -85,22 +104,11 @@ public class UserService : Service<User>, IUserService
         return await base.DeleteAsync(id);
     }
     
-    //har addet 1 linje her som sætter subscription expiry til et år frem ved registrering
     public async Task<UserDto> RegisterUserAsync(RegisterUserDto dto)
     {
-        var entity = UserMapper.ToEntity(dto);
-        entity.Hash = _passwordService.HashPassword(dto.Password);
-        entity.Firstlogin = true;
-        entity.IsActive = true;
-        entity.Balance = 0;
-        entity.SubscriptionExpiresAt = DateTime.UtcNow.AddYears(1);
-
-        await _userRepository.AddAsync(entity);
-        await _userRepository.SaveChangesAsync();
-
+        var entity = await CreateAsync(dto);
         return UserMapper.ToDto(entity);
     }
-    
     
 
     public async Task<bool> VerifyUserPasswordAsync(string userId, string plainPassword)
@@ -140,20 +148,5 @@ public class UserService : Service<User>, IUserService
 
         return UserMapper.ToDto(user);
     }
-
-    // Explicit interface implementations to satisfy IService<UserDto>
-    async Task<IEnumerable<UserDto>> IService<UserDto>.GetAllAsync() => (await GetAllAsync()).Items;
-    async Task<UserDto?> IService<UserDto>.GetByIdAsync(string id) => await GetByIdAsync(id);
-    async Task<UserDto> IService<UserDto>.CreateAsync(UserDto entity) => await CreateAsync(entity);
-    async Task<UserDto?> IService<UserDto>.UpdateAsync(string id, UserDto entity) => await UpdateAsync(id, entity);
-    async Task<bool> IService<UserDto>.DeleteAsync(string id) => await DeleteAsync(id);
-  
-    public override async Task<User> CreateAsync(User user)
-    {
-        user.Hash = _passwordService.HashPassword(user.Hash);
-
-        await _userRepository.AddAsync(user);
-        await _userRepository.SaveChangesAsync();
-        return user;
-    }
+    
 }
