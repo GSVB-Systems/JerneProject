@@ -9,9 +9,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using NSwag;
 using service.Services;
-using Service.Repositories;
+using service.Repositories;
 using service.Repositories.Interfaces;
 using service.Services.Interfaces;
+using Sieve.Models;
+using Sieve.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,6 +83,12 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.Configure<SieveOptions>(builder.Configuration.GetSection("Sieve"));
+builder.Services.AddScoped<ISieveProcessor, SieveProcessor>();
+builder.Services.AddScoped<IBoardNumberRepository, BoardNumberRepository>();
+builder.Services.AddScoped<IWinningNumberRepository, WinningNumberRepository>();
+builder.Services.AddScoped<IBoardNumberService, BoardNumberService>();
+builder.Services.AddScoped<IWinningNumberService, WinningNumberService>();
 
 
 builder.Services.AddAuthorization();

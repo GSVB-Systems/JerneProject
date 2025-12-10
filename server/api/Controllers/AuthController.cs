@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using service.Services;
 using service.Services.Interfaces;
+using service.Mappers;
 using System.Security.Claims;
 
 
@@ -37,13 +38,5 @@ public class AuthController : ControllerBase
         var token = _tokenService.CreateToken(_authService.GetUserByEmailAsync(request.Username).Result);
        
         return Ok(new { token });
-    }
-
-    [HttpGet]
-    [Route("userinfo")]
-    public async Task<UserDto> Userinfo()
-    {
-        var UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        return await _userService.GetByIdAsync(UserId);
     }
 }

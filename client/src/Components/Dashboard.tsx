@@ -2,7 +2,6 @@ import Navbar from "./Navbar";
 import SelectableBoard from "./Board";
 import AdminPage from "./AdminPages/AdminPage.tsx";
 import {useJWT} from "../hooks/useJWT.ts";
-import ViewUsers from "./AdminPages/ViewUsers.tsx";
 
 function getRoleFromJwt(jwt: string | null | undefined): string | null {
     if (!jwt) return null;

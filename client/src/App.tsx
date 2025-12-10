@@ -1,4 +1,4 @@
-import './App.css'
+import "./App.css";
 import LoginPage from "./Components/LoginPage.tsx";
 import Dashboard from "./Components/Dashboard.tsx";
 import BoardHistory from "./Components/BoardHistory.tsx";
@@ -6,6 +6,10 @@ import ProtectedRoute from "./Components/ProtectedRouting/ProtectedRoute.tsx";
 import AdminProtectedRoute from "./Components/ProtectedRouting/AdminProtectedRouting.tsx";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router";
 import ViewUsers from "./Components/AdminPages/ViewUsers.tsx";
+import ViewUserDetails from "./Components/AdminPages/ViewUserDetails.tsx";
+import FirstLoginPage from "./Components/FirstLoginPage.tsx";
+import UserTransactions from "./Components/TransactionPages/UserTransactions.tsx";
+import UserProtectedRoute from "./Components/ProtectedRouting/UserProtectedRouting.tsx";
 
 function App() {
 
@@ -13,7 +17,7 @@ function App() {
     return (
         <RouterProvider router={createBrowserRouter([
             {
-                path: '/',
+                path: "/",
                 element: <Outlet/>,
                 children: [
                     {
@@ -25,7 +29,7 @@ function App() {
                         )
                     },
                     {
-                        path: '/boardhistory',
+                        path: "/boardhistory",
                         element: (
                             <ProtectedRoute>
                                 <BoardHistory/>
@@ -33,7 +37,23 @@ function App() {
                         )
                     },
                     {
-                        path: '/brugere',
+                        path: "/transactions",
+                        element: (
+                            <UserProtectedRoute>
+                                <UserTransactions/>
+                            </UserProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/firstlogin",
+                        element: (
+                            <ProtectedRoute>
+                                <FirstLoginPage/>
+                            </ProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/brugere",
                         element: (
                             <AdminProtectedRoute>
                                 <ViewUsers/>
@@ -41,12 +61,20 @@ function App() {
                         )
                     },
                     {
-                        path: '/login',
+                        path: "/brugere/:userId",
+                        element: (
+                            <AdminProtectedRoute>
+                                <ViewUserDetails/>
+                            </AdminProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/login",
                         element: <LoginPage/>
                     }
                 ]
             }
         ])}/>
-    )
+    );
 }
-export default App
+export default App;

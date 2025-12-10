@@ -4,7 +4,7 @@ using dataaccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using service.Repositories.Interfaces;
 
-namespace Service.Repositories;
+namespace service.Repositories;
 
 public class AuthRepository : Repository<User>, IAuthRepository
 {

@@ -1,80 +1,90 @@
-
+using Contracts.UserDTOs;
+using Contracts;
 using dataaccess.Entities;
-using dataaccess.Entities.Enums;
-using Service.Repositories;
+using Microsoft.EntityFrameworkCore;
+using service.Repositories;
+using service.Repositories.Interfaces;
 using service.Mappers;
 using service.Services.Interfaces;
-using Contracts.UserDTOs;
+using Sieve.Models;
+using Sieve.Services;
 
 namespace service.Services;
 
-public class UserService : Service<User>, IUserService
+public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly PasswordService _passwordService;
+    private readonly ISieveProcessor _sieveProcessor;
 
-    public UserService(IUserRepository userRepository, PasswordService passwordService)
+    public UserService(IUserRepository userRepository, PasswordService passwordService, ISieveProcessor sieveProcessor)
         : base(userRepository)
     {
         _userRepository = userRepository;
         _passwordService = passwordService;
+        _sieveProcessor = sieveProcessor;
     }
     
-    public async Task<IEnumerable<UserDto>> GetAllAsync()
-    {
-        var users = await base.GetAllAsync();
-        return users.Select(UserMapper.ToDto);
-    }
-
     public async Task<UserDto?> GetByIdAsync(string id)
     {
         var user = await base.GetByIdAsync(id);
         return user == null ? null : UserMapper.ToDto(user);
     }
 
-    public Task<UserDto> CreateAsync(UserDto entity)
+    public async Task<PagedResult<UserDto>> GetAllAsync(SieveModel? parameters)
     {
-        throw new NotSupportedException("skal lige finde ud af hvad jeg gør her - lige nu bruger controlleren bare RegisterUser");
+        var query = _userRepository.AsQueryable();
+        var sieveModel = parameters ?? new UserQueryParameters();
+
+        var totalCount = await query.CountAsync();
+        var processedQuery = _sieveProcessor.Apply(sieveModel, query);
+        var users = await processedQuery.ToListAsync();
+
+        return new PagedResult<UserDto>
+        {
+            Items = users.Select(UserMapper.ToDto).ToList(),
+            TotalCount = totalCount,
+            Page = sieveModel.Page ?? 1,
+            PageSize = sieveModel.PageSize ?? users.Count
+        };
     }
 
-    public async Task<UserDto?> UpdateAsync(string id, UserDto dto)
+    public async Task<UserDto> CreateAsync(RegisterUserDto createDto)
     {
-        var existing = await base.GetByIdAsync(id);
-        if (existing == null) return null;
-
-        if (dto.Firstname != null) existing.Firstname = dto.Firstname;
-        if (dto.Lastname != null) existing.Lastname = dto.Lastname;
-        if (dto.Email != null) existing.Email = dto.Email;
-
-        existing.Role = dto.Role;
-        existing.Firstlogin = dto.Firstlogin;
-        existing.IsActive = dto.IsActive;
-        existing.Balance = dto.Balance;
-
-        await _userRepository.UpdateAsync(existing);
-        await _userRepository.SaveChangesAsync();
-
-        return UserMapper.ToDto(existing);
-    }
-
-    public async Task<bool> DeleteAsync(string id)
-    {
-        return await base.DeleteAsync(id);
-    }
-    
-    public async Task<UserDto> RegisterUserAsync(RegisterUserDto dto)
-    {
-        var entity = UserMapper.ToEntity(dto);
-        entity.Hash = _passwordService.HashPassword(dto.Password);
+        var entity = UserMapper.ToEntity(createDto);
+        entity.Hash = _passwordService.HashPassword(createDto.Password);
         entity.Firstlogin = true;
         entity.IsActive = true;
         entity.Balance = 0;
+        entity.SubscriptionExpiresAt = DateTime.UtcNow.AddYears(1);
 
         await _userRepository.AddAsync(entity);
         await _userRepository.SaveChangesAsync();
 
         return UserMapper.ToDto(entity);
     }
+
+    public async Task<UserDto?> UpdateAsync(string id, UpdateUserDto updateDto)
+    {
+        var existing = await base.GetByIdAsync(id);
+        if (existing == null) return null;
+
+        
+        UserMapper.ApplyUpdate(existing, updateDto);
+
+        await _userRepository.UpdateAsync(existing);
+        await _userRepository.SaveChangesAsync();
+
+        return UserMapper.ToDto(existing);
+    }
+    
+
+    public async Task<bool> DeleteAsync(string id)
+    {
+        return await base.DeleteAsync(id);
+    }
+    
+    
 
     public async Task<bool> VerifyUserPasswordAsync(string userId, string plainPassword)
     {
@@ -84,13 +94,34 @@ public class UserService : Service<User>, IUserService
         return _passwordService.VerifyPassword(plainPassword, user.Hash);
     }
 
-  
-    public override async Task<User> CreateAsync(User user)
+    public async Task<bool> IsSubscriptionActiveAsync(string userId)
     {
-        user.Hash = _passwordService.HashPassword(user.Hash);
-
-        await _userRepository.AddAsync(user);
-        await _userRepository.SaveChangesAsync();
-        return user;
+        var user = await base.GetByIdAsync(userId);
+        if (user == null) return false;
+        return IsSubscriptionActiveHelper(user);
     }
+    
+    private static bool IsSubscriptionActiveHelper(User user)
+    {
+        if (user == null) return false;
+        return user.SubscriptionExpiresAt.HasValue && user.SubscriptionExpiresAt.Value > DateTime.UtcNow;
+    }
+
+    public async Task<UserDto?> ExtendSubscriptionAsync(string userId, int months)
+    {
+        var user = await base.GetByIdAsync(userId);
+        if (user == null) return null;
+
+        var baseTime = user.SubscriptionExpiresAt.HasValue && user.SubscriptionExpiresAt.Value > DateTime.UtcNow
+            ? user.SubscriptionExpiresAt.Value
+            : DateTime.UtcNow;
+
+        user.SubscriptionExpiresAt = baseTime.AddMonths(months);
+
+        await _userRepository.UpdateAsync(user);
+        await _userRepository.SaveChangesAsync();
+
+        return UserMapper.ToDto(user);
+    }
+    
 }

@@ -1,10 +1,14 @@
+using Contracts;
 using dataaccess.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Contracts.TransactionDTOs;
 using Microsoft.AspNetCore.Authorization;
 using service.Services.Interfaces;
+using Sieve.Models;
 
 namespace api.Controllers;
+
+[AllowAnonymous]
 [ApiController]
 [Route("api/[controller]")]
 public class TransactionController : ControllerBase
@@ -15,11 +19,19 @@ public class TransactionController : ControllerBase
     {
         _transactionService = transactionService;
     }
-
+    
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] SieveModel? sieveModel)
     {
-        var transactions = await _transactionService.GetAllAsync();
+        var result = await _transactionService.GetAllAsync(sieveModel);
+        return Ok(result);
+    }
+
+    [HttpGet("getAllTransactionsByUserId")]
+    [Authorize(Roles = "Administrator, Bruger")]
+    public async Task<ActionResult<PagedResult<TransactionDto>>>  GetAllTransactionsByUserId([FromQuery] string userId, [FromQuery] TransactionQueryParameters parameters)
+    {
+        var transactions = await _transactionService.getAllByUserIdAsync(userId, parameters);
         return Ok(transactions);
     }
 
@@ -34,7 +46,7 @@ public class TransactionController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreateTransactionDto dto)
     {
         var created = await _transactionService.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = created.TransactionID }, created);
+        return Ok(CreatedAtAction(nameof(GetById), new { id = created.TransactionID }, created));
     }
 
     [HttpPut("{id}")]
