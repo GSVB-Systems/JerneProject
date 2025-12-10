@@ -4,7 +4,7 @@ using dataaccess.Entities;
 
 namespace service.Services.Interfaces;
 
-public interface IAuthService : IService<User>
+public interface IAuthService : IService<User, User, User>
 {
     Task<bool> verifyPasswordByEmailAsync(string email, string plainPassword);
     Task<User> GetUserByEmailAsync(string email);

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using service.Repositories.Interfaces;
 
-namespace Service.Repositories;
+namespace service.Repositories;
 
 public class Repository<T> : IRepository<T> where T : class
 {

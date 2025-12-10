@@ -1,6 +1,8 @@
 using dataaccess;
 using dataaccess.Entities;
-namespace Service.Repositories;
+using service.Repositories.Interfaces;
+
+namespace service.Repositories;
 
 
 

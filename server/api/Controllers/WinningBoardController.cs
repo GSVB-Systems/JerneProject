@@ -1,6 +1,7 @@
-using dataaccess.Entities;
+using Contracts.WinningBoardDTOs;
 using Microsoft.AspNetCore.Mvc;
 using service.Services.Interfaces;
+using Sieve.Models;
 
 namespace api.Controllers;
 
@@ -8,19 +9,18 @@ namespace api.Controllers;
 [Route("api/[controller]")]
 public class WinningBoardController : ControllerBase
 {
-    
     private readonly IWinningBoardService _winningBoardService;
-    
+
     public WinningBoardController(IWinningBoardService winningBoardService)
     {
         _winningBoardService = winningBoardService;
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] SieveModel? sieveModel)
     {
-        var winningBoards = await _winningBoardService.GetAllAsync();
-        return Ok(winningBoards);
+        var result = await _winningBoardService.GetAllAsync(sieveModel);
+        return Ok(result);
     }
 
     [HttpGet("{id}")]
@@ -29,26 +29,25 @@ public class WinningBoardController : ControllerBase
         var winningBoard = await _winningBoardService.GetByIdAsync(id);
         return winningBoard == null ? NotFound() : Ok(winningBoard);
     }
-    
+
     [HttpPost]
-    public async Task<IActionResult> Create(WinningBoard winningBoard)
+    public async Task<IActionResult> Create([FromBody] CreateWinningBoardDto dto)
     {
-        var created = await _winningBoardService.CreateAsync(winningBoard);
+        var created = await _winningBoardService.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = created.WinningBoardID }, created);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, WinningBoard winningBoard)
+    public async Task<IActionResult> Update(string id, [FromBody] UpdateWinningBoardDto dto)
     {
-        var updated = await _winningBoardService.UpdateAsync(id, winningBoard);
+        var updated = await _winningBoardService.UpdateAsync(id, dto);
         return updated == null ? NotFound() : Ok(updated);
     }
-    
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(string id)
     {
         var deleted = await _winningBoardService.DeleteAsync(id);
         return deleted ? NoContent() : NotFound();
     }
-
 }

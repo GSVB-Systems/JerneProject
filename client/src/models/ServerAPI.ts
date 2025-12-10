@@ -93,7 +93,7 @@ export class AuthClient {
     }
 }
 
-export class BoardsClient {
+export class BoardClient {
     private http: { fetch(url: RequestInfo, init?: RequestInit): Promise<Response> };
     private baseUrl: string;
     protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
@@ -103,8 +103,16 @@ export class BoardsClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAll(): Promise<FileResponse> {
-        let url_ = this.baseUrl + "/Boards";
+    getAll(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/Board?";
+        if (filters !== undefined && filters !== null)
+            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
+        if (sorts !== undefined && sorts !== null)
+            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -141,11 +149,11 @@ export class BoardsClient {
         return Promise.resolve<FileResponse>(null as any);
     }
 
-    create(board: Board): Promise<FileResponse> {
-        let url_ = this.baseUrl + "/Boards";
+    create(dto: CreateBoardDto): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/Board";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(board);
+        const content_ = JSON.stringify(dto);
 
         let options_: RequestInit = {
             body: content_,
@@ -184,7 +192,7 @@ export class BoardsClient {
     }
 
     getById(id: string): Promise<FileResponse> {
-        let url_ = this.baseUrl + "/Boards/{id}";
+        let url_ = this.baseUrl + "/Board/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
@@ -224,14 +232,14 @@ export class BoardsClient {
         return Promise.resolve<FileResponse>(null as any);
     }
 
-    update(id: string, board: Board): Promise<FileResponse> {
-        let url_ = this.baseUrl + "/Boards/{id}";
+    update(id: string, dto: UpdateBoardDto): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/Board/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(board);
+        const content_ = JSON.stringify(dto);
 
         let options_: RequestInit = {
             body: content_,
@@ -270,7 +278,7 @@ export class BoardsClient {
     }
 
     delete(id: string): Promise<FileResponse> {
-        let url_ = this.baseUrl + "/Boards/{id}";
+        let url_ = this.baseUrl + "/Board/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
@@ -321,8 +329,16 @@ export class BoardNumberClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAll(): Promise<FileResponse> {
-        let url_ = this.baseUrl + "/api/BoardNumber";
+    getAll(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/api/BoardNumber?";
+        if (filters !== undefined && filters !== null)
+            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
+        if (sorts !== undefined && sorts !== null)
+            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -359,11 +375,11 @@ export class BoardNumberClient {
         return Promise.resolve<FileResponse>(null as any);
     }
 
-    create(boardNumber: BoardNumber): Promise<FileResponse> {
+    create(dto: CreateBoardNumberDto): Promise<FileResponse> {
         let url_ = this.baseUrl + "/api/BoardNumber";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(boardNumber);
+        const content_ = JSON.stringify(dto);
 
         let options_: RequestInit = {
             body: content_,
@@ -442,14 +458,14 @@ export class BoardNumberClient {
         return Promise.resolve<FileResponse>(null as any);
     }
 
-    update(id: string, boardNumber: BoardNumber): Promise<FileResponse> {
+    update(id: string, dto: UpdateBoardNumberDto): Promise<FileResponse> {
         let url_ = this.baseUrl + "/api/BoardNumber/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(boardNumber);
+        const content_ = JSON.stringify(dto);
 
         let options_: RequestInit = {
             body: content_,
@@ -539,8 +555,16 @@ export class TransactionClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAll(): Promise<FileResponse> {
-        let url_ = this.baseUrl + "/api/Transaction";
+    getAll(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/api/Transaction?";
+        if (filters !== undefined && filters !== null)
+            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
+        if (sorts !== undefined && sorts !== null)
+            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -839,7 +863,7 @@ export class UsersClient {
         return Promise.resolve<FileResponse>(null as any);
     }
 
-    update(id: string, dto: UserDto): Promise<FileResponse> {
+    update(id: string, dto: UpdateUserDto): Promise<FileResponse> {
         let url_ = this.baseUrl + "/api/Users/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
@@ -1064,8 +1088,16 @@ export class WinningBoardClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAll(): Promise<FileResponse> {
-        let url_ = this.baseUrl + "/api/WinningBoard";
+    getAll(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/api/WinningBoard?";
+        if (filters !== undefined && filters !== null)
+            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
+        if (sorts !== undefined && sorts !== null)
+            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -1102,11 +1134,11 @@ export class WinningBoardClient {
         return Promise.resolve<FileResponse>(null as any);
     }
 
-    create(winningBoard: WinningBoard): Promise<FileResponse> {
+    create(dto: CreateWinningBoardDto): Promise<FileResponse> {
         let url_ = this.baseUrl + "/api/WinningBoard";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(winningBoard);
+        const content_ = JSON.stringify(dto);
 
         let options_: RequestInit = {
             body: content_,
@@ -1185,14 +1217,14 @@ export class WinningBoardClient {
         return Promise.resolve<FileResponse>(null as any);
     }
 
-    update(id: string, winningBoard: WinningBoard): Promise<FileResponse> {
+    update(id: string, dto: UpdateWinningBoardDto): Promise<FileResponse> {
         let url_ = this.baseUrl + "/api/WinningBoard/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(winningBoard);
+        const content_ = JSON.stringify(dto);
 
         let options_: RequestInit = {
             body: content_,
@@ -1282,8 +1314,16 @@ export class WinningNumberClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAll(): Promise<FileResponse> {
-        let url_ = this.baseUrl + "/api/WinningNumber";
+    getAll(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/api/WinningNumber?";
+        if (filters !== undefined && filters !== null)
+            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
+        if (sorts !== undefined && sorts !== null)
+            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: RequestInit = {
@@ -1320,11 +1360,11 @@ export class WinningNumberClient {
         return Promise.resolve<FileResponse>(null as any);
     }
 
-    create(winningBoard: WinningNumber): Promise<FileResponse> {
+    create(dto: CreateWinningNumberDto): Promise<FileResponse> {
         let url_ = this.baseUrl + "/api/WinningNumber";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(winningBoard);
+        const content_ = JSON.stringify(dto);
 
         let options_: RequestInit = {
             body: content_,
@@ -1403,14 +1443,14 @@ export class WinningNumberClient {
         return Promise.resolve<FileResponse>(null as any);
     }
 
-    update(id: string, winningNumber: WinningNumber): Promise<FileResponse> {
+    update(id: string, dto: UpdateWinningNumberDto): Promise<FileResponse> {
         let url_ = this.baseUrl + "/api/WinningNumber/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(winningNumber);
+        const content_ = JSON.stringify(dto);
 
         let options_: RequestInit = {
             body: content_,
@@ -1510,21 +1550,27 @@ export interface UserDto {
 
 export type UserRole = 0 | 1;
 
-export interface Board {
-    boardID?: string;
+export interface CreateBoardDto {
     boardSize?: number;
-    isActive?: boolean;
     isRepeating?: boolean;
-    createdAt?: string;
     userID?: string;
-    numbers?: BoardNumber[];
+    numbers?: CreateBoardNumberDto[];
 }
 
-export interface BoardNumber {
-    boardNumberID?: string;
-    boardID?: string;
-    winningBoardID?: string;
+export interface CreateBoardNumberDto {
     number?: number;
+    winningBoardID?: string;
+}
+
+export interface UpdateBoardDto {
+    boardSize?: number | undefined;
+    isActive?: boolean | undefined;
+    isRepeating?: boolean | undefined;
+}
+
+export interface UpdateBoardNumberDto {
+    number?: number | undefined;
+    winningBoardID?: string;
 }
 
 export interface CreateTransactionDto {
@@ -1556,17 +1602,29 @@ export interface RegisterUserDto {
     role?: string;
 }
 
-export interface WinningBoard {
-    winningBoardID?: string;
-    createdAt?: string;
-    winningNumbers?: WinningNumber[];
+export interface UpdateUserDto {
+    firstname?: string;
+    lastname?: string;
+    email?: string;
+    role?: UserRole | undefined;
+    isActive?: boolean | undefined;
+    balance?: number | undefined;
 }
 
-export interface WinningNumber {
-    winningNumberID?: string;
-    winningBoardID?: string;
-    winningBoard?: WinningBoard;
+export interface CreateWinningBoardDto {
+    winningNumbers?: CreateWinningNumberDto[];
+}
+
+export interface CreateWinningNumberDto {
     number?: number;
+}
+
+export interface UpdateWinningBoardDto {
+    winningNumbers?: CreateWinningNumberDto[];
+}
+
+export interface UpdateWinningNumberDto {
+    number?: number | undefined;
 }
 
 export interface FileResponse {

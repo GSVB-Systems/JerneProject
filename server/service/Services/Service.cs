@@ -1,13 +1,20 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Service.Repositories;
+using Contracts;
+using service.Repositories;
 using dataaccess;
 using service.Repositories.Interfaces;
 using service.Services.Interfaces;
+using Sieve.Models;
 
 namespace service.Services;
 
-public class Service<T> : IService<T> where T : class
+public class Service<T, TCreate, TUpdate> : IService<T, TCreate, TUpdate>
+    where T : class
+    where TCreate : class
+    where TUpdate : class
 {
     protected readonly IRepository<T> Repository;
 
@@ -21,29 +28,32 @@ public class Service<T> : IService<T> where T : class
         return await Repository.GetByIdAsync(id);
     }
 
-    public virtual async Task<IEnumerable<T>> GetAllAsync()
+    public virtual async Task<PagedResult<T>> GetAllAsync(SieveModel? parameters = null)
     {
-        return await Repository.GetAllAsync();
+        var items = (await Repository.GetAllAsync())?.ToList() ?? new List<T>();
+        var count = items.Count;
+
+        return new PagedResult<T>
+        {
+            Items = items,
+            TotalCount = count,
+            Page = 1,
+            PageSize = count
+        };
+    }
+    
+    public virtual Task<T> CreateAsync(TCreate createDto)
+    {
+        throw new NotImplementedException($"CreateAsync({typeof(TCreate).Name}) must be implemented in the derived service.");
     }
 
-    public virtual async Task<T> CreateAsync(T entity)
+    
+    public virtual Task<T?> UpdateAsync(string id, TUpdate updateDto)
     {
-        await Repository.AddAsync(entity);
-        await Repository.SaveChangesAsync();
-        return entity;
+        throw new NotImplementedException($"UpdateAsync({typeof(TUpdate).Name}) must be implemented in the derived service.");
     }
-
-    public virtual async Task<T?> UpdateAsync(string id, T entity)
-    {
-        var existing = await Repository.GetByIdAsync(id);
-        if (existing == null)
-            return null;
-
-        await Repository.UpdateAsync(entity);
-        await Repository.SaveChangesAsync();
-        return entity;
-    }
-
+    
+    
     public virtual async Task<bool> DeleteAsync(string id)
     {
         var existing = await Repository.GetByIdAsync(id);
