@@ -49,7 +49,7 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
         };
     }
 
-    public override async Task<User> CreateAsync(RegisterUserDto createDto)
+    public async Task<UserDto> CreateAsync(RegisterUserDto createDto)
     {
         var entity = UserMapper.ToEntity(createDto);
         entity.Hash = _passwordService.HashPassword(createDto.Password);
@@ -61,7 +61,7 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
         await _userRepository.AddAsync(entity);
         await _userRepository.SaveChangesAsync();
 
-        return entity;
+        return UserMapper.ToDto(entity);
     }
 
     public async Task<UserDto?> UpdateAsync(string id, UpdateUserDto updateDto)
@@ -77,38 +77,13 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
 
         return UserMapper.ToDto(existing);
     }
-
-
-    public async Task<UserDto?> UpdateAsync(string id, UserDto dto)
-    {
-        var existing = await base.GetByIdAsync(id);
-        if (existing == null) return null;
-
-        if (dto.Firstname != null) existing.Firstname = dto.Firstname;
-        if (dto.Lastname != null) existing.Lastname = dto.Lastname;
-        if (dto.Email != null) existing.Email = dto.Email;
-
-        existing.Role = dto.Role;
-        existing.Firstlogin = dto.Firstlogin;
-        existing.IsActive = dto.IsActive;
-        existing.Balance = dto.Balance;
-
-        await _userRepository.UpdateAsync(existing);
-        await _userRepository.SaveChangesAsync();
-
-        return UserMapper.ToDto(existing);
-    }
+    
 
     public async Task<bool> DeleteAsync(string id)
     {
         return await base.DeleteAsync(id);
     }
     
-    public async Task<UserDto> RegisterUserAsync(RegisterUserDto dto)
-    {
-        var entity = await CreateAsync(dto);
-        return UserMapper.ToDto(entity);
-    }
     
 
     public async Task<bool> VerifyUserPasswordAsync(string userId, string plainPassword)

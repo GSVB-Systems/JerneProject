@@ -39,26 +39,6 @@
         }
       }
     },
-    "/api/Auth/userinfo": {
-      "get": {
-        "tags": [
-          "Auth"
-        ],
-        "operationId": "Auth_Userinfo",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/Board": {
       "get": {
         "tags": [
@@ -459,7 +439,7 @@
         }
       }
     },
-    "/api/Transaction/getAllTransactions": {
+    "/api/Transaction": {
       "get": {
         "tags": [
           "Transaction"
@@ -509,6 +489,37 @@
             "x-position": 4
           }
         ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Transaction"
+        ],
+        "operationId": "Transaction_Create",
+        "requestBody": {
+          "x-name": "dto",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTransactionDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "",
@@ -685,39 +696,6 @@
             "x-position": 1
           }
         ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Transaction": {
-      "post": {
-        "tags": [
-          "Transaction"
-        ],
-        "operationId": "Transaction_Create",
-        "requestBody": {
-          "x-name": "dto",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateTransactionDto"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
         "responses": {
           "200": {
             "description": "",
@@ -1422,59 +1400,6 @@
           }
         }
       },
-      "UserDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "userID": {
-            "type": "string"
-          },
-          "firstname": {
-            "type": "string"
-          },
-          "lastname": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "role": {
-            "$ref": "#/components/schemas/UserRole"
-          },
-          "firstlogin": {
-            "type": "boolean"
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "balance": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "subscriptionExpiresAtUtc": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "daysUntilExpiry": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          }
-        }
-      },
-      "UserRole": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Bruger",
-          "Administrator"
-        ],
-        "enum": [
-          0,
-          1
-        ]
-      },
       "CreateBoardDto": {
         "type": "object",
         "additionalProperties": false,
@@ -1656,6 +1581,59 @@
             "format": "int32"
           }
         }
+      },
+      "UserDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userID": {
+            "type": "string"
+          },
+          "firstname": {
+            "type": "string"
+          },
+          "lastname": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "firstlogin": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "balance": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "subscriptionExpiresAtUtc": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "daysUntilExpiry": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        }
+      },
+      "UserRole": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Bruger",
+          "Administrator"
+        ],
+        "enum": [
+          0,
+          1
+        ]
       },
       "RegisterUserDto": {
         "type": "object",

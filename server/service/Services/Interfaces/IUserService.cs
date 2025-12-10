@@ -4,7 +4,7 @@ using dataaccess.Entities;
 
 namespace service.Services.Interfaces;
 
-public interface IUserService : IService<User, RegisterUserDto, UpdateUserDto>
+public interface IUserService : IService<UserDto, RegisterUserDto, UpdateUserDto>
 {
     
     Task<bool> VerifyUserPasswordAsync(string userId, string plainPassword);
