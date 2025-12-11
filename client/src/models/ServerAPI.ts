@@ -1583,6 +1583,7 @@ export interface TransactionDto {
     transactionDate?: string;
     amount?: number;
     userID?: string;
+    pending?: boolean;
 }
 
 export interface CreateTransactionDto {
@@ -1590,6 +1591,7 @@ export interface CreateTransactionDto {
     transactionDate?: string | undefined;
     amount?: number;
     userID?: string;
+    pending?: boolean | undefined;
 }
 
 export interface UpdateTransactionDto {
@@ -1597,6 +1599,7 @@ export interface UpdateTransactionDto {
     transactionDate?: string | undefined;
     amount?: number | undefined;
     userID?: string;
+    pending?: boolean | undefined;
 }
 
 export interface PagedResultOfUserDto {

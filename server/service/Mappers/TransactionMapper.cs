@@ -13,7 +13,8 @@ public static class TransactionMapper
             TransactionString = t.TransactionString,
             TransactionDate = t.TransactionDate,
             Amount = t.Amount,
-            UserID = t.UserID
+            UserID = t.UserID,
+            Pending = t.Pending
         };
 
     public static Transaction ToEntity(CreateTransactionDto dto) =>
@@ -23,7 +24,8 @@ public static class TransactionMapper
             TransactionString = dto.TransactionString,
             TransactionDate = dto.TransactionDate ?? DateTime.UtcNow,
             Amount = dto.Amount,
-            UserID = dto.UserID
+            UserID = dto.UserID,
+            Pending = dto.Pending ?? true
         };
 
     public static void ApplyUpdate(Transaction target, UpdateTransactionDto dto)
@@ -32,5 +34,6 @@ public static class TransactionMapper
         if (dto.TransactionDate.HasValue) target.TransactionDate = dto.TransactionDate.Value;
         if (dto.Amount.HasValue) target.Amount = dto.Amount.Value;
         if (dto.UserID != null) target.UserID = dto.UserID;
+        if (dto.Pending.HasValue) target.Pending = dto.Pending.Value;
     }
 }
