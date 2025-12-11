@@ -7,6 +7,7 @@ export default function AdminPage(): JSX.Element {
   const navigate = useNavigate();
 
   const redirectToUsers = () => navigate("/brugere");
+  const redirectToTransactions = () => navigate("/admintransactions");
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-start justify-center py-12">
@@ -16,6 +17,9 @@ export default function AdminPage(): JSX.Element {
         <div className="flex gap-3 mb-6">
           <button className="btn" onClick={redirectToUsers}>
             Se Brugere
+          </button>
+          <button className="btn" onClick={redirectToTransactions}>
+            Se Transaktioner
           </button>
         </div>
       </main>

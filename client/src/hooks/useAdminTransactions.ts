@@ -1,14 +1,27 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { transactionClient } from "../api-clients.ts";
-import type { TransactionDto } from "../models/ServerAPI";
-import { useJWT } from "./useJWT.ts";
+import { transactionClient, userClient } from "../api-clients.ts";
+import type {
+  FileResponse,
+  PagedResultOfTransactionDto,
+  TransactionDto,
+  UserDto,
+} from "../models/ServerAPI";
+import type {
+  SortDirection,
+  TransactionSortField,
+  TransactionTypeFilter,
+} from "./useUserTransactions.ts";
 
 const DEFAULT_PAGE_SIZE = 25;
 const DEFAULT_SORT_FIELD: TransactionSortField = "transactionDate";
 const DEFAULT_SORT_DIRECTION: SortDirection = "desc";
+const USERS_PAGE_SIZE = 25;
+const USER_FETCH_SORT = "firstname";
 
-type UseUserTransactionsResult = {
-  transactions: TransactionDto[];
+export type AdminTransactionRow = TransactionDto & { userFullName: string };
+
+type UseAdminTransactionsResult = {
+  transactions: AdminTransactionRow[];
   total: number;
   page: number;
   pageSize: number;
@@ -30,14 +43,11 @@ type UseUserTransactionsResult = {
   handlePageChange: (direction: "prev" | "next") => void;
   resetFilters: () => void;
   refresh: () => Promise<void>;
+  userNamesLoaded: boolean;
 };
 
-export type TransactionSortField = "transactionDate" | "amount" | "pending" | "transactionString";
-export type TransactionTypeFilter = "all" | "credit" | "debit";
-export type SortDirection = "asc" | "desc";
-
 const sanitizeSearchTerm = (value: string): string | null => {
-  const normalized = value.trim().replace(/[|,"]/g, " ").replace(/\s+/g, " ").trim();
+  const normalized = value.trim().replace(/[|,"]+/g, " ").replace(/\s+/g, " ").trim();
   if (!normalized) return null;
   return normalized.includes(" ") ? `"${normalized}"` : normalized;
 };
@@ -67,24 +77,49 @@ const buildSieveFilters = (search: string, type: TransactionTypeFilter): string 
   return parts.length ? parts.join(",") : null;
 };
 
-function getUserIdFromJwt(jwt: string | null | undefined): string | null {
-  if (!jwt) return null;
-  try {
-    const payloadBase64 = jwt.split(".")[1];
-    const payloadJson = atob(payloadBase64);
-    const payload = JSON.parse(payloadJson);
-    return payload["sub"] ?? null;
-  } catch {
-    return null;
+const parsePagedTransactions = async (
+  response: FileResponse | null | undefined,
+): Promise<PagedResultOfTransactionDto> => {
+  if (!response) {
+    throw new Error("Tomt svar fra serveren.");
   }
-}
 
-export const useUserTransactions = (): UseUserTransactionsResult => {
+  const payload = await response.data.text();
+  if (!payload) {
+    return { items: [], totalCount: 0, page: 1, pageSize: DEFAULT_PAGE_SIZE };
+  }
+
+  return JSON.parse(payload) as PagedResultOfTransactionDto;
+};
+
+const buildUserFullName = (user: UserDto): string => {
+  const fullName = `${user.firstname ?? ""} ${user.lastname ?? ""}`.trim();
+  return fullName || user.email || "Ukendt bruger";
+};
+
+const chunkArray = <T,>(items: T[], size: number): T[][] => {
+  const result: T[][] = [];
+  for (let i = 0; i < items.length; i += size) {
+    result.push(items.slice(i, i + size));
+  }
+  return result;
+};
+
+const buildUserIdFilter = (ids: string[]): string | null => {
+  if (!ids.length) return null;
+  return ids
+    .map((id) => `userID==${JSON.stringify(id)}`)
+    .join("|");
+};
+
+export const useAdminTransactions = (): UseAdminTransactionsResult => {
   const [transactions, setTransactions] = useState<TransactionDto[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userNameMap, setUserNameMap] = useState<Map<string, string>>(new Map());
+  const [userNamesLoaded, setUserNamesLoaded] = useState(false);
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
@@ -93,36 +128,26 @@ export const useUserTransactions = (): UseUserTransactionsResult => {
   const [searchTerm, setSearchTermState] = useState("");
   const [transactionTypeFilter, setTransactionTypeFilterState] = useState<TransactionTypeFilter>("all");
 
-  const jwt = useJWT();
-  const userId = useMemo(() => getUserIdFromJwt(jwt), [jwt]);
-
   const filters = useMemo(
     () => buildSieveFilters(searchTerm, transactionTypeFilter),
-    [searchTerm, transactionTypeFilter]
+    [searchTerm, transactionTypeFilter],
   );
 
   const sorts = useMemo(
     () => `${sortDirection === "desc" ? "-" : ""}${sortField}`,
-    [sortDirection, sortField]
+    [sortDirection, sortField],
   );
 
-  const fetchUserTransactions = useCallback(async () => {
-    if (!userId) {
-      setError("Ingen gyldig bruger-session.");
-      setTransactions([]);
-      setLoading(false);
-      setHasLoadedOnce(true);
-      return;
-    }
-
+  const fetchAdminTransactions = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await transactionClient.getAllTransactionsByUserId(userId, filters, sorts, page, pageSize);
-      const list = Array.isArray(response?.items) ? response.items : [];
-      const totalCount = coerceNumber(response?.totalCount, list.length);
-      const serverPageSize = coerceNumber(response?.pageSize, DEFAULT_PAGE_SIZE) || DEFAULT_PAGE_SIZE;
-      const serverPage = coerceNumber(response?.page, page) || 1;
+      const response = await transactionClient.getAll(filters, sorts, page, pageSize);
+      const parsed = await parsePagedTransactions(response);
+      const list = Array.isArray(parsed?.items) ? parsed.items : [];
+      const totalCount = coerceNumber(parsed?.totalCount, list.length);
+      const serverPageSize = coerceNumber(parsed?.pageSize, DEFAULT_PAGE_SIZE) || DEFAULT_PAGE_SIZE;
+      const serverPage = coerceNumber(parsed?.page, page) || 1;
 
       setTransactions(list);
       setTotal(totalCount);
@@ -136,13 +161,63 @@ export const useUserTransactions = (): UseUserTransactionsResult => {
       setLoading(false);
       setHasLoadedOnce(true);
     }
-  }, [filters, page, pageSize, sorts, userId]);
+  }, [filters, page, pageSize, sorts]);
+
+  const fetchUsersByIds = useCallback(
+    async (userIds: Array<string | undefined>) => {
+      const uniqueIds = Array.from(new Set(userIds.filter((id): id is string => Boolean(id))));
+      const missingIds = uniqueIds.filter((id) => !userNameMap.has(id));
+
+      if (!missingIds.length) {
+        setUserNamesLoaded(true);
+        return;
+      }
+
+      setUserNamesLoaded(false);
+      const nextMap = new Map(userNameMap);
+
+      try {
+        const chunks = chunkArray(missingIds, USERS_PAGE_SIZE);
+        for (const chunk of chunks) {
+          const filter = buildUserIdFilter(chunk);
+          if (!filter) continue;
+
+          const response = await userClient.getAll(filter, USER_FETCH_SORT, 1, chunk.length);
+          const items = Array.isArray(response?.items) ? response.items : [];
+          items.forEach((user) => {
+            if (user?.userID) {
+              nextMap.set(user.userID, buildUserFullName(user));
+            }
+          });
+        }
+
+        setUserNameMap(nextMap);
+      } catch (err) {
+        console.error("Kunne ikke hente brugere til opslag.", err);
+      } finally {
+        setUserNamesLoaded(true);
+      }
+    },
+    [userNameMap],
+  );
 
   useEffect(() => {
-    void fetchUserTransactions();
-  }, [fetchUserTransactions]);
+    void fetchAdminTransactions();
+  }, [fetchAdminTransactions]);
 
-  const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize) || 1), [pageSize, total]);
+  useEffect(() => {
+    if (!transactions.length) {
+      setUserNamesLoaded(true);
+      return;
+    }
+
+    void fetchUsersByIds(transactions.map((tx) => tx.userID));
+  }, [transactions, fetchUsersByIds]);
+
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil(total / pageSize) || 1),
+    [pageSize, total],
+  );
 
   useEffect(() => {
     if (page > totalPages) {
@@ -181,7 +256,7 @@ export const useUserTransactions = (): UseUserTransactionsResult => {
       }
       setPage(1);
     },
-    [sortField]
+    [sortField],
   );
 
   const handlePageChange = useCallback(
@@ -193,7 +268,7 @@ export const useUserTransactions = (): UseUserTransactionsResult => {
         return Math.min(totalPages, current + 1);
       });
     },
-    [totalPages]
+    [totalPages],
   );
 
   const resetFilters = useCallback(() => {
@@ -207,8 +282,17 @@ export const useUserTransactions = (): UseUserTransactionsResult => {
   const visibleStart = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const visibleEnd = total === 0 ? 0 : Math.min(total, page * pageSize);
 
+  const transactionsWithNames = useMemo<AdminTransactionRow[]>(
+    () =>
+      transactions.map((tx) => ({
+        ...tx,
+        userFullName: tx.userID ? userNameMap.get(tx.userID) ?? "Ukendt bruger" : "Ukendt bruger",
+      })),
+    [transactions, userNameMap],
+  );
+
   return {
-    transactions,
+    transactions: transactionsWithNames,
     total,
     page,
     pageSize,
@@ -229,6 +313,9 @@ export const useUserTransactions = (): UseUserTransactionsResult => {
     toggleSort,
     handlePageChange,
     resetFilters,
-    refresh: fetchUserTransactions,
+    refresh: fetchAdminTransactions,
+    userNamesLoaded,
   };
 };
+
+export type { TransactionSortField, TransactionTypeFilter } from "./useUserTransactions.ts";

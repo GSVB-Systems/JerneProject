@@ -10,6 +10,7 @@ import ViewUserDetails from "./Components/AdminPages/ViewUserDetails.tsx";
 import FirstLoginPage from "./Components/FirstLoginPage.tsx";
 import UserTransactions from "./Components/TransactionPages/UserTransactions.tsx";
 import UserProtectedRoute from "./Components/ProtectedRouting/UserProtectedRouting.tsx";
+import AdminTransaction from "./Components/AdminPages/AdminTransaction.tsx";
 
 function App() {
 
@@ -42,6 +43,14 @@ function App() {
                             <UserProtectedRoute>
                                 <UserTransactions/>
                             </UserProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/admintransactions",
+                        element: (
+                            <AdminProtectedRoute>
+                                <AdminTransaction/>
+                            </AdminProtectedRoute>
                         )
                     },
                     {
