@@ -7,4 +7,5 @@ public class Transaction
     public DateTime TransactionDate { get; set; }
     public Decimal Amount { get; set; }
     public String UserID { get; set; }
+    public bool Pending { get; set; }
 }
