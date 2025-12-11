@@ -47,6 +47,10 @@ export default function AdminTransaction(): JSX.Element {
     };
   }, [setSearchTerm]);
 
+  const acceptTransaction = null;
+
+  const deleteTransaction = null;
+
   const handleSearchChange = (value: string) => {
     debouncedSearch(value);
   };
@@ -187,6 +191,16 @@ export default function AdminTransaction(): JSX.Element {
                         <span className={tx.amount && tx.amount > 0 ? "text-green-600" : "text-red-600"}>
                           {formatAmount(tx.amount)}
                         </span>
+                      </td>
+                      <td>
+                        <button style={{
+                          backgroundColor: "green",
+                          color: "white",
+                        }} onClick={acceptTransaction}>Godkend</button>
+                        <button style={{
+                          backgroundColor: "red",
+                          color: "white",
+                        }} onClick={deleteTransaction}>Afvis</button>
                       </td>
                     </tr>
                   ))}
