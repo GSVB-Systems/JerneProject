@@ -1,6 +1,6 @@
 ﻿using Contracts;
-using Contracts.BoardDTOs;
 using Contracts.BoardNumberDTOs;
+using Contracts.BoardDTOs;
 using dataaccess.Entities;
 
 namespace service.Mappers
@@ -16,7 +16,7 @@ namespace service.Mappers
                 IsRepeating = b.IsRepeating,
                 CreatedAt = b.CreatedAt,
                 UserID = b.UserID,
-                Numbers = b.Numbers?.Select(BoardNumberMapper.ToDto).ToList() ?? new List<BoardNumberDto>()
+                Numbers = b.Numbers?.Select(BoardNumberMapper.ToDto).ToList() ?? new System.Collections.Generic.List<BoardNumberDto>()
             };
 
         public static Board ToEntity(CreateBoardDto dto)
@@ -31,11 +31,11 @@ namespace service.Mappers
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UserID = dto.UserID,
-                Numbers = dto.Numbers?.Select(n =>
+                Numbers = dto.Numbers?.Select(n => new BoardNumber
                 {
-                    var e = BoardNumberMapper.ToEntity(n);
-                    e.BoardID = boardId;
-                    return e;
+                    BoardNumberID = Guid.NewGuid().ToString(),
+                    Number = n,
+                    BoardID = boardId
                 }).ToList() ?? new System.Collections.Generic.List<BoardNumber>()
             };
             return board;
@@ -44,9 +44,21 @@ namespace service.Mappers
         public static void ApplyUpdate(Board target, UpdateBoardDto dto)
         {
             if (dto == null || target == null) return;
+
             if (dto.BoardSize.HasValue) target.BoardSize = dto.BoardSize.Value;
             if (dto.IsActive.HasValue) target.IsActive = dto.IsActive.Value;
             if (dto.IsRepeating.HasValue) target.IsRepeating = dto.IsRepeating.Value;
+            
+            if (dto.Numbers != null)
+            {
+                var boardId = target.BoardID;
+                target.Numbers = dto.Numbers.Select(n => new BoardNumber
+                {
+                    BoardNumberID = Guid.NewGuid().ToString(),
+                    Number = n.Number,   
+                    BoardID = boardId
+                }).ToList();
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-import {type FormEvent, useState,} from "react";
+import React, {type FormEvent, useState,} from "react";
 import { useNavigate } from "react-router";
 import logo from "../../resources/Logo1.png";
 import {useAtom} from "jotai";
@@ -56,7 +56,7 @@ export default function LoginPage() {
                 }
 
                 try {
-                    const userRes = await fetch(`/api/Users/${id}`, {
+                    const userRes = await fetch(`/api/Users/GetUserByID/${id}`, {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",

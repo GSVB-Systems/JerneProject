@@ -21,7 +21,7 @@ public class UsersController : ControllerBase
         _userService = userService;
     }
     
-    [HttpGet("getAll")]
+    [HttpGet("getAllUsers")]
     [Authorize(Roles = "Administrator")]
     public async Task<ActionResult<PagedResult<UserDto>>> GetAll([FromQuery] UserQueryParameters parameters)
     {
@@ -29,14 +29,14 @@ public class UsersController : ControllerBase
         return Ok(users);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("GetUserByID/{id}")]
     public async Task<IActionResult> GetById(string id)
     {
         var user = await _userService.GetByIdAsync(id);
         return user == null ? NotFound() : Ok(user);
     }
 
-    [HttpPost("create")]
+    [HttpPost("CreateUser")]
     [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Create(RegisterUserDto dto)
     {
@@ -44,14 +44,14 @@ public class UsersController : ControllerBase
         return Ok(created);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("UpdateUserBy{id}")]
     public async Task<IActionResult> Update(string id, UpdateUserDto dto)
     {
         var updated = await _userService.UpdateAsync(id, dto);
         return updated == null ? NotFound() : Ok(updated);
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("DeleteUserBy{id}")]
     public async Task<IActionResult> Delete(string id)
     {
         var deleted = await _userService.DeleteAsync(id);
@@ -66,7 +66,7 @@ public class UsersController : ControllerBase
         return Ok(new { isActive });
     }
     
-    [HttpPost("{id}/extend")]
+    [HttpPost("{id}/extendSubscription")]
     [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> ExtendSubscription(string id, [FromQuery] int months)
     {

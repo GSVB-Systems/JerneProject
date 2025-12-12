@@ -2,7 +2,6 @@ using Contracts.UserDTOs;
 using Contracts;
 using dataaccess.Entities;
 using Microsoft.EntityFrameworkCore;
-using service.Repositories;
 using service.Repositories.Interfaces;
 using service.Mappers;
 using service.Services.Interfaces;

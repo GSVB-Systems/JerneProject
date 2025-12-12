@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using dataaccess;
@@ -11,9 +12,11 @@ using dataaccess;
 namespace dataaccess.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251211142704_RemovedWinningBoardIDCollumnFromBoardNumberEntity")]
+    partial class RemovedWinningBoardIDCollumnFromBoardNumberEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -174,13 +177,11 @@ namespace dataaccess.Migrations
 
             modelBuilder.Entity("dataaccess.Entities.Board", b =>
                 {
-                    b.HasOne("dataaccess.Entities.User", "User")
+                    b.HasOne("dataaccess.Entities.User", null)
                         .WithMany("Boards")
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("dataaccess.Entities.BoardNumber", b =>

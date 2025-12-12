@@ -1,5 +1,4 @@
-using System.Linq;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 using Contracts.BoardDTOs;
 using Contracts;
 using dataaccess.Entities;
@@ -8,59 +7,115 @@ using service.Mappers;
 using service.Repositories.Interfaces;
 using service.Services.Interfaces;
 using Sieve.Models;
-using Sieve.Services;
 
 namespace service.Services
 {
-    public class BoardService : IBoardService
+    public class BoardService : Service<Board, CreateBoardDto, UpdateBoardDto>, IBoardService
     {
         private readonly IBoardRepository _boardRepository;
-        private readonly ISieveProcessor _sieveProcessor;
 
-        public BoardService(IBoardRepository boardRepository, ISieveProcessor sieveProcessor)
+        public BoardService(IBoardRepository boardRepository)
+            : base(boardRepository)
         {
             _boardRepository = boardRepository;
-            _sieveProcessor = sieveProcessor;
         }
 
         public async Task<BoardDto?> GetByIdAsync(string id)
         {
-            var board = await _boardRepository.GetByIdAsync(id);
-            return board == null ? null : BoardMapper.ToDto(board);
+            var entity = await _boardRepository.AsQueryable()
+                .Include(b => b.Numbers)
+                .FirstOrDefaultAsync(b => b.BoardID == id);
+
+            return entity == null ? null : BoardMapper.ToDto(entity);
         }
 
         public async Task<PagedResult<BoardDto>> GetAllAsync(SieveModel? parameters)
         {
-            var query = _boardRepository.AsQueryable();
-            var sieveModel = parameters ?? new SieveModel();
+            var query = _boardRepository.AsQueryable().Include(b => b.Numbers);
 
-            var totalCount = await query.CountAsync();
-            var processedQuery = _sieveProcessor.Apply(sieveModel, query);
-            var boards = await processedQuery.ToListAsync();
+            var items = await query.ToListAsync();
+
+            var dtoItems = items.Select(BoardMapper.ToDto).ToList();
+            var count = dtoItems.Count;
+
+            var page = parameters?.Page ?? 1;
+            var pageSize = parameters?.PageSize ?? count;
 
             return new PagedResult<BoardDto>
             {
-                Items = boards.Select(BoardMapper.ToDto).ToList(),
-                TotalCount = totalCount,
-                Page = sieveModel.Page ?? 1,
-                PageSize = sieveModel.PageSize ?? boards.Count
+                Items = dtoItems,
+                TotalCount = count,
+                Page = page,
+                PageSize = pageSize
             };
         }
 
-        public async Task<BoardDto> CreateAsync(CreateBoardDto dto)
+        public async Task<BoardDto> CreateAsync(CreateBoardDto createDto)
         {
-            var entity = BoardMapper.ToEntity(dto);
+            if (createDto == null)
+                throw new ArgumentNullException(nameof(createDto));
+
+            if (createDto.Numbers == null)
+                throw new ValidationException("Numbers are required.");
+
+            if (createDto.BoardSize <= 0)
+                throw new ValidationException("Must choose Boardsize between 5-8");
+
+            if (createDto.Numbers.Count != createDto.BoardSize)
+                throw new ValidationException($"Numbers count must equal BoardSize ({createDto.BoardSize}).");
+            
+            
+           
+            var values = createDto.Numbers.ToList();
+
+            if (!createDto.IsRepeating)
+            {
+                var duplicateValues = values.GroupBy(v => v).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
+                if (duplicateValues.Any())
+                    throw new ValidationException($"Numbers must be unique. Duplicates: {string.Join(',', duplicateValues)}");
+            }
+
+            var entity = BoardMapper.ToEntity(createDto);
+            
+            if (string.IsNullOrWhiteSpace(entity.BoardID))
+                entity.BoardID = Guid.NewGuid().ToString();
+
+            if (entity.Numbers == null)
+                entity.Numbers = new System.Collections.Generic.List<BoardNumber>();
+
+            foreach (var n in entity.Numbers)
+            {
+                if (string.IsNullOrWhiteSpace(n.BoardNumberID))
+                    n.BoardNumberID = Guid.NewGuid().ToString();
+                n.BoardID = entity.BoardID;
+            }
+
             await _boardRepository.AddAsync(entity);
             await _boardRepository.SaveChangesAsync();
+
             return BoardMapper.ToDto(entity);
         }
 
-        public async Task<BoardDto?> UpdateAsync(string id, UpdateBoardDto dto)
+        public async Task<BoardDto?> UpdateAsync(string id, UpdateBoardDto updateDto)
         {
-            var existing = await _boardRepository.GetByIdAsync(id);
+            var existing = await base.GetByIdAsync(id);
             if (existing == null) return null;
 
-            BoardMapper.ApplyUpdate(existing, dto);
+            // If numbers are being updated validate them
+            if (updateDto?.Numbers != null)
+            {
+                var numbers = updateDto.Numbers.ToList(); // ints directly
+                var targetBoardSize = updateDto.BoardSize ?? existing.BoardSize;
+                if (numbers.Count != targetBoardSize)
+                    throw new ValidationException($"Numbers count must equal BoardSize ({targetBoardSize}).");
+
+                var isRepeating = updateDto.IsRepeating ?? existing.IsRepeating;
+                if (!isRepeating && numbers.Count != numbers.Distinct().Count())
+                    throw new ValidationException("Numbers must be unique.");
+            }
+
+            BoardMapper.ApplyUpdate(existing, updateDto);
+
             await _boardRepository.UpdateAsync(existing);
             await _boardRepository.SaveChangesAsync();
 
@@ -69,12 +124,7 @@ namespace service.Services
 
         public async Task<bool> DeleteAsync(string id)
         {
-            var existing = await _boardRepository.GetByIdAsync(id);
-            if (existing == null) return false;
-
-            await _boardRepository.DeleteAsync(existing);
-            await _boardRepository.SaveChangesAsync();
-            return true;
+            return await base.DeleteAsync(id);
         }
     }
 }
