@@ -27,6 +27,8 @@ export default function AdminTransaction(): JSX.Element {
     error,
     searchTerm,
     transactionTypeFilter,
+    pendingTypeFilter,
+    setPendingTypeFilter,
     sortField,
     sortDirection,
     setSearchTerm,
@@ -37,6 +39,8 @@ export default function AdminTransaction(): JSX.Element {
     handlePageChange,
     resetFilters,
     userNamesLoaded,
+    acceptTransaction,
+    deleteTransaction,
   } = useAdminTransactions();
 
   const debouncedSearch = useMemo(() => {
@@ -47,9 +51,7 @@ export default function AdminTransaction(): JSX.Element {
     };
   }, [setSearchTerm]);
 
-  const acceptTransaction = null;
 
-  const deleteTransaction = null;
 
   const handleSearchChange = (value: string) => {
     debouncedSearch(value);
@@ -91,7 +93,7 @@ export default function AdminTransaction(): JSX.Element {
               <span className="label-text text-sm font-medium">Søg</span>
               <input
                 className="input input-bordered w-full"
-                placeholder="Tekst"
+                placeholder="Transaktionsnummer"
                 type="text"
                 defaultValue={searchTerm}
                 onChange={(event) => handleSearchChange(event.target.value)}
@@ -101,15 +103,33 @@ export default function AdminTransaction(): JSX.Element {
             <label className="form-control">
               <span className="label-text text-sm font-medium">Type</span>
               <select
-                className="select select-bordered w-full"
-                value={transactionTypeFilter}
-                onChange={(event) => setTransactionTypeFilter(event.target.value as TransactionTypeFilter)}
+                  className="select select-bordered w-full"
+                  value={transactionTypeFilter}
+                  onChange={(event) =>
+                      setTransactionTypeFilter(event.target.value as TransactionTypeFilter)
+                  }
+              >
+                <option value="all  ">Alle</option>
+                <option value="credit">Indbetalinger</option>
+                <option value="debit">Udbetalinger</option>
+              </select>
+            </label>
+
+            <label className="form-control">
+              <span className="label-text text-sm font-medium">Status</span>
+              <select
+                  className="select select-bordered w-full"
+                  value={pendingTypeFilter}
+                  onChange={(event) =>
+                      setPendingTypeFilter(event.target.value as "all" | "bogført" | "afventer")
+                  }
               >
                 <option value="all">Alle</option>
                 <option value="bogført">Bogført</option>
                 <option value="afventer">Afventer</option>
               </select>
             </label>
+
           </div>
 
           <div className="flex flex-wrap items-center gap-3 text-sm">
@@ -193,14 +213,18 @@ export default function AdminTransaction(): JSX.Element {
                         </span>
                       </td>
                       <td>
+                        {tx.pending && (
                         <button style={{
                           backgroundColor: "green",
                           color: "white",
-                        }} onClick={acceptTransaction}>Godkend</button>
+                        }} onClick={() => acceptTransaction(tx)} >Godkend</button>
+                            )}
+                        {tx.pending && (
                         <button style={{
                           backgroundColor: "red",
                           color: "white",
-                        }} onClick={deleteTransaction}>Afvis</button>
+                        }} onClick={() => deleteTransaction(tx)}>Afvis</button>
+                            )}
                       </td>
                     </tr>
                   ))}

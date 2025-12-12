@@ -7,5 +7,5 @@ public class UpdateTransactionDto
     public DateTime? TransactionDate { get; set; }
     public decimal? Amount { get; set; }
     public string UserID { get; set; }
-    public bool? Pending { get; }
+    public bool? Pending { get; set; }
 }

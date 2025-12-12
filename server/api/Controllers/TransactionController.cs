@@ -49,7 +49,7 @@ public class TransactionController : ControllerBase
         return Ok(CreatedAtAction(nameof(GetById), new { id = created.TransactionID }, created));
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("UpdateTransaction")]
     public async Task<IActionResult> Update(string id, [FromBody] UpdateTransactionDto dto)
     {
         var updated = await _transactionService.UpdateAsync(id, dto);

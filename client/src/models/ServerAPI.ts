@@ -696,30 +696,26 @@ export class TransactionClient {
         return Promise.resolve<FileResponse>(null as any);
     }
 
-    update(id: string, dto: UpdateTransactionDto): Promise<FileResponse> {
+    delete(id: string): Promise<FileResponse> {
         let url_ = this.baseUrl + "/api/Transaction/{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(dto);
-
         let options_: RequestInit = {
-            body: content_,
-            method: "PUT",
+            method: "DELETE",
             headers: {
-                "Content-Type": "application/json",
                 "Accept": "application/octet-stream"
             }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processUpdate(_response);
+            return this.processDelete(_response);
         });
     }
 
-    protected processUpdate(response: Response): Promise<FileResponse> {
+    protected processDelete(response: Response): Promise<FileResponse> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200 || status === 206) {
@@ -741,26 +737,31 @@ export class TransactionClient {
         return Promise.resolve<FileResponse>(null as any);
     }
 
-    delete(id: string): Promise<FileResponse> {
-        let url_ = this.baseUrl + "/api/Transaction/{id}";
-        if (id === undefined || id === null)
-            throw new globalThis.Error("The parameter 'id' must be defined.");
-        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+    update(id: string | undefined, dto: UpdateTransactionDto): Promise<FileResponse> {
+        let url_ = this.baseUrl + "/api/Transaction/UpdateTransaction?";
+        if (id === null)
+            throw new globalThis.Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(dto);
+
         let options_: RequestInit = {
-            method: "DELETE",
+            body: content_,
+            method: "PUT",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/octet-stream"
             }
         };
 
         return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processDelete(_response);
+            return this.processUpdate(_response);
         });
     }
 
-    protected processDelete(response: Response): Promise<FileResponse> {
+    protected processUpdate(response: Response): Promise<FileResponse> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200 || status === 206) {
