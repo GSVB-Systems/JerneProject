@@ -18,5 +18,15 @@ public class AuthRepository : Repository<User>, IAuthRepository
             .FirstOrDefaultAsync(u => u.Email == email);
     }
 
-    
+    public Task<User> updateUserPasswordAsync(string userId, string newHashedPassword)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.UserID == userId);
+        if (user != null)
+        {
+            user.Hash = newHashedPassword;
+            _context.SaveChanges();
+        }
+        return Task.FromResult(user);
+        
+    }
 }

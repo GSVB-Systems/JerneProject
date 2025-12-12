@@ -39,4 +39,11 @@ public class AuthController : ControllerBase
        
         return Ok(new { token });
     }
+
+    [HttpPost("User-change-password")]
+    public async Task<IActionResult> UserChangePassword(string userId, string oldPassword, string newPassword)
+    {
+        var isCompleted =   _authService.UpdateUserPasswordAsync(userId, oldPassword, newPassword);
+        return Ok(isCompleted);
+    }
 }
