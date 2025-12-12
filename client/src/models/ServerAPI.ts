@@ -355,9 +355,12 @@ export class TransactionClient {
             url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
+        const content_ = JSON.stringify(dto);
+
         let options_: RequestInit = {
             method: "GET",
             headers: {
+                "Content-Type": "application/json",
                 "Accept": "application/octet-stream"
             }
         };

@@ -19,6 +19,8 @@ const USERS_PAGE_SIZE = 25;
 const USER_FETCH_SORT = "firstname";
 
 export type AdminTransactionRow = TransactionDto & { userFullName: string };
+export type TransactionPendingTypeFilter = "all" | "bogført" | "afventer";
+
 
 type UseAdminTransactionsResult = {
   transactions: AdminTransactionRow[];
@@ -43,7 +45,11 @@ type UseAdminTransactionsResult = {
   handlePageChange: (direction: "prev" | "next") => void;
   resetFilters: () => void;
   refresh: () => Promise<void>;
+  acceptTransaction: (transaction: TransactionDto) => Promise<void>;
+  deleteTransaction: (transaction: TransactionDto) => Promise<void>;
   userNamesLoaded: boolean;
+  pendingTypeFilter: TransactionPendingTypeFilter;
+  setPendingTypeFilter: (value: TransactionPendingTypeFilter) => void;
 };
 
 const sanitizeSearchTerm = (value: string): string | null => {
@@ -61,9 +67,14 @@ const coerceNumber = (value: unknown, fallback = 0): number => {
   return fallback;
 };
 
-const buildSieveFilters = (search: string, type: TransactionTypeFilter): string | null => {
+const buildSieveFilters = (
+    search: string,
+    type: TransactionTypeFilter,
+    pending: TransactionPendingTypeFilter,
+): string | null => {
   const parts: string[] = [];
   const sanitized = sanitizeSearchTerm(search);
+
   if (sanitized) {
     parts.push(`transactionString@=${sanitized}`);
   }
@@ -74,8 +85,16 @@ const buildSieveFilters = (search: string, type: TransactionTypeFilter): string 
     parts.push("amount<0");
   }
 
+  // ➕ ADD PENDING TYPE FILTER
+  if (pending === "bogført") {
+    parts.push("pending==false");
+  } else if (pending === "afventer") {
+    parts.push("pending==true");
+  }
+
   return parts.length ? parts.join(",") : null;
 };
+
 
 const parsePagedTransactions = async (
   response: FileResponse | null | undefined,
@@ -127,11 +146,14 @@ export const useAdminTransactions = (): UseAdminTransactionsResult => {
   const [sortDirection, setSortDirectionState] = useState<SortDirection>(DEFAULT_SORT_DIRECTION);
   const [searchTerm, setSearchTermState] = useState("");
   const [transactionTypeFilter, setTransactionTypeFilterState] = useState<TransactionTypeFilter>("all");
+  const [pendingTypeFilter, setPendingTypeFilter] = useState<TransactionPendingTypeFilter>("all");
+
 
   const filters = useMemo(
-    () => buildSieveFilters(searchTerm, transactionTypeFilter),
-    [searchTerm, transactionTypeFilter],
+      () => buildSieveFilters(searchTerm, transactionTypeFilter, pendingTypeFilter),
+      [searchTerm, transactionTypeFilter, pendingTypeFilter],
   );
+
 
   const sorts = useMemo(
     () => `${sortDirection === "desc" ? "-" : ""}${sortField}`,
@@ -200,6 +222,30 @@ export const useAdminTransactions = (): UseAdminTransactionsResult => {
     },
     [userNameMap],
   );
+
+  const acceptTransaction = useCallback(async (transactionDTO: TransactionDto): Promise<void> => {
+    try {
+      await transactionClient.update(transactionDTO.transactionID,{
+        ...transactionDTO,
+        pending: false,
+      });
+      await fetchAdminTransactions();
+    } catch (err) {
+      console.error("Kunne ikke acceptere transaktionen", err);
+      throw err;
+    }
+  }, [fetchAdminTransactions]);
+
+
+  const deleteTransaction = useCallback(async (transactionDTO: TransactionDto): Promise<void> => {
+    try {
+      await transactionClient.delete(transactionDTO.transactionID ?? "");
+      await fetchAdminTransactions();
+    } catch (err) {
+      console.error("Kunne ikke slette transaktionen", err);
+      throw err;
+    }
+  }, [fetchAdminTransactions]);
 
   useEffect(() => {
     void fetchAdminTransactions();
@@ -273,6 +319,7 @@ export const useAdminTransactions = (): UseAdminTransactionsResult => {
 
   const resetFilters = useCallback(() => {
     setSearchTermState("");
+    setPendingTypeFilter("all");
     setTransactionTypeFilterState("all");
     setSortFieldState(DEFAULT_SORT_FIELD);
     setSortDirectionState(DEFAULT_SORT_DIRECTION);
@@ -304,16 +351,20 @@ export const useAdminTransactions = (): UseAdminTransactionsResult => {
     error,
     searchTerm,
     transactionTypeFilter,
+    pendingTypeFilter,
     sortField,
     sortDirection,
     setSearchTerm,
     setTransactionTypeFilter,
+    setPendingTypeFilter,
     setSortField,
     toggleSortDirection,
     toggleSort,
     handlePageChange,
     resetFilters,
     refresh: fetchAdminTransactions,
+    acceptTransaction,
+    deleteTransaction,
     userNamesLoaded,
   };
 };
