@@ -2,11 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Contracts;
 using Contracts.BoardDTOs;
+using Microsoft.AspNetCore.Authorization;
 using service.Services.Interfaces;
 using Sieve.Models;
 
 namespace api.Controllers
 {
+    [AllowAnonymous]
     [ApiController]
     [Route("[controller]")]
     public class BoardController : ControllerBase
@@ -18,35 +20,35 @@ namespace api.Controllers
             _boardService = boardService;
         }
 
-        [HttpGet]
+        [HttpGet("GetAllBoards")]
         public async Task<IActionResult> GetAll([FromQuery] SieveModel? sieveModel)
         {
             var result = await _boardService.GetAllAsync(sieveModel);
             return Ok(result);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("GetBoardsById{id}")]
         public async Task<IActionResult> GetById(string id)
         {
             var board = await _boardService.GetByIdAsync(id);
             return board == null ? NotFound() : Ok(board);
         }
 
-        [HttpPost]
+        [HttpPost("CreateBoard")]
         public async Task<IActionResult> Create([FromBody] CreateBoardDto dto)
         {
             var created = await _boardService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = created?.BoardID }, created);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("UpdateBoard{id}")]
         public async Task<IActionResult> Update(string id, [FromBody] UpdateBoardDto dto)
         {
             var updated = await _boardService.UpdateAsync(id, dto);
             return updated == null ? NotFound() : Ok(updated);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteBoard{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             var deleted = await _boardService.DeleteAsync(id);

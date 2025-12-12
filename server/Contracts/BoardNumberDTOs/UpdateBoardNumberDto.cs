@@ -1,8 +1,11 @@
-﻿namespace Contracts.BoardNumberDTOs
+﻿using System;
+
+namespace Contracts.BoardNumberDTOs
 {
     public class UpdateBoardNumberDto
     {
         public int? Number { get; set; }
-        public string WinningBoardID { get; set; }
+        
+        public string? BoardID { get; set; }
     }
 }

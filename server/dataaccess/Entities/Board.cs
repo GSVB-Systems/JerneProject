@@ -1,4 +1,6 @@
-﻿namespace dataaccess.Entities;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace dataaccess.Entities;
 
 public class Board
 {
@@ -10,4 +12,8 @@ public class Board
     public String UserID { get; set; }
     
     public ICollection<BoardNumber> Numbers { get; set; }
+    
+    
+    [ForeignKey(nameof(UserID))]
+    public User? User { get; set; }
 }

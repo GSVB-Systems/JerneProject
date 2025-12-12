@@ -35,28 +35,28 @@ public class TransactionController : ControllerBase
         return Ok(transactions);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("GetBy{id}")]
     public async Task<IActionResult> GetById(string id)
     {
         var transaction = await _transactionService.GetByIdAsync(id);
         return transaction == null ? NotFound() : Ok(transaction);
     }
 
-    [HttpPost]
+    [HttpPost("CreateTransaction")]
     public async Task<IActionResult> Create([FromBody] CreateTransactionDto dto)
     {
         var created = await _transactionService.CreateAsync(dto);
         return Ok(CreatedAtAction(nameof(GetById), new { id = created.TransactionID }, created));
     }
 
-    [HttpPut("UpdateTransaction")]
+    [HttpPut("UpdateTransactionBy{id}")]
     public async Task<IActionResult> Update(string id, [FromBody] UpdateTransactionDto dto)
     {
         var updated = await _transactionService.UpdateAsync(id, dto);
         return updated == null ? NotFound() : Ok(updated);
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("DeleteTransactionBy{id}")]
     public async Task<IActionResult> Delete(string id)
     {
         var deleted = await _transactionService.DeleteAsync(id);

@@ -1,4 +1,6 @@
-﻿using Contracts;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using Contracts.WinningBoardDTOs;
 using Contracts.WinningNumberDTOs;
 using dataaccess.Entities;
@@ -7,46 +9,44 @@ namespace service.Mappers
 {
     public static class WinningBoardMapper
     {
-        public static WinningBoardDto ToDto(WinningBoard w) =>
-            w == null ? null : new WinningBoardDto
+        public static WinningBoardDto ToDto(WinningBoard entity)
+        {
+            return new WinningBoardDto
             {
-                WinningBoardID = w.WinningBoardID,
-                CreatedAt = w.CreatedAt,
-                WinningNumbers = w.WinningNumbers?.Select(WinningNumberMapper.ToDto).ToList() ?? new List<WinningNumberDto>()
+                WinningBoardID = entity.WinningBoardID,
+                CreatedAt = entity.CreatedAt,
+                WinningNumbers = entity.WinningNumbers?.Select(WinningNumberMapper.ToDto).ToList() ?? new List<WinningNumberDto>()
             };
+        }
 
         public static WinningBoard ToEntity(CreateWinningBoardDto dto)
         {
-            if (dto == null) return null;
-            var wbId = Guid.NewGuid().ToString();
-            var wb = new WinningBoard
+            var board = new WinningBoard
             {
-                WinningBoardID = wbId,
+                WinningBoardID = Guid.NewGuid().ToString(),
                 CreatedAt = DateTime.UtcNow,
-                WinningNumbers = dto.WinningNumbers?.Select(n =>
+                WinningNumbers = dto.WinningNumbers.Select(n => new WinningNumber
                 {
-                    var e = WinningNumberMapper.ToEntity(n);
-                    e.WinningBoardID = wbId;
-                    return e;
-                }).ToList() ?? new List<WinningNumber>()
+                    WinningNumberID = Guid.NewGuid().ToString(),
+                    Number = n,
+                    WinningBoardID = string.Empty
+                }).ToList()
             };
-            return wb;
+
+            foreach (var wn in board.WinningNumbers)
+                wn.WinningBoardID = board.WinningBoardID;
+
+            return board;
         }
 
-        public static void ApplyUpdate(WinningBoard target, UpdateWinningBoardDto dto)
+        public static void ApplyUpdate(WinningBoard existing, UpdateWinningBoardDto dto)
         {
-            if (dto == null || target == null) return;
-            // Replace winning numbers if provided (service may choose a different strategy)
-            if (dto.WinningNumbers != null)
+            existing.WinningNumbers = dto.WinningNumbers.Select(n => new WinningNumber
             {
-                var wbId = target.WinningBoardID ?? Guid.NewGuid().ToString();
-                target.WinningNumbers = dto.WinningNumbers.Select(n =>
-                {
-                    var e = WinningNumberMapper.ToEntity(n);
-                    e.WinningBoardID = wbId;
-                    return e;
-                }).ToList();
-            }
+                WinningNumberID = Guid.NewGuid().ToString(),
+                Number = n,
+                WinningBoardID = existing.WinningBoardID
+            }).ToList();
         }
     }
 }
