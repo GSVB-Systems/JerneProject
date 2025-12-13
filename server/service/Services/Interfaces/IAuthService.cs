@@ -9,5 +9,5 @@ public interface IAuthService : IService<User, User, User>
     Task<bool> verifyPasswordByEmailAsync(string email, string plainPassword);
     Task<User> GetUserByEmailAsync(string email);
     
-    Task<User> UpdateUserPasswordAsync(string email, string  oldPassword, string newPassword);
+    Task<User> UpdateUserPasswordAsync(string userId, string  oldPassword, string newPassword);
 }

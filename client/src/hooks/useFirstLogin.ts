@@ -33,12 +33,12 @@ export function useFirstLogin() {
 
 
         if (newPassword !== repeatPassword) {
-            setError("New passwords do not match");
+            setError("Den nye adgangskode og gentagne adgangskode stemmer ikke overens");
             return;
         }
 
         if (!currentPassword || !newPassword) {
-            setError("Please fill all fields");
+            setError("Udfyld venligst alle felter");
             return;
         }
 
@@ -48,7 +48,7 @@ export function useFirstLogin() {
             const response = await authClient.userChangePassword(getUserIdFromJwt(jwt) ?? "", currentPassword, newPassword,);
 
             if(!response) {
-                setError("Det mislykkedes at ændre adgangskoden");
+                setError("Det mislykkedes at ændre adgangskoden - tjek dine oplysninger og prøv igen.");
                 return;
             }
 

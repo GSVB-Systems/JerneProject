@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using dataaccess;
 using dataaccess.Entities;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using service.Repositories.Interfaces;
 
@@ -24,6 +25,7 @@ public class AuthRepository : Repository<User>, IAuthRepository
         if (user != null)
         {
             user.Hash = newHashedPassword;
+            user.Firstlogin = false;
             _context.SaveChanges();
         }
         return Task.FromResult(user);

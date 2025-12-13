@@ -68,20 +68,13 @@ public class AuthService : Service<User, User, User>, IAuthService
     public async Task<User> UpdateUserPasswordAsync(string userId, string oldPassword, string newPassword)
     {
         var user = await base.GetByIdAsync(userId);
-        var oldHashedPassword = _passwordService.VerifyPassword(oldPassword, user.Hash);
-        var newHashedPassword = _passwordService.HashPassword(newPassword);
+        if (user is null)
+            throw new InvalidOperationException("User not found.");
 
-        
-            if(oldHashedPassword && user != null)
-            {
-                return await _authRepository.updateUserPasswordAsync(userId, newHashedPassword);
-            }
-            else
-            {
-                throw new InvalidOperationException("Old password is incorrect or user not found.");
-            }  
-        
-        
-       
+        if (!_passwordService.VerifyPassword(oldPassword, user.Hash))
+            throw new InvalidOperationException("Old password is incorrect.");
+
+        var newHashedPassword = _passwordService.HashPassword(newPassword);
+        return await _authRepository.updateUserPasswordAsync(userId, newHashedPassword);
     }
 }

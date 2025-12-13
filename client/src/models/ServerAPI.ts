@@ -106,8 +106,12 @@ export class AuthClient {
         return Promise.resolve<FileResponse>(null as any);
     }
 
-    userChangePassword(oldPassword: string | undefined, newPassword: string | undefined, userId: string): Promise<FileResponse> {
+    userChangePassword(userId: string | undefined, oldPassword: string | undefined, newPassword: string | undefined): Promise<FileResponse> {
         let url_ = this.baseUrl + "/api/Auth/User-change-password?";
+        if (userId === null)
+            throw new globalThis.Error("The parameter 'userId' cannot be null.");
+        else if (userId !== undefined)
+            url_ += "userId=" + encodeURIComponent("" + userId) + "&";
         if (oldPassword === null)
             throw new globalThis.Error("The parameter 'oldPassword' cannot be null.");
         else if (oldPassword !== undefined)
@@ -118,13 +122,9 @@ export class AuthClient {
             url_ += "newPassword=" + encodeURIComponent("" + newPassword) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(userId);
-
         let options_: RequestInit = {
-            body: content_,
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
                 "Accept": "application/octet-stream"
             }
         };
