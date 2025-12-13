@@ -73,7 +73,7 @@
         }
       }
     },
-    "/Board/GetAllBoards": {
+    "/api/Board/GetAllBoards": {
       "get": {
         "tags": [
           "Board"
@@ -138,7 +138,7 @@
         }
       }
     },
-    "/Board/GetBoardsById{id}": {
+    "/api/Board/GetBoardsById{id}": {
       "get": {
         "tags": [
           "Board"
@@ -170,7 +170,7 @@
         }
       }
     },
-    "/Board/CreateBoard": {
+    "/api/Board/CreateBoard": {
       "post": {
         "tags": [
           "Board"
@@ -203,7 +203,7 @@
         }
       }
     },
-    "/Board/UpdateBoard{id}": {
+    "/api/Board/UpdateBoard{id}": {
       "put": {
         "tags": [
           "Board"
@@ -247,7 +247,7 @@
         }
       }
     },
-    "/Board/DeleteBoard{id}": {
+    "/api/Board/DeleteBoard{id}": {
       "delete": {
         "tags": [
           "Board"
@@ -256,25 +256,14 @@
         "parameters": [
           {
             "name": "id",
-            "in": "query",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string"
             },
             "x-position": 1
           }
         ],
-        "requestBody": {
-          "x-name": "dto",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateTransactionDto"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
         "responses": {
           "200": {
             "description": "",
@@ -283,6 +272,78 @@
                 "schema": {
                   "type": "string",
                   "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Board/getAllBoardsByUserId": {
+      "get": {
+        "tags": [
+          "Board"
+        ],
+        "operationId": "Board_GetAllBoardsByUserId",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "Filters",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 2
+          },
+          {
+            "name": "Sorts",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "Page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "maximum": 2147483647.0,
+              "minimum": 1.0,
+              "nullable": true
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResultOfBoardDto"
                 }
               }
             }
@@ -1125,6 +1186,78 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PagedResultOfBoardDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BoardDto"
+            }
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "BoardDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "boardID": {
+            "type": "string"
+          },
+          "boardSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "isRepeating": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "userID": {
+            "type": "string"
+          },
+          "numbers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BoardNumberDto"
+            }
+          }
+        }
+      },
+      "BoardNumberDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "boardNumberID": {
+            "type": "string"
+          },
+          "boardID": {
+            "type": "string"
+          },
           "number": {
             "type": "integer",
             "format": "int32"
