@@ -225,7 +225,7 @@ export const useAdminTransactions = (): UseAdminTransactionsResult => {
 
   const acceptTransaction = useCallback(async (transactionDTO: TransactionDto): Promise<void> => {
     try {
-      await transactionClient.update(transactionDTO.transactionID,{
+      await transactionClient.update(transactionDTO.transactionID ?? "",{
         ...transactionDTO,
         pending: false,
       });

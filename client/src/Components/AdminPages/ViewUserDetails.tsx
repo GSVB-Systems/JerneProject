@@ -245,20 +245,6 @@ export default function ViewUserDetails(): JSX.Element {
                       <span className="toggle-circle" />
                     </label>
                   </div>
-                  <div>
-                    <label className="label">
-                      <span className="label-text">Balance</span>
-                    </label>
-                    <input
-                      type="number"
-                      name="balance"
-                      value={formState?.balance ?? 0}
-                      step="0.01"
-                      onChange={handleFormChange}
-                      className="input w-full"
-                      required
-                    />
-                  </div>
                 </div>
               </div>
             </section>
