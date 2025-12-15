@@ -39,4 +39,21 @@ public class AuthController : ControllerBase
        
         return Ok(new { token });
     }
+
+    [HttpPost("User-change-password")]
+    public async Task<IActionResult> UserChangePassword([FromQuery]string userId,[FromQuery] string oldPassword, [FromQuery] string newPassword)
+    {
+        if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(oldPassword) || string.IsNullOrWhiteSpace(newPassword))
+            return BadRequest("All fields are required.");
+
+        try
+        {
+            await _authService.UpdateUserPasswordAsync(userId, oldPassword, newPassword);
+            return Ok();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 }

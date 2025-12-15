@@ -7,5 +7,6 @@ public interface IAuthRepository : IRepository<User>
 {
     Task<User> getUserByEmailAsync(string email);
     
+    Task<User> updateUserPasswordAsync(string userId, string newHashedPassword);
     
 }

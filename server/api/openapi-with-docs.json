@@ -73,7 +73,54 @@
         }
       }
     },
-    "/api/Board/GetAllBoards": {
+    "/api/Auth/User-change-password": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "Auth_UserChangePassword",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "oldPassword",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "newPassword",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Board/GetAllBoards": {
       "get": {
         "tags": [
           "Board"
@@ -527,7 +574,7 @@
         ],
         "operationId": "Transaction_Create",
         "requestBody": {
-          "x-name": "dto",
+          "x-name": "createDto",
           "content": {
             "application/json": {
               "schema": {

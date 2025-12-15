@@ -1,5 +1,7 @@
 import { TOKEN_KEY, tokenStorage } from "./atoms/token.ts";
-import { BoardClient, TransactionClient, UsersClient } from "./models/ServerAPI.ts";
+import {
+    AuthClient, TransactionClient, UsersClient,
+} from "./models/ServerAPI.ts";
 
 const customFetch = async (url: RequestInfo, init?: RequestInit) => {
     const token = tokenStorage.getItem(TOKEN_KEY, null);
@@ -19,6 +21,7 @@ const customFetch = async (url: RequestInfo, init?: RequestInit) => {
 };
 
 const baseUrl = undefined;
+export const authClient = new AuthClient(baseUrl, { fetch: customFetch });
 export const userClient = new UsersClient(baseUrl, { fetch: customFetch });
 export const transactionClient = new TransactionClient(baseUrl, { fetch: customFetch });
 export const boardClient = new BoardClient(baseUrl, { fetch: customFetch });
