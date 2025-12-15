@@ -120,7 +120,7 @@
         }
       }
     },
-    "/Board/GetAllBoards": {
+    "/api/Board/GetAllBoards": {
       "get": {
         "tags": [
           "Board"

@@ -1,6 +1,6 @@
 import { TOKEN_KEY, tokenStorage } from "./atoms/token.ts";
 import {
-    AuthClient, TransactionClient, UsersClient,
+    AuthClient, BoardClient, TransactionClient, UsersClient,
 } from "./models/ServerAPI.ts";
 
 const customFetch = async (url: RequestInfo, init?: RequestInit) => {
