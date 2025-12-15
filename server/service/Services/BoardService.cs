@@ -63,17 +63,6 @@ namespace service.Services
 
             if (createDto.Numbers.Count != createDto.BoardSize)
                 throw new ValidationException($"Numbers count must equal BoardSize ({createDto.BoardSize}).");
-            
-            
-           
-            var values = createDto.Numbers.ToList();
-
-            if (!createDto.IsRepeating)
-            {
-                var duplicateValues = values.GroupBy(v => v).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
-                if (duplicateValues.Any())
-                    throw new ValidationException($"Numbers must be unique. Duplicates: {string.Join(',', duplicateValues)}");
-            }
 
             var entity = BoardMapper.ToEntity(createDto);
             
@@ -108,10 +97,7 @@ namespace service.Services
                 var targetBoardSize = updateDto.BoardSize ?? existing.BoardSize;
                 if (numbers.Count != targetBoardSize)
                     throw new ValidationException($"Numbers count must equal BoardSize ({targetBoardSize}).");
-
-                var isRepeating = updateDto.IsRepeating ?? existing.IsRepeating;
-                if (!isRepeating && numbers.Count != numbers.Distinct().Count())
-                    throw new ValidationException("Numbers must be unique.");
+                
             }
 
             BoardMapper.ApplyUpdate(existing, updateDto);

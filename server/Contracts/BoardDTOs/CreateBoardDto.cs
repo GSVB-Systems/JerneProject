@@ -8,7 +8,7 @@ namespace Contracts.BoardDTOs
         [Required]
         public int BoardSize { get; set; }
 
-        public bool IsRepeating { get; set; }
+        public int Week { get; set; }
 
         [Required]
         public string UserID { get; set; } = string.Empty;
@@ -32,11 +32,6 @@ namespace Contracts.BoardDTOs
             if (Numbers.Count != BoardSize)
             {
                 yield return new ValidationResult($"Selected Numbers must match your board size: ({BoardSize}).", new[] { nameof(Numbers), nameof(BoardSize) });
-            }
-
-            if (!IsRepeating && Numbers.Count != new HashSet<int>(Numbers).Count)
-            {
-                yield return new ValidationResult("Numbers must be unique", new[] { nameof(Numbers) });
             }
         }
     }

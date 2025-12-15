@@ -1,5 +1,5 @@
 import Navbar from "./Navbar";
-import SelectableBoard from "./Board";
+import SelectableBoard from "./BoardPages/Board.tsx";
 import AdminPage from "./AdminPages/AdminPage.tsx";
 import {useJWT} from "../hooks/useJWT.ts";
 

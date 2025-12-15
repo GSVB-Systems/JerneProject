@@ -1239,7 +1239,7 @@ export interface LoginRequest {
 
 export interface CreateBoardDto {
     boardSize: number;
-    isRepeating?: boolean;
+    week?: number;
     userID: string;
     numbers: number[];
 }
@@ -1247,7 +1247,7 @@ export interface CreateBoardDto {
 export interface UpdateBoardDto {
     boardSize?: number | undefined;
     isActive?: boolean | undefined;
-    isRepeating?: boolean | undefined;
+    week?: number | undefined;
     numbers?: CreateBoardNumberDto[];
 }
 
@@ -1266,7 +1266,7 @@ export interface BoardDto {
     boardID?: string;
     boardSize?: number;
     isActive?: boolean;
-    isRepeating?: boolean;
+    week?: number;
     createdAt?: string;
     userID?: string;
     numbers?: BoardNumberDto[];

@@ -14,7 +14,7 @@ public class Board
     public bool IsActive { get; set; }
     
     [Sieve(CanSort = true, CanFilter = true)]
-    public bool IsRepeating { get; set; }
+    public int Week { get; set; }
     
     [Sieve(CanSort = true, CanFilter = true)]
     public DateTime CreatedAt { get; set; }

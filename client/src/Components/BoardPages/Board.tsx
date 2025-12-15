@@ -1,7 +1,10 @@
-﻿import { useState } from "react";
+﻿import React, { useState } from "react";
 
 export default function MultiSelectableBoard() {
     const [selected, setSelected] = useState<number[]>([]);
+    const [value, setValue] = useState("");
+
+    const options = ["1", "2", "3", "4", "5"];
 
     const PRICE_CONFIG: Record<number, number> = {
         5: 20,
@@ -33,7 +36,11 @@ export default function MultiSelectableBoard() {
 
     const isValid = selected.length >= MIN_SELECTION && selected.length <= MAX_SELECTION;
 
-    // Board IU Size
+    const handleSubmit = ((e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+    }
+
     return (
         <div className="w-full max-w-lg mx-auto p-4">
             <div className="grid grid-cols-4 gap-3">
@@ -59,6 +66,39 @@ export default function MultiSelectableBoard() {
                 <p className={`text-lg font-semibold ${!isValid ? "text-red-500" : ""}`}>
                     Pris: {getPrice()} DKK {!isValid && `(${selected.length}/${MIN_SELECTION}-${MAX_SELECTION})`}
                 </p>
+                <div className="flex-col">
+                    <div className="join">
+                        {options.map((opt) => {
+                            const active = value === opt;
+
+                            return (
+                                <button disabled={!isValid}
+                                    key={opt}
+                                    onClick={() => setValue(opt)}
+                                    className={`
+                                        join-item btn btn-circle btn-xl
+                                        transition-all
+                                        !border-red-700
+                                        mx-7
+                                        !rounded-full
+                                        h-16 w-16
+                                        !text-xl
+                                        ${active
+                                            ? "!bg-red-600 !text-white hover:!bg-red-700"
+                                            : "!bg-red-200 !text-red-900 hover:!bg-red-300"}
+                                         `}
+                                >
+                                    {opt}
+                                </button>
+
+
+                            );
+                        })}
+                    </div>
+                </div>
+                <button className="btn m-15" disabled={!isValid}>
+                    Opret board
+                </button>
             </div>
         </div>
     );
