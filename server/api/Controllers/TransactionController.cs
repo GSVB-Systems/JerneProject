@@ -43,10 +43,10 @@ public class TransactionController : ControllerBase
     }
 
     [HttpPost("CreateTransaction")]
-    public async Task<IActionResult> Create([FromBody] CreateTransactionDto dto)
+    public async Task<IActionResult> Create([FromBody] CreateTransactionDto createDto)
     {
-        var created = await _transactionService.CreateAsync(dto);
-        return Ok(CreatedAtAction(nameof(GetById), new { id = created.TransactionID }, created));
+        var created = await _transactionService.CreateAsync(createDto);
+        return CreatedAtAction(nameof(GetById), new { id = created.TransactionID }, created);
     }
 
     [HttpPut("UpdateTransactionBy{id}")]

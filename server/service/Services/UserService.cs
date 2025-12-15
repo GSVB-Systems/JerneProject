@@ -122,5 +122,17 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
 
         return UserMapper.ToDto(user);
     }
-    
+
+    public async Task<UserDto?> UpdateBalanceAsync(string userId, decimal price)
+    {
+        var user = await base.GetByIdAsync(userId);
+        if (user == null) return null;
+
+        user.Balance += price;
+
+        await _userRepository.UpdateAsync(user);
+        await _userRepository.SaveChangesAsync();
+
+        return UserMapper.ToDto(user);
+    }
 }

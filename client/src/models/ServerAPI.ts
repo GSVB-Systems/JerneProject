@@ -525,11 +525,11 @@ export class TransactionClient {
         return Promise.resolve<FileResponse>(null as any);
     }
 
-    create(dto: CreateTransactionDto): Promise<FileResponse> {
+    create(createDto: CreateTransactionDto): Promise<FileResponse> {
         let url_ = this.baseUrl + "/api/Transaction/CreateTransaction";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = JSON.stringify(dto);
+        const content_ = JSON.stringify(createDto);
 
         let options_: RequestInit = {
             body: content_,
