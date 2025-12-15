@@ -31,7 +31,6 @@ interface UseUserBoardsResult {
     toggle: (num: number) => void;
     value: string;
     setValue: (val: string) => void;
-    opt: string;
     getPrice: () => string;
     isValid: boolean;
     MAX_SELECTION: number;
@@ -45,7 +44,6 @@ export function useUserBoards(): UseUserBoardsResult {
     const [selected, setSelected] = useState<number[]>([]);
     const [value, setValue] = useState("");
     const [error, setError] = useState<string | null>(null);
-    const [opt] = useState("1");
 
     const jwt = useJWT();
     const userId = useMemo(() => getUserIdFromJwt(jwt), [jwt]) ?? "";
@@ -73,7 +71,7 @@ export function useUserBoards(): UseUserBoardsResult {
     const createBoard = useCallback(async (): Promise<boolean> => {
 
         const selectedNumbers = selected;
-        const repeatingWeeks = Number.parseInt(opt, 10);
+        const repeatingWeeks = Number.parseInt(value || "1", 10);
         const boardSize = selectedNumbers.length;
 
         if(boardSize < MIN_SELECTION){
@@ -97,7 +95,7 @@ export function useUserBoards(): UseUserBoardsResult {
             return false;
         }
 
-    }, [selected, opt, userId]);
+    }, [selected, value, userId]);
 
     const isValid = selected.length >= MIN_SELECTION && selected.length <= MAX_SELECTION;
 
@@ -106,7 +104,6 @@ export function useUserBoards(): UseUserBoardsResult {
         toggle,
         value,
         setValue,
-        opt,
         getPrice,
         isValid,
         MAX_SELECTION,
@@ -116,4 +113,3 @@ export function useUserBoards(): UseUserBoardsResult {
         createBoard,
     };
 }
-

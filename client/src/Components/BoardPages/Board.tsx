@@ -1,42 +1,22 @@
-﻿import React, { useState } from "react";
+﻿import React from "react";
 import {useUserBoards} from "../../hooks/useUserBoards.ts";
 
 export default function MultiSelectableBoard() {
-    const [selected, setSelected] = useState<number[]>([]);
-    const [value, setValue] = useState("");
-    const { createBoard } = useUserBoards();
+    const {
+        selected,
+        toggle,
+        value,
+        setValue,
+        getPrice,
+        isValid,
+        MAX_SELECTION,
+        MIN_SELECTION,
+        BOARD_SIZE,
+        createBoard,
+    } = useUserBoards();
 
     const options = ["1", "2", "3", "4", "5"];
 
-    const PRICE_CONFIG: Record<number, number> = {
-        5: 20,
-        6: 40,
-        7: 80,
-        8: 160,
-    };
-
-    const MAX_SELECTION = 8;
-    const MIN_SELECTION = 5;
-    const BOARD_SIZE = 16;
-
-    const toggle = (num: number) => {
-        setSelected((prev) => {
-            if (prev.includes(num)) {
-                return prev.filter((n) => n !== num);
-            }
-            if (prev.length < MAX_SELECTION) {
-                return [...prev, num];
-            }
-            return prev;
-        });
-    };
-
-    const getPrice = (): string => {
-        if (selected.length < MIN_SELECTION) return "—";
-        return PRICE_CONFIG[selected.length]?.toString() || "—";
-    };
-
-    const isValid = selected.length >= MIN_SELECTION && selected.length <= MAX_SELECTION;
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
