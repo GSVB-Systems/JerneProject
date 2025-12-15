@@ -1,8 +1,10 @@
 ﻿import React, { useState } from "react";
+import {useUserBoards} from "../../hooks/useUserBoards.ts";
 
 export default function MultiSelectableBoard() {
     const [selected, setSelected] = useState<number[]>([]);
     const [value, setValue] = useState("");
+    const { createBoard } = useUserBoards();
 
     const options = ["1", "2", "3", "4", "5"];
 
@@ -36,10 +38,16 @@ export default function MultiSelectableBoard() {
 
     const isValid = selected.length >= MIN_SELECTION && selected.length <= MAX_SELECTION;
 
-    const handleSubmit = ((e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
-    }
+        const succeeded = await createBoard();
+        if (succeeded) {
+            const modal = document.getElementById("my_modal_2");
+            if (modal instanceof HTMLDialogElement) {
+                modal.showModal();
+            }
+        }
+    };
 
     return (
         <div className="w-full max-w-lg mx-auto p-4">
@@ -96,10 +104,24 @@ export default function MultiSelectableBoard() {
                         })}
                     </div>
                 </div>
-                <button className="btn m-15" disabled={!isValid}>
-                    Opret board
-                </button>
+                <form onSubmit={handleSubmit}>
+                    <button type="submit" className="btn m-15" disabled={!isValid}>
+                        Opret board
+                    </button>
+                </form>
+
+
             </div>
+            {/* Open the modal using document.getElementById('ID').showModal() method */}
+            <dialog id="my_modal_2" className="modal">
+                <div className="modal-box">
+                    <h3 className="font-bold text-lg">Hello!</h3>
+                    <p className="py-4">Press ESC key or click outside to close</p>
+                </div>
+                <form method="dialog" className="modal-backdrop">
+                    <button>close</button>
+                </form>
+            </dialog>
         </div>
     );
 }
