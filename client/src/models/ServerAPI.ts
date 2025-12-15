@@ -168,7 +168,7 @@ export class BoardClient {
     }
 
     getAll(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<FileResponse> {
-        let url_ = this.baseUrl + "/Board/GetAllBoards?";
+        let url_ = this.baseUrl + "/api/Board/GetAllBoards?";
         if (filters !== undefined && filters !== null)
             url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
         if (sorts !== undefined && sorts !== null)
@@ -214,7 +214,7 @@ export class BoardClient {
     }
 
     getById(id: string): Promise<FileResponse> {
-        let url_ = this.baseUrl + "/Board/GetBoardsById{id}";
+        let url_ = this.baseUrl + "/api/Board/GetBoardsById{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
@@ -255,7 +255,7 @@ export class BoardClient {
     }
 
     create(dto: CreateBoardDto): Promise<FileResponse> {
-        let url_ = this.baseUrl + "/Board/CreateBoard";
+        let url_ = this.baseUrl + "/api/Board/CreateBoard";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(dto);
@@ -297,7 +297,7 @@ export class BoardClient {
     }
 
     update(id: string, dto: UpdateBoardDto): Promise<FileResponse> {
-        let url_ = this.baseUrl + "/Board/UpdateBoard{id}";
+        let url_ = this.baseUrl + "/api/Board/UpdateBoard{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
@@ -342,7 +342,7 @@ export class BoardClient {
     }
 
     delete(id: string): Promise<FileResponse> {
-        let url_ = this.baseUrl + "/Board/DeleteBoard{id}";
+        let url_ = this.baseUrl + "/api/Board/DeleteBoard{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
         url_ = url_.replace("{id}", encodeURIComponent("" + id));
@@ -380,6 +380,51 @@ export class BoardClient {
             });
         }
         return Promise.resolve<FileResponse>(null as any);
+    }
+
+    getAllBoardsByUserId(userId: string | undefined, filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagedResultOfBoardDto> {
+        let url_ = this.baseUrl + "/api/Board/getAllBoardsByUserId?";
+        if (userId === null)
+            throw new globalThis.Error("The parameter 'userId' cannot be null.");
+        else if (userId !== undefined)
+            url_ += "userId=" + encodeURIComponent("" + userId) + "&";
+        if (filters !== undefined && filters !== null)
+            url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
+        if (sorts !== undefined && sorts !== null)
+            url_ += "Sorts=" + encodeURIComponent("" + sorts) + "&";
+        if (page !== undefined && page !== null)
+            url_ += "Page=" + encodeURIComponent("" + page) + "&";
+        if (pageSize !== undefined && pageSize !== null)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetAllBoardsByUserId(_response);
+        });
+    }
+
+    protected processGetAllBoardsByUserId(response: Response): Promise<PagedResultOfBoardDto> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as PagedResultOfBoardDto;
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<PagedResultOfBoardDto>(null as any);
     }
 }
 
@@ -1207,6 +1252,29 @@ export interface UpdateBoardDto {
 }
 
 export interface CreateBoardNumberDto {
+    number?: number;
+}
+
+export interface PagedResultOfBoardDto {
+    items?: BoardDto[];
+    totalCount?: number;
+    page?: number;
+    pageSize?: number;
+}
+
+export interface BoardDto {
+    boardID?: string;
+    boardSize?: number;
+    isActive?: boolean;
+    isRepeating?: boolean;
+    createdAt?: string;
+    userID?: string;
+    numbers?: BoardNumberDto[];
+}
+
+export interface BoardNumberDto {
+    boardNumberID?: string;
+    boardID?: string;
     number?: number;
 }
 

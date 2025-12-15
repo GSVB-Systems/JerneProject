@@ -7,17 +7,19 @@ using service.Mappers;
 using service.Repositories.Interfaces;
 using service.Services.Interfaces;
 using Sieve.Models;
+using Sieve.Services;
 
 namespace service.Services
 {
-    public class BoardService : Service<Board, CreateBoardDto, UpdateBoardDto>, IBoardService
+    public class BoardService : IBoardService
     {
         private readonly IBoardRepository _boardRepository;
+        private readonly ISieveProcessor _sieveProcessor;
 
-        public BoardService(IBoardRepository boardRepository)
-            : base(boardRepository)
+        public BoardService(IBoardRepository boardRepository, ISieveProcessor sieveProcessor)
         {
             _boardRepository = boardRepository;
+            _sieveProcessor = sieveProcessor;
         }
 
         public async Task<BoardDto?> GetByIdAsync(string id)
@@ -32,21 +34,19 @@ namespace service.Services
         public async Task<PagedResult<BoardDto>> GetAllAsync(SieveModel? parameters)
         {
             var query = _boardRepository.AsQueryable().Include(b => b.Numbers);
-
-            var items = await query.ToListAsync();
+            var sieveModel = parameters ?? new SieveModel();
+            var totalCount = await query.CountAsync();
+            var processedQuery = _sieveProcessor.Apply(sieveModel, query);
+            var items = await processedQuery.ToListAsync();
 
             var dtoItems = items.Select(BoardMapper.ToDto).ToList();
-            var count = dtoItems.Count;
-
-            var page = parameters?.Page ?? 1;
-            var pageSize = parameters?.PageSize ?? count;
 
             return new PagedResult<BoardDto>
             {
                 Items = dtoItems,
-                TotalCount = count,
-                Page = page,
-                PageSize = pageSize
+                TotalCount = totalCount,
+                Page = sieveModel.Page ?? 1,
+                PageSize = sieveModel.PageSize ?? dtoItems.Count
             };
         }
 
@@ -98,7 +98,7 @@ namespace service.Services
 
         public async Task<BoardDto?> UpdateAsync(string id, UpdateBoardDto updateDto)
         {
-            var existing = await base.GetByIdAsync(id);
+            var existing = await _boardRepository.GetByIdAsync(id);
             if (existing == null) return null;
 
             // If numbers are being updated validate them
@@ -124,7 +124,29 @@ namespace service.Services
 
         public async Task<bool> DeleteAsync(string id)
         {
-            return await base.DeleteAsync(id);
+            var existing = await _boardRepository.GetByIdAsync(id);
+            if (existing == null) return false;
+            
+            await _boardRepository.DeleteAsync(existing);
+            await _boardRepository.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<PagedResult<BoardDto>> getAllByUserIdAsync(string userId, BoardQueryParameters? parameters)
+        {
+            var query = _boardRepository.AsQueryable().Where(b => b.UserID == userId).Include(b => b.Numbers);
+            var sieveModel = parameters ?? new BoardQueryParameters();
+            var totalCount = await query.CountAsync();
+            var processedQuery = _sieveProcessor.Apply(sieveModel, query);
+            var boards = await processedQuery.ToListAsync();
+
+            return new PagedResult<BoardDto>
+            {
+                Items = boards.Select(BoardMapper.ToDto).ToList(),
+                TotalCount = totalCount,
+                Page = sieveModel.Page ?? 1,
+                PageSize = sieveModel.PageSize ?? boards.Count
+            };
         }
     }
 }

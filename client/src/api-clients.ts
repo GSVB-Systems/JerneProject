@@ -24,3 +24,4 @@ const baseUrl = undefined;
 export const authClient = new AuthClient(baseUrl, { fetch: customFetch });
 export const userClient = new UsersClient(baseUrl, { fetch: customFetch });
 export const transactionClient = new TransactionClient(baseUrl, { fetch: customFetch });
+export const boardClient = new BoardClient(baseUrl, { fetch: customFetch });
