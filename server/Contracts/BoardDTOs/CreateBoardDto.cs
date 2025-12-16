@@ -9,7 +9,7 @@ namespace Contracts.BoardDTOs
         [Range(5, 8, ErrorMessage = "BoardSize must be between 5 and 8.")]
         public int BoardSize { get; set; }
 
-        public bool IsRepeating { get; set; }
+        public int Week { get; set; }
 
         [Required]
         [MinLength(1)]

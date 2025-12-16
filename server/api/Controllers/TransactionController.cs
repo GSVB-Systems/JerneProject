@@ -1,3 +1,5 @@
+using Contracts.BoardDTOs;
+
 namespace api.Controllers;
 
 using Contracts;
@@ -13,10 +15,13 @@ using Sieve.Models;
 public class TransactionController : ControllerBase
 {
     private readonly ITransactionService _transactionService;
+    private readonly IPurchaseService _purchaseService;
   
-    public TransactionController(ITransactionService transactionService)
+    public TransactionController(ITransactionService transactionService, IPurchaseService purchaseService)
     {
         _transactionService = transactionService;
+        _purchaseService = purchaseService;
+        
     }
     
     [HttpGet]
@@ -60,6 +65,14 @@ public class TransactionController : ControllerBase
     {
         var deleted = await _transactionService.DeleteAsync(id);
         return deleted ? NoContent() : NotFound();
+    }
+
+    [HttpPost("Purchase")]
+    [Authorize(Roles = "Administrator, Bruger")]
+    public async Task<IActionResult> Purchase([FromBody] PurchaseDTO purchaseDto )
+    {
+        var result = await _purchaseService.ProcessPurchaseAsync(purchaseDto.Board, purchaseDto.Transaction);
+        return result ? Ok("Purchase completed successfully.") : BadRequest("Purchase failed.");
     }
 
 }

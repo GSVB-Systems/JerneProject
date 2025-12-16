@@ -54,7 +54,7 @@ export function useFirstLogin() {
 
             navigate("/");
         } catch {
-            setError("Network error");
+            setError("Adgangskoden skal indeholde mindst 8 tegn, herunder et stort bogstav, et tal og et specialtegn.");
         } finally {
             setLoading(false);
         }

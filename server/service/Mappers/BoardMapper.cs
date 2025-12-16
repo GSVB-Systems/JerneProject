@@ -13,7 +13,7 @@ namespace service.Mappers
                 BoardID = b.BoardID,
                 BoardSize = b.BoardSize,
                 IsActive = b.IsActive,
-                IsRepeating = b.IsRepeating,
+                Week = b.Week,
                 CreatedAt = b.CreatedAt,
                 UserID = b.UserID,
                 Numbers = b.Numbers?.Select(BoardNumberMapper.ToDto).ToList() ?? new System.Collections.Generic.List<BoardNumberDto>()
@@ -27,7 +27,7 @@ namespace service.Mappers
             {
                 BoardID = boardId,
                 BoardSize = dto.BoardSize,
-                IsRepeating = dto.IsRepeating,
+                Week = dto.Week,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UserID = dto.UserID,
@@ -47,7 +47,7 @@ namespace service.Mappers
 
             if (dto.BoardSize.HasValue) target.BoardSize = dto.BoardSize.Value;
             if (dto.IsActive.HasValue) target.IsActive = dto.IsActive.Value;
-            if (dto.IsRepeating.HasValue) target.IsRepeating = dto.IsRepeating.Value;
+            if (dto.Week.HasValue) target.Week = dto.Week.Value;
             
             if (dto.Numbers != null)
             {

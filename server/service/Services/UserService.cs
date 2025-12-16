@@ -16,8 +16,8 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
     private readonly PasswordService _passwordService;
     private readonly ISieveProcessor _sieveProcessor;
     private readonly ITransactionRepository _transactionRepository;
-
-    public UserService(IUserRepository userRepository, ITransactionRepository transactionRepository , PasswordService passwordService, ISieveProcessor sieveProcessor)
+    
+    public UserService(IUserRepository userRepository, PasswordService passwordService, ISieveProcessor sieveProcessor, ITransactionRepository transactionRepository)
         : base(userRepository)
     {
         _userRepository = userRepository;
@@ -125,7 +125,7 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
         return UserMapper.ToDto(user);
     }
 
-    public async Task<UserDto?> UpdateBalanceAsync(string userId, decimal price)
+    public async Task<UserDto?> UpdateBalanceAsync(string userId)
     {
         var user = await base.GetByIdAsync(userId);
         if (user == null) return null;
@@ -138,12 +138,13 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
         var summed = transactions
             .Where(t => !t.Pending)
             .Sum(t => t.Amount);
-        
-        user.Balance = summed + price;
+
+        user.Balance = summed;
 
         await _userRepository.UpdateAsync(user);
         await _userRepository.SaveChangesAsync();
 
         return UserMapper.ToDto(user);
     }
+
 }

@@ -8,7 +8,7 @@ namespace Contracts.BoardDTOs
     {
         public int? BoardSize { get; set; }
         public bool? IsActive { get; set; }
-        public bool? IsRepeating { get; set; }
+        public int? Week { get; set; }
         
         public List<CreateBoardNumberDto> Numbers { get; set; } = null;
 

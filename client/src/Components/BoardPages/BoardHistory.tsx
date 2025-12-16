@@ -1,7 +1,7 @@
-import Navbar from "./Navbar";
+import Navbar from "../Navbar.tsx";
 import ThinBoard from "./ThinBoard.tsx";
-import { useUserBoards } from "../hooks/useUserBoards.ts";
-import type { BoardSortField } from "../hooks/useUserBoards.ts";
+import { useUserBoardHistory } from "../../hooks/useUserBoardHistory.ts";
+import type { BoardSortField } from "../../hooks/useUserBoardHistory.ts";
 import type { JSX } from "react";
 import { useMemo } from "react";
 
@@ -30,7 +30,7 @@ export default function BoardHistory(): JSX.Element {
         handlePageChange,
         resetFilters,
         refresh,
-    } = useUserBoards();
+    } = useUserBoardHistory();
 
     const debouncedSearch = useMemo(() => {
         let timeout: ReturnType<typeof setTimeout> | null = null;

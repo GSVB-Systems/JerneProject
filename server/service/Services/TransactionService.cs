@@ -49,12 +49,17 @@ namespace service.Services
         public async Task<TransactionDto> CreateAsync(CreateTransactionDto dto)
         {
             var entity = TransactionMapper.ToEntity(dto);
+            
+            if(entity.TransactionString == "GUID")
+            {
+                entity.TransactionString = Guid.NewGuid().ToString();
+            }
 
             await _transactionRepository.AddAsync(entity);
             await _transactionRepository.SaveChangesAsync();
 
            
-            await _userService.UpdateBalanceAsync(entity.UserID, -entity.Amount);
+            await _userService.UpdateBalanceAsync(entity.UserID);
 
             return TransactionMapper.ToDto(entity);
         }
@@ -67,6 +72,8 @@ namespace service.Services
             TransactionMapper.ApplyUpdate(existing, dto);
             await _transactionRepository.UpdateAsync(existing);
             await _transactionRepository.SaveChangesAsync();
+
+            await _userService.UpdateBalanceAsync(existing.UserID);
             
             return TransactionMapper.ToDto(existing);
         }

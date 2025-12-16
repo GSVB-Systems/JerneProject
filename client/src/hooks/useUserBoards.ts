@@ -1,173 +1,181 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { boardClient } from "../api-clients.ts";
-import type { BoardDto } from "../models/ServerAPI";
-import { useJWT } from "./useJWT";
+import { useCallback, useMemo, useState } from "react";
+import {useJWT} from "./useJWT.ts";
+import type {CreateBoardDto, CreateTransactionDto, PurchaseDTO} from "../models/ServerAPI.ts";
+import {boardClient, transactionClient} from "../api-clients.ts";
+import {useBalance} from "./useNavbar.ts";
 
-export type BoardSortField = "createdAt" | "boardSize";
-type SortDirection = "asc" | "desc";
+    const PRICE_CONFIG: Record<number, number> = {
+        5: 20,
+        6: 40,
+        7: 80,
+        8: 160,
+    };
 
-const DEFAULT_PAGE_SIZE = 10;
-const DEFAULT_SORT_FIELD: BoardSortField = "createdAt";
-const DEFAULT_SORT_DIRECTION: SortDirection = "desc";
-
-const coerceNumber = (value: unknown, fallback = 0): number => {
-  if (typeof value === "number" && !Number.isNaN(value)) return value;
-  if (typeof value === "string") {
-    const parsed = Number(value);
-    if (!Number.isNaN(parsed)) return parsed;
-  }
-  return fallback;
-};
-
-const sanitizeSearchTerm = (value: string): string | null => {
-  const normalized = value.trim().replace(/[|,"]/g, " ").replace(/\s+/g, " ").trim();
-  if (!normalized) return null;
-  return normalized.includes(" ") ? `"${normalized}"` : normalized;
-};
-
-const buildSieveFilters = (searchTerm: string): string | null => {
-  const filters: string[] = [];
-  const sanitizedSearch = sanitizeSearchTerm(searchTerm);
-  if (sanitizedSearch) {
-    const numericCandidate = sanitizedSearch.replace(/"/g, "");
-    if (!Number.isNaN(Number(numericCandidate))) {
-      filters.push(`numbers.number==${numericCandidate}`);
-    } else {
-      filters.push(`boardID@=${sanitizedSearch}`);
-    }
-  }
-  return filters.length ? filters.join(",") : null;
-};
+const MAX_SELECTION = 8;
+const MIN_SELECTION = 5;
+const BOARD_SIZE = 16;
 
 const getUserIdFromJwt = (jwt: string | null | undefined): string | null => {
-  if (!jwt) return null;
-  try {
-    const payloadBase64 = jwt.split(".")[1];
-    const payloadJson = atob(payloadBase64);
-    const payload = JSON.parse(payloadJson);
-    return payload["sub"] ?? null;
-  } catch {
-    return null;
-  }
-};
-
-export const useUserBoards = () => {
-  const [boards, setBoards] = useState<BoardDto[]>([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
-  const [searchTerm, setSearchTermState] = useState("");
-  const [sortField, setSortFieldState] = useState<BoardSortField>(DEFAULT_SORT_FIELD);
-  const [sortDirection, setSortDirection] = useState<SortDirection>(DEFAULT_SORT_DIRECTION);
-
-  const jwt = useJWT();
-  const userId = useMemo(() => getUserIdFromJwt(jwt), [jwt]);
-
-  const filters = useMemo(() => buildSieveFilters(searchTerm), [searchTerm]);
-  const sorts = useMemo(() => `${sortDirection === "desc" ? "-" : ""}${sortField}`, [sortField, sortDirection]);
-
-  const fetchBoards = useCallback(async () => {
-    if (!userId) {
-      setError("Ingen gyldig bruger-session.");
-      setBoards([]);
-      setLoading(false);
-      setHasLoadedOnce(true);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
+    if (!jwt) return null;
     try {
-      const response = await boardClient.getAllBoardsByUserId(userId, filters ?? undefined, sorts ?? undefined, page, pageSize);
-      const list = Array.isArray(response?.items) ? response.items : [];
-      const totalCount = coerceNumber(response?.totalCount, list.length);
-      const serverPageSize = coerceNumber(response?.pageSize, DEFAULT_PAGE_SIZE) || DEFAULT_PAGE_SIZE;
-      const serverPage = coerceNumber(response?.page, page) || 1;
-
-      setBoards(list);
-      setTotal(totalCount);
-      setPageSize(serverPageSize);
-      setPage(serverPage);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunne ikke hente boards.");
-      setBoards([]);
-      setTotal(0);
-    } finally {
-      setLoading(false);
-      setHasLoadedOnce(true);
+        const payloadBase64 = jwt.split(".")[1];
+        const payloadJson = atob(payloadBase64);
+        const payload = JSON.parse(payloadJson);
+        return payload["sub"] ?? null;
+    } catch {
+        return null;
     }
-  }, [filters, page, pageSize, sorts, userId]);
-
-  useEffect(() => {
-    void fetchBoards();
-  }, [fetchBoards]);
-
-  const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize) || 1), [pageSize, total]);
-
-  useEffect(() => {
-    if (page > totalPages) {
-      setPage(totalPages);
-    }
-  }, [page, totalPages]);
-
-  const setSearchTerm = useCallback((value: string) => {
-    setSearchTermState(value);
-    setPage(1);
-  }, []);
-
-  const setSortField = useCallback((value: BoardSortField) => {
-    setSortFieldState(value);
-    setSortDirection(DEFAULT_SORT_DIRECTION);
-    setPage(1);
-  }, []);
-
-  const toggleSortDirection = useCallback(() => {
-    setSortDirection(prev => prev === "asc" ? "desc" : "asc");
-    setPage(1);
-  }, []);
-
-  const handlePageChange = useCallback((direction: "prev" | "next") => {
-    setPage(current => {
-      if (direction === "prev") {
-        return Math.max(1, current - 1);
-      }
-      return Math.min(totalPages, current + 1);
-    });
-  }, [totalPages]);
-
-  const resetFilters = useCallback(() => {
-    setSearchTermState("");
-    setSortFieldState(DEFAULT_SORT_FIELD);
-    setSortDirection(DEFAULT_SORT_DIRECTION);
-    setPage(1);
-  }, []);
-
-  const visibleStart = total === 0 ? 0 : (page - 1) * pageSize + 1;
-  const visibleEnd = total === 0 ? 0 : Math.min(total, page * pageSize);
-
-  return {
-    boards,
-    total,
-    page,
-    pageSize,
-    totalPages,
-    visibleStart,
-    visibleEnd,
-    loading,
-    hasLoadedOnce,
-    error,
-    searchTerm,
-    sortField,
-    sortDirection,
-    setSearchTerm,
-    setSortField,
-    toggleSortDirection,
-    handlePageChange,
-    resetFilters,
-    refresh: fetchBoards,
-  };
 };
+
+interface UseUserBoardsResult {
+    selected: number[];
+    toggle: (num: number) => void;
+    value: string;
+    setValue: (val: string) => void;
+    getPrice: () => number;
+    isValid: boolean;
+    MAX_SELECTION: number;
+    MIN_SELECTION: number;
+    BOARD_SIZE: number;
+    error: string | null;
+    createBoardTransaction: () => Promise<boolean>;
+    createBoard: () => Promise<boolean>;
+}
+
+export function useUserBoards(): UseUserBoardsResult {
+    const [selected, setSelected] = useState<number[]>([]);
+    const [value, setValue] = useState("");
+    const [error, setError] = useState<string | null>(null);
+
+    const jwt = useJWT();
+    const userId = useMemo(() => getUserIdFromJwt(jwt), [jwt]) ?? "";
+
+
+
+    const toggle = useCallback((num: number) => {
+        setSelected((prev) => {
+            if (prev.includes(num)) {
+                return prev.filter((n) => n !== num);
+            }
+            if (prev.length < MAX_SELECTION) {
+                return [...prev, num];
+            }
+            return prev;
+        });
+    }, []);
+
+
+
+    const getPrice = useCallback((): number => {
+
+
+        const basePrice = PRICE_CONFIG[selected.length];
+
+
+        const weeks = Number.parseInt(value || "1", 10);
+        return (basePrice * weeks);
+    }, [selected.length, value]);
+
+    const { loadUserBalance } = useBalance();
+
+
+    const createBoardTransaction = useCallback(async (): Promise<boolean> => {
+        const price = getPrice();
+        const currentBalance = await loadUserBalance();
+
+        if (currentBalance === undefined) {
+            setError("Kunne ikke hente saldo.");
+            return false;
+        }
+
+        if (price > currentBalance) {
+            setError("Du har ikke tilstrækkelig penge til at købe dette bræt.");
+            return false;
+        }
+
+        const dtoTransaction: CreateTransactionDto = {
+            transactionString: "GUID",
+            amount: -Math.abs(price),
+            userID: userId,
+            pending: false,
+        };
+
+        const selectedNumbers = selected;
+        const repeatingWeeks = Number.parseInt(value || "1", 10);
+        const boardSize = selectedNumbers.length;
+
+        if(boardSize < MIN_SELECTION){
+            setError("Du skal vælge mindst 5 numre");
+            return false;
+        }
+
+        const dtoBoard: CreateBoardDto = {
+            boardSize,
+            week: repeatingWeeks,
+            userID: userId,
+            numbers: selectedNumbers,
+
+        };
+
+        const dto: PurchaseDTO = {
+            transaction: dtoTransaction,
+            board: dtoBoard,
+        };
+
+        try {
+            await transactionClient.purchase(dto);
+            return true;
+        } catch (err) {
+            setError("Fejl ved oprettelse af transaktion.");
+            return false;
+        }
+    }, [getPrice, loadUserBalance, userId]);
+
+
+    const createBoard = useCallback(async (): Promise<boolean> => {
+
+        const selectedNumbers = selected;
+        const repeatingWeeks = Number.parseInt(value || "1", 10);
+        const boardSize = selectedNumbers.length;
+
+        if(boardSize < MIN_SELECTION){
+            setError("Du skal vælge mindst 5 numre");
+            return false;
+        }
+
+        const dto: CreateBoardDto = {
+            boardSize,
+            week: repeatingWeeks,
+            userID: userId,
+            numbers: selectedNumbers,
+
+        };
+
+        try{
+            await boardClient.create(dto);
+            return true;
+        } catch (err) {
+            setError("Fejl ved oprettelse af spillebræt.");
+            return false;
+        }
+
+    }, [selected, value, userId]);
+
+    const isValid = selected.length >= MIN_SELECTION && selected.length <= MAX_SELECTION;
+
+    return {
+        selected,
+        toggle,
+        value,
+        setValue,
+        getPrice,
+        isValid,
+        MAX_SELECTION,
+        MIN_SELECTION,
+        BOARD_SIZE,
+        error,
+        createBoardTransaction,
+        createBoard,
+    };
+}
+

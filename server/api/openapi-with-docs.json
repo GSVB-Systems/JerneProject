@@ -720,6 +720,39 @@
         }
       }
     },
+    "/api/Transaction/Purchase": {
+      "post": {
+        "tags": [
+          "Transaction"
+        ],
+        "operationId": "Transaction_Purchase",
+        "requestBody": {
+          "x-name": "purchaseDto",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseDTO"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Users/getAllUsers": {
       "get": {
         "tags": [
@@ -1254,8 +1287,9 @@
             "maximum": 8.0,
             "minimum": 5.0
           },
-          "isRepeating": {
-            "type": "boolean"
+          "week": {
+            "type": "integer",
+            "format": "int32"
           },
           "userID": {
             "type": "string",
@@ -1283,8 +1317,9 @@
             "type": "boolean",
             "nullable": true
           },
-          "isRepeating": {
-            "type": "boolean",
+          "week": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           },
           "numbers": {
@@ -1345,8 +1380,9 @@
           "isActive": {
             "type": "boolean"
           },
-          "isRepeating": {
-            "type": "boolean"
+          "week": {
+            "type": "integer",
+            "format": "int32"
           },
           "createdAt": {
             "type": "string",
@@ -1488,6 +1524,18 @@
           "pending": {
             "type": "boolean",
             "nullable": true
+          }
+        }
+      },
+      "PurchaseDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "board": {
+            "$ref": "#/components/schemas/CreateBoardDto"
+          },
+          "transaction": {
+            "$ref": "#/components/schemas/CreateTransactionDto"
           }
         }
       },
