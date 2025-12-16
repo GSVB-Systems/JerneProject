@@ -54,7 +54,7 @@ namespace service.Services
             await _transactionRepository.SaveChangesAsync();
 
            
-            await _userService.UpdateBalanceAsync(entity.UserID, -entity.Amount);
+            await _userService.UpdateBalanceAsync(entity.UserID);
 
             return TransactionMapper.ToDto(entity);
         }
