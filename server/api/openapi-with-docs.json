@@ -1486,7 +1486,7 @@
           "amount": {
             "type": "number",
             "format": "decimal",
-            "minimum": 0.0
+            "minimum": -1000.0
           },
           "userID": {
             "type": "string",

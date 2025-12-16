@@ -11,7 +11,7 @@ public class CreateTransactionDto
 
     public DateTime? TransactionDate { get; set; } 
 
-    [Range(typeof(decimal), "0", "79228162514264337593543950335")]
+    [Range(typeof(decimal), "-1000", "79228162514264337593543950335")]
     public decimal Amount { get; set; }
 
     [Required]

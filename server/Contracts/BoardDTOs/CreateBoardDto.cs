@@ -39,11 +39,6 @@ namespace Contracts.BoardDTOs
                     break;
                 }
             }
-
-            if (!IsRepeating && Numbers.Count != new HashSet<int>(Numbers).Count)
-            {
-                yield return new ValidationResult("Numbers must be unique", new[] { nameof(Numbers) });
-            }
         }
     }
 }

@@ -36,17 +36,6 @@ namespace Contracts.BoardDTOs
                         break;
                     }
                 }
-
-                // uniqueness when IsRepeating is explicitly false
-                var repeat = IsRepeating.GetValueOrDefault(false);
-                if (!repeat)
-                {
-                    var values = Numbers.Select(n => n.Number).ToList();
-                    if (values.Count != new HashSet<int>(values).Count)
-                    {
-                        yield return new ValidationResult("Numbers must be unique.", new[] { nameof(Numbers) });
-                    }
-                }
             }
         }
     }
