@@ -98,8 +98,8 @@ export default function MultiSelectableBoard() {
             {/* Open the modal using document.getElementById('ID').showModal() method */}
             <dialog id="my_modal_2" className="modal">
                 <div className="modal-box">
-                    <h3 className="font-bold text-lg">Bræt oprettet!</h3>
-                    <p className="py-4">Tryk ESC eller klik udenfor</p>
+                    <h3 className="font-bold text-lg">Plade oprettet!</h3>
+                    <p className="py-4">Klik udenfor boksen for at fortsætte</p>
                 </div>
                 <form method="dialog" className="modal-backdrop">
                     <button>close</button>

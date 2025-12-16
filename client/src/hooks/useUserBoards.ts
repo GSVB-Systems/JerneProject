@@ -1,15 +1,15 @@
 import { useCallback, useMemo, useState } from "react";
 import {useJWT} from "./useJWT.ts";
-import type {CreateBoardDto, CreateTransactionDto} from "../models/ServerAPI.ts";
+import type {CreateBoardDto, CreateTransactionDto, PurchaseDTO} from "../models/ServerAPI.ts";
 import {boardClient, transactionClient} from "../api-clients.ts";
 import {useBalance} from "./useNavbar.ts";
 
-const PRICE_CONFIG: Record<number, number> = {
-    5: 20,
-    6: 40,
-    7: 80,
-    8: 160,
-};
+    const PRICE_CONFIG: Record<number, number> = {
+        5: 20,
+        6: 40,
+        7: 80,
+        8: 160,
+    };
 
 const MAX_SELECTION = 8;
 const MIN_SELECTION = 5;
@@ -93,17 +93,38 @@ export function useUserBoards(): UseUserBoardsResult {
             return false;
         }
 
-        const dto: CreateTransactionDto = {
+        const dtoTransaction: CreateTransactionDto = {
             transactionString: "GUID",
             amount: -Math.abs(price),
             userID: userId,
             pending: false,
         };
 
-        try {
-            await transactionClient.create(dto);
-            return await createBoard();
+        const selectedNumbers = selected;
+        const repeatingWeeks = Number.parseInt(value || "1", 10);
+        const boardSize = selectedNumbers.length;
 
+        if(boardSize < MIN_SELECTION){
+            setError("Du skal vælge mindst 5 numre");
+            return false;
+        }
+
+        const dtoBoard: CreateBoardDto = {
+            boardSize,
+            week: repeatingWeeks,
+            userID: userId,
+            numbers: selectedNumbers,
+
+        };
+
+        const dto: PurchaseDTO = {
+            transaction: dtoTransaction,
+            board: dtoBoard,
+        };
+
+        try {
+            await transactionClient.purchase(dto);
+            return true;
         } catch (err) {
             setError("Fejl ved oprettelse af transaktion.");
             return false;
