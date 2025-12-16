@@ -15,15 +15,15 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
     private readonly IUserRepository _userRepository;
     private readonly PasswordService _passwordService;
     private readonly ISieveProcessor _sieveProcessor;
-    private readonly ITransactionService _transactionService;
+    private readonly ITransactionRepository _transactionRepository;
     
-    public UserService(IUserRepository userRepository, PasswordService passwordService, ISieveProcessor sieveProcessor, ITransactionService transactionService)
+    public UserService(IUserRepository userRepository, PasswordService passwordService, ISieveProcessor sieveProcessor, ITransactionRepository transactionRepository)
         : base(userRepository)
     {
         _userRepository = userRepository;
         _passwordService = passwordService;
         _sieveProcessor = sieveProcessor;
-        _transactionService = transactionService;
+        _transactionRepository = transactionRepository;
     }
     
     public async Task<UserDto?> GetByIdAsync(string id)
@@ -130,10 +130,12 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
         var user = await base.GetByIdAsync(userId);
         if (user == null) return null;
 
-        var transactions = await _transactionService.getAllByUserIdAsync(userId, parameters: );
+        var transactions = await _transactionRepository
+            .AsQueryable()
+            .Where(t => t.UserID == userId)
+            .ToListAsync();
 
         var summed = transactions
-            .Items
             .Where(t => !t.Pending)
             .Sum(t => t.Amount);
 

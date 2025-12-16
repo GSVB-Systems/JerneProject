@@ -676,6 +676,39 @@
         }
       }
     },
+    "/api/Transaction/Purchase": {
+      "post": {
+        "tags": [
+          "Transaction"
+        ],
+        "operationId": "Transaction_Purchase",
+        "requestBody": {
+          "x-name": "purchaseDto",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseDTO"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Users/getAllUsers": {
       "get": {
         "tags": [
@@ -1412,6 +1445,18 @@
           "pending": {
             "type": "boolean",
             "nullable": true
+          }
+        }
+      },
+      "PurchaseDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "board": {
+            "$ref": "#/components/schemas/CreateBoardDto"
+          },
+          "transaction": {
+            "$ref": "#/components/schemas/CreateTransactionDto"
           }
         }
       },

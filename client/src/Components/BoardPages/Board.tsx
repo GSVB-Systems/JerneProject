@@ -12,7 +12,7 @@ export default function MultiSelectableBoard() {
         MAX_SELECTION,
         MIN_SELECTION,
         BOARD_SIZE,
-        createBoard,
+        createBoardTransaction,
     } = useUserBoards();
 
     const options = ["1", "2", "3", "4", "5"];
@@ -20,7 +20,7 @@ export default function MultiSelectableBoard() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const succeeded = await createBoard();
+        const succeeded = await createBoardTransaction();
         if (succeeded) {
             const modal = document.getElementById("my_modal_2");
             if (modal instanceof HTMLDialogElement) {
@@ -52,14 +52,17 @@ export default function MultiSelectableBoard() {
             <div className="mt-4 text-center space-y-2">
                 <p className="text-lg font-semibold">Valgte numre: {[...selected].sort((a, b) => a - b).join(", ") || "Ingen"}</p>
                 <p className={`text-lg font-semibold ${!isValid ? "text-red-500" : ""}`}>
-                    Pris: {getPrice()} DKK {!isValid && `(${selected.length}/${MIN_SELECTION}-${MAX_SELECTION})`}
+                    Pris: {isValid && getPrice()} DKK {!isValid && `(${selected.length}/${MIN_SELECTION}-${MAX_SELECTION})`}
                 </p>
                 <div className="flex-col">
+                    <p className="mb-2 text-lg font-semibold">Vælg antal trækninger(uger) (valgt: {value})</p>
                     <div className="join">
+
                         {options.map((opt) => {
                             const active = value === opt;
 
                             return (
+
                                 <button disabled={!isValid}
                                     key={opt}
                                     onClick={() => setValue(opt)}

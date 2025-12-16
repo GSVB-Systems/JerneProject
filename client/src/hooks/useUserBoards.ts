@@ -1,7 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
 import {useJWT} from "./useJWT.ts";
-import type {CreateBoardDto} from "../models/ServerAPI.ts";
-import {boardClient} from "../api-clients.ts";
+import type {CreateBoardDto, CreateTransactionDto} from "../models/ServerAPI.ts";
+import {boardClient, transactionClient} from "../api-clients.ts";
+import {useBalance} from "./useNavbar.ts";
 
 const PRICE_CONFIG: Record<number, number> = {
     5: 20,
@@ -31,12 +32,13 @@ interface UseUserBoardsResult {
     toggle: (num: number) => void;
     value: string;
     setValue: (val: string) => void;
-    getPrice: () => string;
+    getPrice: () => number;
     isValid: boolean;
     MAX_SELECTION: number;
     MIN_SELECTION: number;
     BOARD_SIZE: number;
     error: string | null;
+    createBoardTransaction: () => Promise<boolean>;
     createBoard: () => Promise<boolean>;
 }
 
@@ -47,6 +49,7 @@ export function useUserBoards(): UseUserBoardsResult {
 
     const jwt = useJWT();
     const userId = useMemo(() => getUserIdFromJwt(jwt), [jwt]) ?? "";
+
 
 
     const toggle = useCallback((num: number) => {
@@ -63,10 +66,50 @@ export function useUserBoards(): UseUserBoardsResult {
 
 
 
-    const getPrice = useCallback((): string => {
-        if (selected.length < MIN_SELECTION) return "—";
-        return PRICE_CONFIG[selected.length]?.toString() || "—";
-    }, [selected.length]);
+    const getPrice = useCallback((): number => {
+
+
+        const basePrice = PRICE_CONFIG[selected.length];
+
+
+        const weeks = Number.parseInt(value || "1", 10);
+        return (basePrice * weeks);
+    }, [selected.length, value]);
+
+    const { loadUserBalance } = useBalance();
+
+
+    const createBoardTransaction = useCallback(async (): Promise<boolean> => {
+        const price = getPrice();
+        const currentBalance = await loadUserBalance();
+
+        if (currentBalance === undefined) {
+            setError("Kunne ikke hente saldo.");
+            return false;
+        }
+
+        if (price > currentBalance) {
+            setError("Du har ikke tilstrækkelig penge til at købe dette bræt.");
+            return false;
+        }
+
+        const dto: CreateTransactionDto = {
+            transactionString: "GUID",
+            amount: -Math.abs(price),
+            userID: userId,
+            pending: false,
+        };
+
+        try {
+            await transactionClient.create(dto);
+            return await createBoard();
+
+        } catch (err) {
+            setError("Fejl ved oprettelse af transaktion.");
+            return false;
+        }
+    }, [getPrice, loadUserBalance, userId]);
+
 
     const createBoard = useCallback(async (): Promise<boolean> => {
 
@@ -110,6 +153,8 @@ export function useUserBoards(): UseUserBoardsResult {
         MIN_SELECTION,
         BOARD_SIZE,
         error,
+        createBoardTransaction,
         createBoard,
     };
 }
+
