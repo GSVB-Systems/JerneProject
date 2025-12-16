@@ -11,6 +11,7 @@ import FirstLoginPage from "./Components/FirstLoginPage.tsx";
 import UserTransactions from "./Components/TransactionPages/UserTransactions.tsx";
 import UserProtectedRoute from "./Components/ProtectedRouting/UserProtectedRouting.tsx";
 import AdminTransaction from "./Components/AdminPages/AdminTransaction.tsx";
+import WinnerHistory from "./Components/AdminPages/WinnerHistory.tsx";
 
 function App() {
 
@@ -35,6 +36,14 @@ function App() {
                             <ProtectedRoute>
                                 <BoardHistory/>
                             </ProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/winnerhistory",
+                        element: (
+                            <AdminProtectedRoute>
+                                <WinnerHistory/>
+                            </AdminProtectedRoute>
                         )
                     },
                     {

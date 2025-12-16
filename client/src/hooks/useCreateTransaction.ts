@@ -53,12 +53,24 @@ export const useCreateTransaction = (): UseCreateTransactionResult => {
       return false;
     }
 
+    const normalizedTransactionString = transactionString.trim();
+    if (!normalizedTransactionString) {
+      setError("Transaktions ID er påkrævet.");
+      return false;
+    }
+
+    const userId = getUserIdFromJwt(jwt);
+    if (!userId) {
+      setError("Kunne ikke bestemme bruger ID.");
+      return false;
+    }
+
     setIsSubmitting(true);
     setError(null);
     const dto: CreateTransactionDto = {
       amount: parsedAmount,
-      transactionString: transactionString.trim() || undefined,
-      userID: getUserIdFromJwt(jwt) ?? undefined,
+      transactionString: normalizedTransactionString,
+      userID: userId,
     };
 
     try {
@@ -70,7 +82,7 @@ export const useCreateTransaction = (): UseCreateTransactionResult => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [amount, transactionString]);
+  }, [amount, transactionString, jwt]);
 
   return {
     amount,
@@ -83,4 +95,3 @@ export const useCreateTransaction = (): UseCreateTransactionResult => {
     isSubmitting,
   };
 };
-

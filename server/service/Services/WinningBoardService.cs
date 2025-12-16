@@ -8,22 +8,24 @@ using service.Repositories.Interfaces;
 using service.Services.Interfaces;
 using service.Mappers;
 using Sieve.Models;
+using Sieve.Services;
 
 namespace service.Services
 {
-    public class WinningBoardService : Service<WinningBoard, CreateWinningBoardDto, UpdateWinningBoardDto>, IWinningBoardService
+    public class WinningBoardService : IWinningBoardService
     {
-        private readonly IRepository<WinningBoard> _winningBoardRepo;
+        private readonly IWinningboardRepository _winningBoardRepository;
+        private readonly ISieveProcessor _sieveProcessor;
 
-        public WinningBoardService(IRepository<WinningBoard> winningBoardRepo)
-            : base(winningBoardRepo)
+        public WinningBoardService(IWinningboardRepository winningBoardRepository, ISieveProcessor sieveProcessor)
         {
-            _winningBoardRepo = winningBoardRepo;
+            _winningBoardRepository = winningBoardRepository;
+            _sieveProcessor = sieveProcessor;
         }
 
         public async Task<WinningBoardDto?> GetByIdAsync(string id)
         {
-            var entity = await _winningBoardRepo.AsQueryable()
+            var entity = await _winningBoardRepository.AsQueryable()
                 .Include(w => w.WinningNumbers)
                 .FirstOrDefaultAsync(w => w.WinningBoardID == id);
 
@@ -32,23 +34,22 @@ namespace service.Services
 
         public async Task<PagedResult<WinningBoardDto>> GetAllAsync(SieveModel? parameters)
         {
-          
-            var query = _winningBoardRepo.AsQueryable().Include(w => w.WinningNumbers);
 
-            var items = await query.ToListAsync();
+            var query = _winningBoardRepository.AsQueryable().Include(w => w.WinningNumbers);
+            var sieveModel = parameters ?? new SieveModel();
+            var totalCount = await query.CountAsync();
+            var processedQuery = _sieveProcessor.Apply(sieveModel, query);
+            var items = await processedQuery.ToListAsync();
+
 
             var dtoItems = items.Select(WinningBoardMapper.ToDto).ToList();
-            var count = dtoItems.Count;
-
-            var page = parameters?.Page ?? 1;
-            var pageSize = parameters?.PageSize ?? count;
 
             return new PagedResult<WinningBoardDto>
             {
                 Items = dtoItems,
-                TotalCount = count,
-                Page = page,
-                PageSize = pageSize
+                TotalCount = totalCount,
+                Page = sieveModel.Page ?? 1,
+                PageSize = sieveModel.PageSize ?? dtoItems.Count
             };
         }
 
@@ -96,15 +97,15 @@ namespace service.Services
             if (dupAfterMap.Any())
                 throw new ValidationException($"WinningNumbers must be unique within a winning board. Duplicates: {string.Join(',', dupAfterMap)}");
 
-            await _winningBoardRepo.AddAsync(entity);
-            await _winningBoardRepo.SaveChangesAsync();
+            await _winningBoardRepository.AddAsync(entity);
+            await _winningBoardRepository.SaveChangesAsync();
 
             return WinningBoardMapper.ToDto(entity);
         }
 
         public async Task<WinningBoardDto?> UpdateAsync(string id, UpdateWinningBoardDto updateDto)
         {
-            var existing = await base.GetByIdAsync(id);
+            var existing = await _winningBoardRepository.GetByIdAsync(id);
             if (existing == null) return null;
 
             
@@ -120,15 +121,20 @@ namespace service.Services
 
             WinningBoardMapper.ApplyUpdate(existing, updateDto);
 
-            await _winningBoardRepo.UpdateAsync(existing);
-            await _winningBoardRepo.SaveChangesAsync();
+            await _winningBoardRepository.UpdateAsync(existing);
+            await _winningBoardRepository.SaveChangesAsync();
 
             return WinningBoardMapper.ToDto(existing);
         }
 
         public async Task<bool> DeleteAsync(string id)
         {
-            return await base.DeleteAsync(id);
+            var existing = await _winningBoardRepository.GetByIdAsync(id);
+            if (existing == null) return false;
+
+            await _winningBoardRepository.DeleteAsync(existing);
+            await _winningBoardRepository.SaveChangesAsync();
+            return true;
         }
     }
 }

@@ -1085,10 +1085,9 @@
           "200": {
             "description": "",
             "content": {
-              "application/octet-stream": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "binary"
+                  "$ref": "#/components/schemas/PagedResultOfWinningBoardDto"
                 }
               }
             }
@@ -1117,10 +1116,9 @@
           "200": {
             "description": "",
             "content": {
-              "application/octet-stream": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "binary"
+                  "$ref": "#/components/schemas/WinningBoardDto"
                 }
               }
             }
@@ -1150,10 +1148,9 @@
           "200": {
             "description": "",
             "content": {
-              "application/octet-stream": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "binary"
+                  "$ref": "#/components/schemas/WinningBoardDto"
                 }
               }
             }
@@ -1194,10 +1191,9 @@
           "200": {
             "description": "",
             "content": {
-              "application/octet-stream": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "binary"
+                  "$ref": "#/components/schemas/WinningBoardDto"
                 }
               }
             }
@@ -1688,6 +1684,65 @@
             "format": "decimal",
             "minimum": 0.0,
             "nullable": true
+          }
+        }
+      },
+      "PagedResultOfWinningBoardDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WinningBoardDto"
+            }
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WinningBoardDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "winningBoardID": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "winningNumbers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WinningNumberDto"
+            }
+          }
+        }
+      },
+      "WinningNumberDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "winningNumberID": {
+            "type": "string"
+          },
+          "winningBoardID": {
+            "type": "string"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

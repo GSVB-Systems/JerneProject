@@ -1,6 +1,6 @@
 import { TOKEN_KEY, tokenStorage } from "./atoms/token.ts";
 import {
-    AuthClient, BoardClient, TransactionClient, UsersClient,
+    AuthClient, BoardClient, BoardMatcherClient, TransactionClient, UsersClient, WinningBoardClient,
 } from "./models/ServerAPI.ts";
 
 const customFetch = async (url: RequestInfo, init?: RequestInit) => {
@@ -25,3 +25,5 @@ export const authClient = new AuthClient(baseUrl, { fetch: customFetch });
 export const userClient = new UsersClient(baseUrl, { fetch: customFetch });
 export const transactionClient = new TransactionClient(baseUrl, { fetch: customFetch });
 export const boardClient = new BoardClient(baseUrl, { fetch: customFetch });
+export const winningBoardClient = new WinningBoardClient(baseUrl, { fetch: customFetch });
+export const boardMatcherClient = new BoardMatcherClient(baseUrl, { fetch: customFetch });
