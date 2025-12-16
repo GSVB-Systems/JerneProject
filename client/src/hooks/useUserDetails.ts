@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
-import { userClient } from "../api-clients.ts";
-import type { UserDto, UserRole } from "../models/ServerAPI";
+import { userClient, authClient } from "../api-clients.ts";
+import type { UserDto, UserRole, UpdateUserDto } from "../models/ServerAPI";
 
 export type UserFormState = {
   firstname: string;
@@ -11,6 +11,9 @@ export type UserFormState = {
   firstlogin: boolean;
   isActive: boolean;
   balance: number;
+  // add ephemeral password fields used during edit only
+  newPassword?: string;
+  confirmPassword?: string;
 };
 
 interface UseUserDetailsResult {
@@ -54,6 +57,7 @@ export const useUserDetails = (userId?: string): UseUserDetailsResult => {
     firstlogin: payload.firstlogin ?? false,
     isActive: payload.isActive ?? false,
     balance: payload.balance ?? 0,
+    // do not prefill password fields
   }), []);
 
   const fetchUser = useCallback(async () => {
@@ -103,7 +107,9 @@ export const useUserDetails = (userId?: string): UseUserDetailsResult => {
 
   const cancelEdit = useCallback(() => {
     setEditing(false);
-    setFormState(user ? mapUserToFormState(user) : null);
+    // reset ephemeral password fields when cancelling
+    const base = user ? mapUserToFormState(user) : null;
+    setFormState(base);
     setSaveMessage(null);
     setSaveError(null);
   }, [mapUserToFormState, user]);
@@ -133,24 +139,74 @@ export const useUserDetails = (userId?: string): UseUserDetailsResult => {
     event.preventDefault();
     if (!formState || !userId) return;
 
+    // validate optional password fields if provided (UI-only; backend update does not accept password)
+    if (formState.newPassword || formState.confirmPassword) {
+      if ((formState.newPassword ?? "") !== (formState.confirmPassword ?? "")) {
+        setSaveError("Adgangskoderne matcher ikke.");
+        return;
+      }
+      if ((formState.newPassword ?? "").length < 8) {
+        setSaveError("Adgangskoden skal være mindst 8 tegn.");
+        return;
+      }
+    }
+
     setSaving(true);
     setSaveMessage(null);
     setSaveError(null);
+
+    let updateSucceeded = false;
+    let passwordSucceeded = false;
+    const passwordAttempted = Boolean(formState.newPassword);
+
     try {
-      const payload: UserDto = {
-        userID: user?.userID,
-        ...formState,
+      const payload: UpdateUserDto = {
+        firstname: formState.firstname,
+        lastname: formState.lastname,
+        email: formState.email,
+        role: formState.role,
+        isActive: formState.isActive,
+        balance: formState.balance,
       };
+
+
       await userClient.update(userId, payload);
+      updateSucceeded = true;
+
+
+      if (passwordAttempted && formState.newPassword) {
+        await authClient.adminResetPassword(userId, { newPassword: formState.newPassword });
+        passwordSucceeded = true;
+      }
+
+
       await fetchUser();
-      setSaveMessage("Brugeroplysninger opdateret.");
-      setEditing(false);
-    } catch (err) {
-      setSaveError("Der opstod en fejl under opdatering af brugeroplysninger.");
+
+      if (passwordAttempted) {
+        if (updateSucceeded && passwordSucceeded) {
+          setSaveMessage("Brugeroplysninger opdateret og adgangskode nulstillet.");
+          setEditing(false);
+        } else if (updateSucceeded && !passwordSucceeded) {
+          setSaveMessage("Brugeroplysninger opdateret, men nulstilling af adgangskode mislykkedes.");
+          // keep editing to allow fixing password fields
+        }
+      } else {
+        setSaveMessage("Brugeroplysninger opdateret.");
+        setEditing(false);
+      }
+    } catch (error) {
+
+      if (!updateSucceeded) {
+        setSaveError("Der opstod en fejl under opdatering af brugeroplysninger.");
+      } else if (passwordAttempted && !passwordSucceeded) {
+        setSaveError("Der opstod en fejl under nulstilling af adgangskode.");
+      } else {
+        setSaveError(error instanceof Error ? error.message : "Der opstod en ukendt fejl.");
+      }
     } finally {
       setSaving(false);
     }
-  }, [fetchUser, formState, user?.userID, userId]);
+  }, [fetchUser, formState, userId]);
 
   const deleteUser = useCallback(async (): Promise<boolean> => {
     if (!userId) return false;
@@ -159,7 +215,7 @@ export const useUserDetails = (userId?: string): UseUserDetailsResult => {
     try {
       await userClient.delete(userId);
       return true;
-    } catch (err) {
+    } catch {
       setDeleteError("Kunne ikke slette brugeren. Prøv igen.");
       return false;
     } finally {
@@ -169,6 +225,7 @@ export const useUserDetails = (userId?: string): UseUserDetailsResult => {
 
   const resetDeleteState = useCallback(() => {
     setDeleteError(null);
+    setDeleting(false);
   }, []);
 
   useEffect(() => {

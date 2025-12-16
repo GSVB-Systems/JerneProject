@@ -10,4 +10,8 @@ public interface IAuthService : IService<User, User, User>
     Task<User> GetUserByEmailAsync(string email);
     
     Task<User> UpdateUserPasswordAsync(string userId, string  oldPassword, string newPassword);
+
+	Task<User> AdminResetUserPasswordAsync(string userId, string newPassword);
+
+    
 }

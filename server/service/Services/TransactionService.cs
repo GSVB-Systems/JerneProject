@@ -90,7 +90,7 @@ namespace service.Services
             return new PagedResult<TransactionDto>
             {
                 Items = transactions.Select(TransactionMapper.ToDto)
-                    .ToList(), // toList quickfix until getAllAsync is fixed
+                    .ToList(), 
                 TotalCount = totalCount,
                 Page = sieveModel.Page ?? 1,
                 PageSize = sieveModel.PageSize ?? transactions.Count
