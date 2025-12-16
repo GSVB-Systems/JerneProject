@@ -37,7 +37,7 @@ public class BoardController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreateBoardDto dto)
     {
         var created = await _boardService.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = created?.BoardID }, created);
+        return Ok(created);
     }
 
     [HttpPut("UpdateBoard{id}")]
