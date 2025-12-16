@@ -22,6 +22,15 @@ namespace Contracts.WinningBoardDTOs
                 yield return new ValidationResult("WinningNumbers must contain exactly 3 or 5 items.", new[] { nameof(WinningNumbers) });
             }
 
+            foreach (var n in WinningNumbers)
+            {
+                if (n < 1 || n > 16)
+                {
+                    yield return new ValidationResult("Each winning number must be between 1 and 16.", new[] { nameof(WinningNumbers) });
+                    break;
+                }
+            }
+
             if (WinningNumbers.Count != new HashSet<int>(WinningNumbers).Count)
             {
                 yield return new ValidationResult("WinningNumbers must be unique.", new[] { nameof(WinningNumbers) });

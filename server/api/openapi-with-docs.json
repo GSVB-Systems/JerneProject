@@ -120,6 +120,50 @@
         }
       }
     },
+    "/api/Auth/admin-reset-password/{userId}": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "Auth_AdminResetPassword",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "dto",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Board/GetAllBoards": {
       "get": {
         "tags": [
@@ -1166,12 +1210,32 @@
       "LoginRequest": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "username",
+          "password"
+        ],
         "properties": {
           "username": {
-            "type": "string"
+            "type": "string",
+            "format": "email",
+            "minLength": 1
           },
           "password": {
-            "type": "string"
+            "type": "string",
+            "minLength": 8
+          }
+        }
+      },
+      "ResetPasswordDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "newPassword"
+        ],
+        "properties": {
+          "newPassword": {
+            "type": "string",
+            "minLength": 8
           }
         }
       },
@@ -1186,7 +1250,9 @@
         "properties": {
           "boardSize": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "maximum": 8.0,
+            "minimum": 5.0
           },
           "isRepeating": {
             "type": "boolean"
@@ -1235,7 +1301,9 @@
         "properties": {
           "number": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "maximum": 16.0,
+            "minimum": 1.0
           }
         }
       },
@@ -1364,9 +1432,15 @@
       "CreateTransactionDto": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "transactionString",
+          "userID"
+        ],
         "properties": {
           "transactionString": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
           },
           "transactionDate": {
             "type": "string",
@@ -1375,10 +1449,12 @@
           },
           "amount": {
             "type": "number",
-            "format": "decimal"
+            "format": "decimal",
+            "minimum": 0.0
           },
           "userID": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "pending": {
             "type": "boolean",
@@ -1391,7 +1467,9 @@
         "additionalProperties": false,
         "properties": {
           "transactionString": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
           },
           "transactionDate": {
             "type": "string",
@@ -1401,6 +1479,7 @@
           "amount": {
             "type": "number",
             "format": "decimal",
+            "minimum": 0.0,
             "nullable": true
           },
           "userID": {
@@ -1492,21 +1571,37 @@
       "RegisterUserDto": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "firstname",
+          "lastname",
+          "email",
+          "password",
+          "role"
+        ],
         "properties": {
           "firstname": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
           },
           "lastname": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "format": "email",
+            "minLength": 1
           },
           "password": {
-            "type": "string"
+            "type": "string",
+            "minLength": 8
           },
           "role": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 0
           }
         }
       },
@@ -1515,13 +1610,18 @@
         "additionalProperties": false,
         "properties": {
           "firstname": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
           },
           "lastname": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "role": {
             "nullable": true,
@@ -1538,6 +1638,7 @@
           "balance": {
             "type": "number",
             "format": "decimal",
+            "minimum": 0.0,
             "nullable": true
           }
         }

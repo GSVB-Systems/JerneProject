@@ -4,6 +4,7 @@ namespace Contracts.BoardNumberDTOs
 {
     public class CreateBoardNumberDto : IValidatableObject
     {
+        [Range(1, 16)]
         public int Number { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
