@@ -17,7 +17,7 @@ export class BoardMatcherClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getBoardsContainingNumbers(winningBoardId: string): Promise<string[]> {
+    getBoardsContainingNumbers(winningBoardId: string): Promise<WinnerResultDto[]> {
         let url_ = this.baseUrl + "/api/BoardMatcher/FindAllBoardsMathingWinningBoardID/{winningBoardId}";
         if (winningBoardId === undefined || winningBoardId === null)
             throw new globalThis.Error("The parameter 'winningBoardId' must be defined.");
@@ -36,13 +36,13 @@ export class BoardMatcherClient {
         });
     }
 
-    protected processGetBoardsContainingNumbers(response: Response): Promise<string[]> {
+    protected processGetBoardsContainingNumbers(response: Response): Promise<WinnerResultDto[]> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as string[];
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as WinnerResultDto[];
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -50,7 +50,43 @@ export class BoardMatcherClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<string[]>(null as any);
+        return Promise.resolve<WinnerResultDto[]>(null as any);
+    }
+
+    getBoardsContainingNumbersWithDecrementer(winningBoardId: string): Promise<WinnerResultDto[]> {
+        let url_ = this.baseUrl + "/api/BoardMatcher/FindAllBoardsMathingWinningBoardIDWithDecrementer/{winningBoardId}";
+        if (winningBoardId === undefined || winningBoardId === null)
+            throw new globalThis.Error("The parameter 'winningBoardId' must be defined.");
+        url_ = url_.replace("{winningBoardId}", encodeURIComponent("" + winningBoardId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetBoardsContainingNumbersWithDecrementer(_response);
+        });
+    }
+
+    protected processGetBoardsContainingNumbersWithDecrementer(response: Response): Promise<WinnerResultDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as WinnerResultDto[];
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<WinnerResultDto[]>(null as any);
     }
 }
 
@@ -1299,6 +1335,42 @@ export class WinningBoardClient {
     }
 }
 
+export interface WinnerResultDto {
+    board?: BoardDto;
+    user?: UserDto;
+}
+
+export interface BoardDto {
+    boardID?: string;
+    boardSize?: number;
+    isActive?: boolean;
+    week?: number;
+    createdAt?: string;
+    userID?: string;
+    numbers?: BoardNumberDto[];
+}
+
+export interface BoardNumberDto {
+    boardNumberID?: string;
+    boardID?: string;
+    number?: number;
+}
+
+export interface UserDto {
+    userID?: string;
+    firstname?: string;
+    lastname?: string;
+    email?: string;
+    role?: UserRole;
+    firstlogin?: boolean;
+    isActive?: boolean;
+    balance?: number;
+    subscriptionExpiresAtUtc?: string | undefined;
+    daysUntilExpiry?: number | undefined;
+}
+
+export type UserRole = 0 | 1;
+
 export interface LoginRequest {
     username: string;
     password: string;
@@ -1331,22 +1403,6 @@ export interface PagedResultOfBoardDto {
     totalCount?: number;
     page?: number;
     pageSize?: number;
-}
-
-export interface BoardDto {
-    boardID?: string;
-    boardSize?: number;
-    isActive?: boolean;
-    week?: number;
-    createdAt?: string;
-    userID?: string;
-    numbers?: BoardNumberDto[];
-}
-
-export interface BoardNumberDto {
-    boardNumberID?: string;
-    boardID?: string;
-    number?: number;
 }
 
 export interface PagedResultOfTransactionDto {
@@ -1392,21 +1448,6 @@ export interface PagedResultOfUserDto {
     page?: number;
     pageSize?: number;
 }
-
-export interface UserDto {
-    userID?: string;
-    firstname?: string;
-    lastname?: string;
-    email?: string;
-    role?: UserRole;
-    firstlogin?: boolean;
-    isActive?: boolean;
-    balance?: number;
-    subscriptionExpiresAtUtc?: string | undefined;
-    daysUntilExpiry?: number | undefined;
-}
-
-export type UserRole = 0 | 1;
 
 export interface RegisterUserDto {
     firstname: string;

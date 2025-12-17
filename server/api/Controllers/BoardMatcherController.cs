@@ -1,12 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Contracts;
-using Contracts.BoardDTOs;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Sieve.Models;
 using service.Services.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
+using Contracts.WinnerResultDTO;
 
 namespace service.Controllers
 {
@@ -21,9 +18,9 @@ namespace service.Controllers
         {
             _boardMatcherService = boardMatcherService;
         }
-        
+
         [HttpGet("FindAllBoardsMathingWinningBoardID/{winningBoardId}")]
-        public async Task<ActionResult<List<string>>> GetBoardsContainingNumbers(string winningBoardId)
+        public async Task<ActionResult<List<WinnerResultDto>>> GetBoardsContainingNumbers(string winningBoardId)
         {
             if (string.IsNullOrWhiteSpace(winningBoardId))
                 return BadRequest();
@@ -35,5 +32,20 @@ namespace service.Controllers
 
             return Ok(matches);
         }
+        
+        [HttpGet("FindAllBoardsMathingWinningBoardIDWithDecrementer/{winningBoardId}")]
+        public async Task<ActionResult<List<WinnerResultDto>>> GetBoardsContainingNumbersWithDecrementer(string winningBoardId)
+        {
+            if (string.IsNullOrWhiteSpace(winningBoardId))
+                return BadRequest();
+
+            var matches = await _boardMatcherService.GetBoardsContainingNumbersWithDecrementerAsync(winningBoardId);
+
+            if (matches == null || !matches.Any())
+                return NotFound();
+
+            return Ok(matches);
+        }
+
     }
 }
