@@ -1,4 +1,5 @@
-﻿using Contracts;
+﻿using System.Globalization;
+using Contracts;
 using Contracts.BoardNumberDTOs;
 using Contracts.BoardDTOs;
 using dataaccess.Entities;
@@ -14,9 +15,11 @@ namespace service.Mappers
                 BoardSize = b.BoardSize,
                 IsActive = b.IsActive,
                 Week = b.Week,
+                Year = b.Year,
                 CreatedAt = b.CreatedAt,
                 UserID = b.UserID,
                 Win = b.Win,
+                WeeksPurchased = b.WeeksPurchased,
                 Numbers = b.Numbers?.Select(BoardNumberMapper.ToDto).ToList() ?? new System.Collections.Generic.List<BoardNumberDto>()
             };
 
@@ -24,15 +27,23 @@ namespace service.Mappers
         {
             if (dto == null) return null;
             var boardId = Guid.NewGuid().ToString();
+            // Use UTC for storage
+            var nowUtc = DateTime.UtcNow; 
+            // Use local time for week/year calculation
+            var nowLocal = DateTime.Now;
+            var cal = CultureInfo.CurrentCulture.Calendar;
+            var weekOfYear = cal.GetWeekOfYear(nowLocal, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+            var year = nowLocal.Year;
             var board = new Board
             {
                 BoardID = boardId,
                 BoardSize = dto.BoardSize,
-                Week = dto.Week,
+                Week = weekOfYear,
                 IsActive = true,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = nowUtc,
+                Year = year,
+                WeeksPurchased = dto.Week,
                 UserID = dto.UserID,
-                Win = false,
                 Numbers = dto.Numbers?.Select(n => new BoardNumber
                 {
                     BoardNumberID = Guid.NewGuid().ToString(),

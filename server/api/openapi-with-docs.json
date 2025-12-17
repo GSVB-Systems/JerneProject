@@ -1300,6 +1300,10 @@
             "type": "integer",
             "format": "int32"
           },
+          "year": {
+            "type": "integer",
+            "format": "int32"
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -1307,14 +1311,18 @@
           "userID": {
             "type": "string"
           },
+          "win": {
+            "type": "boolean"
+          },
+          "weeksPurchased": {
+            "type": "integer",
+            "format": "int32"
+          },
           "numbers": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/BoardNumberDto"
             }
-          },
-          "win": {
-            "type": "boolean"
           }
         }
       },
@@ -1773,6 +1781,14 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "week": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "weekYear": {
+            "type": "integer",
+            "format": "int32"
           },
           "winningNumbers": {
             "type": "array",

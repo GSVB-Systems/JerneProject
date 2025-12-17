@@ -1345,10 +1345,12 @@ export interface BoardDto {
     boardSize?: number;
     isActive?: boolean;
     week?: number;
+    year?: number;
     createdAt?: string;
     userID?: string;
-    numbers?: BoardNumberDto[];
     win?: boolean;
+    weeksPurchased?: number;
+    numbers?: BoardNumberDto[];
 }
 
 export interface BoardNumberDto {
@@ -1478,6 +1480,8 @@ export interface PagedResultOfWinningBoardDto {
 export interface WinningBoardDto {
     winningBoardID?: string;
     createdAt?: string;
+    week?: number;
+    weekYear?: number;
     winningNumbers?: WinningNumberDto[];
 }
 
