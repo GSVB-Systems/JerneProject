@@ -1,9 +1,5 @@
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using Contracts;
 using Contracts.TransactionDTOs;
-using dataaccess.Entities;
 using service.Mappers;
 using service.Repositories.Interfaces;
 using service.Services.Interfaces;
@@ -17,11 +13,13 @@ namespace service.Services
     {
         private readonly ITransactionRepository _transactionRepository;
         private readonly ISieveProcessor _sieveProcessor;
+        private readonly IUserService _userService;
 
-        public TransactionService(ITransactionRepository transactionRepository, ISieveProcessor sieveProcessor)
+        public TransactionService(ITransactionRepository transactionRepository, ISieveProcessor sieveProcessor, IUserService userService)
         {
             _transactionRepository = transactionRepository;
             _sieveProcessor = sieveProcessor;
+            _userService = userService;
         }
 
         public async Task<TransactionDto?> GetByIdAsync(string id)
@@ -51,8 +49,18 @@ namespace service.Services
         public async Task<TransactionDto> CreateAsync(CreateTransactionDto dto)
         {
             var entity = TransactionMapper.ToEntity(dto);
+            
+            if(entity.TransactionString == "GUID")
+            {
+                entity.TransactionString = Guid.NewGuid().ToString();
+            }
+
             await _transactionRepository.AddAsync(entity);
             await _transactionRepository.SaveChangesAsync();
+
+           
+            await _userService.UpdateBalanceAsync(entity.UserID);
+
             return TransactionMapper.ToDto(entity);
         }
 
@@ -64,6 +72,8 @@ namespace service.Services
             TransactionMapper.ApplyUpdate(existing, dto);
             await _transactionRepository.UpdateAsync(existing);
             await _transactionRepository.SaveChangesAsync();
+
+            await _userService.UpdateBalanceAsync(existing.UserID);
             
             return TransactionMapper.ToDto(existing);
         }
@@ -80,7 +90,7 @@ namespace service.Services
             return new PagedResult<TransactionDto>
             {
                 Items = transactions.Select(TransactionMapper.ToDto)
-                    .ToList(), // toList quickfix until getAllAsync is fixed
+                    .ToList(), 
                 TotalCount = totalCount,
                 Page = sieveModel.Page ?? 1,
                 PageSize = sieveModel.PageSize ?? transactions.Count

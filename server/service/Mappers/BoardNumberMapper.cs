@@ -6,31 +6,35 @@ namespace service.Mappers
 {
     public static class BoardNumberMapper
     {
-        public static BoardNumberDto ToDto(BoardNumber n) =>
-            n == null ? null : new BoardNumberDto
+        public static BoardNumberDto ToDto(BoardNumber e) =>
+            e == null ? null : new BoardNumberDto
             {
-                BoardNumberID = n.BoardNumberID,
-                BoardID = n.BoardID,
-                WinningBoardID = n.WinningBoardID,
-                Number = n.Number
+                BoardNumberID = e.BoardNumberID,
+                Number = e.Number,
+                BoardID = e.BoardID
             };
 
         public static BoardNumber ToEntity(CreateBoardNumberDto dto)
         {
             if (dto == null) return null;
+
             return new BoardNumber
             {
-                BoardNumberID = Guid.NewGuid().ToString(),
+                BoardNumberID = string.Empty,
                 Number = dto.Number,
-                WinningBoardID = dto.WinningBoardID
+                BoardID = string.Empty
             };
         }
 
         public static void ApplyUpdate(BoardNumber target, UpdateBoardNumberDto dto)
         {
-            if (dto == null || target == null) return;
-            if (dto.Number.HasValue) target.Number = dto.Number.Value;
-            if (dto.WinningBoardID != null) target.WinningBoardID = dto.WinningBoardID;
+            if (target == null || dto == null) return;
+
+            if (dto.Number.HasValue)
+                target.Number = dto.Number.Value;
+
+            if (!string.IsNullOrWhiteSpace(dto.BoardID))
+                target.BoardID = dto.BoardID;
         }
     }
 }

@@ -12,7 +12,6 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[AllowAnonymous]
 public class AuthController : ControllerBase
 {
     private readonly TokenService _tokenService;
@@ -38,5 +37,40 @@ public class AuthController : ControllerBase
         var token = _tokenService.CreateToken(_authService.GetUserByEmailAsync(request.Username).Result);
        
         return Ok(new { token });
+    }
+
+    [HttpPost("User-change-password")]
+    public async Task<IActionResult> UserChangePassword([FromQuery]string userId,[FromQuery] string oldPassword, [FromQuery] string newPassword)
+    {
+        if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(oldPassword) || string.IsNullOrWhiteSpace(newPassword))
+            return BadRequest("All fields are required.");
+
+        try
+        {
+            await _authService.UpdateUserPasswordAsync(userId, oldPassword, newPassword);
+            return Ok();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPost("admin-reset-password/{userId}")]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> AdminResetPassword([FromRoute] string userId, [FromBody] ResetPasswordDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(userId) || dto is null)
+            return BadRequest("UserId and body are required.");
+
+        try
+        {
+            await _authService.AdminResetUserPasswordAsync(userId, dto.NewPassword);
+            return Ok();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 }

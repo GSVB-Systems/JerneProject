@@ -245,18 +245,31 @@ export default function ViewUserDetails(): JSX.Element {
                       <span className="toggle-circle" />
                     </label>
                   </div>
+
+                  {/* SLIDEREN ER HER BRORSKABS */}
                   <div>
                     <label className="label">
-                      <span className="label-text">Balance</span>
+                      <span className="label-text">Ny adgangskode</span>
                     </label>
                     <input
-                      type="number"
-                      name="balance"
-                      value={formState?.balance ?? 0}
-                      step="0.01"
+                      type="password"
+                      name="newPassword"
+                      value={formState?.newPassword ?? ""}
                       onChange={handleFormChange}
                       className="input w-full"
-                      required
+                      placeholder="Mindst 8 tegn"
+                    />
+                  </div>
+                  <div>
+                    <label className="label">
+                      <span className="label-text">Bekræft adgangskode</span>
+                    </label>
+                    <input
+                      type="password"
+                      name="confirmPassword"
+                      value={formState?.confirmPassword ?? ""}
+                      onChange={handleFormChange}
+                      className="input w-full"
                     />
                   </div>
                 </div>

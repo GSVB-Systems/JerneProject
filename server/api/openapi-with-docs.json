@@ -6,6 +6,40 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/BoardMatcher/FindAllBoardsMathingWinningBoardID/{winningBoardId}": {
+      "get": {
+        "tags": [
+          "BoardMatcher"
+        ],
+        "operationId": "BoardMatcher_GetBoardsContainingNumbers",
+        "parameters": [
+          {
+            "name": "winningBoardId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Auth/login": {
       "post": {
         "tags": [
@@ -39,7 +73,98 @@
         }
       }
     },
-    "/Board": {
+    "/api/Auth/User-change-password": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "Auth_UserChangePassword",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "oldPassword",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "newPassword",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Auth/admin-reset-password/{userId}": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "operationId": "Auth_AdminResetPassword",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "dto",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Board/GetAllBoards": {
       "get": {
         "tags": [
           "Board"
@@ -102,7 +227,41 @@
             }
           }
         }
-      },
+      }
+    },
+    "/api/Board/GetBoardsById{id}": {
+      "get": {
+        "tags": [
+          "Board"
+        ],
+        "operationId": "Board_GetById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Board/CreateBoard": {
       "post": {
         "tags": [
           "Board"
@@ -135,37 +294,7 @@
         }
       }
     },
-    "/Board/{id}": {
-      "get": {
-        "tags": [
-          "Board"
-        ],
-        "operationId": "Board_GetById",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      },
+    "/api/Board/UpdateBoard{id}": {
       "put": {
         "tags": [
           "Board"
@@ -207,7 +336,9 @@
             }
           }
         }
-      },
+      }
+    },
+    "/api/Board/DeleteBoard{id}": {
       "delete": {
         "tags": [
           "Board"
@@ -239,13 +370,21 @@
         }
       }
     },
-    "/api/BoardNumber": {
+    "/api/Board/getAllBoardsByUserId": {
       "get": {
         "tags": [
-          "BoardNumber"
+          "Board"
         ],
-        "operationId": "BoardNumber_GetAll",
+        "operationId": "Board_GetAllBoardsByUserId",
         "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
           {
             "name": "Filters",
             "in": "query",
@@ -253,7 +392,7 @@
               "type": "string",
               "nullable": true
             },
-            "x-position": 1
+            "x-position": 2
           },
           {
             "name": "Sorts",
@@ -262,7 +401,7 @@
               "type": "string",
               "nullable": true
             },
-            "x-position": 2
+            "x-position": 3
           },
           {
             "name": "Page",
@@ -274,7 +413,7 @@
               "minimum": 1.0,
               "nullable": true
             },
-            "x-position": 3
+            "x-position": 4
           },
           {
             "name": "PageSize",
@@ -286,152 +425,16 @@
               "minimum": 1.0,
               "nullable": true
             },
-            "x-position": 4
+            "x-position": 5
           }
         ],
         "responses": {
           "200": {
             "description": "",
             "content": {
-              "application/octet-stream": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "BoardNumber"
-        ],
-        "operationId": "BoardNumber_Create",
-        "requestBody": {
-          "x-name": "dto",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateBoardNumberDto"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/BoardNumber/{id}": {
-      "get": {
-        "tags": [
-          "BoardNumber"
-        ],
-        "operationId": "BoardNumber_GetById",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "BoardNumber"
-        ],
-        "operationId": "BoardNumber_Update",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "dto",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateBoardNumberDto"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "BoardNumber"
-        ],
-        "operationId": "BoardNumber_Delete",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
+                  "$ref": "#/components/schemas/PagedResultOfBoardDto"
                 }
               }
             }
@@ -489,37 +492,6 @@
             "x-position": 4
           }
         ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Transaction"
-        ],
-        "operationId": "Transaction_Create",
-        "requestBody": {
-          "x-name": "dto",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateTransactionDto"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
         "responses": {
           "200": {
             "description": "",
@@ -607,7 +579,7 @@
         }
       }
     },
-    "/api/Transaction/{id}": {
+    "/api/Transaction/GetBy{id}": {
       "get": {
         "tags": [
           "Transaction"
@@ -637,7 +609,42 @@
             }
           }
         }
-      },
+      }
+    },
+    "/api/Transaction/CreateTransaction": {
+      "post": {
+        "tags": [
+          "Transaction"
+        ],
+        "operationId": "Transaction_Create",
+        "requestBody": {
+          "x-name": "createDto",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTransactionDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Transaction/UpdateTransactionBy{id}": {
       "put": {
         "tags": [
           "Transaction"
@@ -679,7 +686,9 @@
             }
           }
         }
-      },
+      }
+    },
+    "/api/Transaction/DeleteTransactionBy{id}": {
       "delete": {
         "tags": [
           "Transaction"
@@ -711,7 +720,40 @@
         }
       }
     },
-    "/api/Users/getAll": {
+    "/api/Transaction/Purchase": {
+      "post": {
+        "tags": [
+          "Transaction"
+        ],
+        "operationId": "Transaction_Purchase",
+        "requestBody": {
+          "x-name": "purchaseDto",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseDTO"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Users/getAllUsers": {
       "get": {
         "tags": [
           "Users"
@@ -775,7 +817,7 @@
         }
       }
     },
-    "/api/Users/{id}": {
+    "/api/Users/GetUserByID/{id}": {
       "get": {
         "tags": [
           "Users"
@@ -805,7 +847,42 @@
             }
           }
         }
-      },
+      }
+    },
+    "/api/Users/CreateUser": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "Users_Create",
+        "requestBody": {
+          "x-name": "dto",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterUserDto"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Users/UpdateUserBy{id}": {
       "put": {
         "tags": [
           "Users"
@@ -847,7 +924,9 @@
             }
           }
         }
-      },
+      }
+    },
+    "/api/Users/DeleteUserBy{id}": {
       "delete": {
         "tags": [
           "Users"
@@ -864,39 +943,6 @@
             "x-position": 1
           }
         ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Users/create": {
-      "post": {
-        "tags": [
-          "Users"
-        ],
-        "operationId": "Users_Create",
-        "requestBody": {
-          "x-name": "dto",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterUserDto"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
         "responses": {
           "200": {
             "description": "",
@@ -944,7 +990,7 @@
         }
       }
     },
-    "/api/Users/{id}/extend": {
+    "/api/Users/{id}/extendSubscription": {
       "post": {
         "tags": [
           "Users"
@@ -985,7 +1031,7 @@
         }
       }
     },
-    "/api/WinningBoard": {
+    "/api/WinningBoard/GetAllWinningBoards": {
       "get": {
         "tags": [
           "WinningBoard"
@@ -1048,7 +1094,41 @@
             }
           }
         }
-      },
+      }
+    },
+    "/api/WinningBoard/GetWinningBoardBy{id}": {
+      "get": {
+        "tags": [
+          "WinningBoard"
+        ],
+        "operationId": "WinningBoard_GetById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/WinningBoard/CreateWinningBoard": {
       "post": {
         "tags": [
           "WinningBoard"
@@ -1081,37 +1161,7 @@
         }
       }
     },
-    "/api/WinningBoard/{id}": {
-      "get": {
-        "tags": [
-          "WinningBoard"
-        ],
-        "operationId": "WinningBoard_GetById",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      },
+    "/api/WinningBoard/UpdateWinningBoardBy{id}": {
       "put": {
         "tags": [
           "WinningBoard"
@@ -1153,212 +1203,14 @@
             }
           }
         }
-      },
+      }
+    },
+    "/api/WinningBoard/DeleteWinningBoardBy{id}": {
       "delete": {
         "tags": [
           "WinningBoard"
         ],
         "operationId": "WinningBoard_Delete",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/WinningNumber": {
-      "get": {
-        "tags": [
-          "WinningNumber"
-        ],
-        "operationId": "WinningNumber_GetAll",
-        "parameters": [
-          {
-            "name": "Filters",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 1
-          },
-          {
-            "name": "Sorts",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 2
-          },
-          {
-            "name": "Page",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "maximum": 2147483647.0,
-              "minimum": 1.0,
-              "nullable": true
-            },
-            "x-position": 3
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32",
-              "maximum": 2147483647.0,
-              "minimum": 1.0,
-              "nullable": true
-            },
-            "x-position": 4
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "WinningNumber"
-        ],
-        "operationId": "WinningNumber_Create",
-        "requestBody": {
-          "x-name": "dto",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateWinningNumberDto"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/WinningNumber/{id}": {
-      "get": {
-        "tags": [
-          "WinningNumber"
-        ],
-        "operationId": "WinningNumber_GetById",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "WinningNumber"
-        ],
-        "operationId": "WinningNumber_Update",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "dto",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateWinningNumberDto"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/octet-stream": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "WinningNumber"
-        ],
-        "operationId": "WinningNumber_Delete",
         "parameters": [
           {
             "name": "id",
@@ -1391,47 +1243,64 @@
       "LoginRequest": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "username",
+          "password"
+        ],
         "properties": {
           "username": {
-            "type": "string"
+            "type": "string",
+            "format": "email",
+            "minLength": 1
           },
           "password": {
-            "type": "string"
+            "type": "string",
+            "minLength": 8
+          }
+        }
+      },
+      "ResetPasswordDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "newPassword"
+        ],
+        "properties": {
+          "newPassword": {
+            "type": "string",
+            "minLength": 8
           }
         }
       },
       "CreateBoardDto": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "boardSize",
+          "userID",
+          "numbers"
+        ],
         "properties": {
           "boardSize": {
             "type": "integer",
+            "format": "int32",
+            "maximum": 8.0,
+            "minimum": 5.0
+          },
+          "week": {
+            "type": "integer",
             "format": "int32"
           },
-          "isRepeating": {
-            "type": "boolean"
-          },
           "userID": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "numbers": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CreateBoardNumberDto"
+              "type": "integer",
+              "format": "int32"
             }
-          }
-        }
-      },
-      "CreateBoardNumberDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "number": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "winningBoardID": {
-            "type": "string"
           }
         }
       },
@@ -1448,23 +1317,101 @@
             "type": "boolean",
             "nullable": true
           },
-          "isRepeating": {
-            "type": "boolean",
+          "week": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
+          },
+          "numbers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateBoardNumberDto"
+            }
           }
         }
       },
-      "UpdateBoardNumberDto": {
+      "CreateBoardNumberDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "number": {
             "type": "integer",
             "format": "int32",
-            "nullable": true
+            "maximum": 16.0,
+            "minimum": 1.0
+          }
+        }
+      },
+      "PagedResultOfBoardDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BoardDto"
+            }
           },
-          "winningBoardID": {
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "BoardDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "boardID": {
             "type": "string"
+          },
+          "boardSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "week": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "userID": {
+            "type": "string"
+          },
+          "numbers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BoardNumberDto"
+            }
+          }
+        }
+      },
+      "BoardNumberDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "boardNumberID": {
+            "type": "string"
+          },
+          "boardID": {
+            "type": "string"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -1512,36 +1459,24 @@
           },
           "userID": {
             "type": "string"
+          },
+          "pending": {
+            "type": "boolean"
           }
         }
       },
       "CreateTransactionDto": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "transactionString",
+          "userID"
+        ],
         "properties": {
           "transactionString": {
-            "type": "string"
-          },
-          "transactionDate": {
             "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "amount": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "userID": {
-            "type": "string"
-          }
-        }
-      },
-      "UpdateTransactionDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "transactionString": {
-            "type": "string"
+            "maxLength": 200,
+            "minLength": 0
           },
           "transactionDate": {
             "type": "string",
@@ -1551,10 +1486,56 @@
           "amount": {
             "type": "number",
             "format": "decimal",
+            "minimum": -1000.0
+          },
+          "userID": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pending": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "UpdateTransactionDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "transactionString": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "transactionDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 0.0,
             "nullable": true
           },
           "userID": {
             "type": "string"
+          },
+          "pending": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "PurchaseDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "board": {
+            "$ref": "#/components/schemas/CreateBoardDto"
+          },
+          "transaction": {
+            "$ref": "#/components/schemas/CreateTransactionDto"
           }
         }
       },
@@ -1638,21 +1619,37 @@
       "RegisterUserDto": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "firstname",
+          "lastname",
+          "email",
+          "password",
+          "role"
+        ],
         "properties": {
           "firstname": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
           },
           "lastname": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "format": "email",
+            "minLength": 1
           },
           "password": {
-            "type": "string"
+            "type": "string",
+            "minLength": 8
           },
           "role": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 0
           }
         }
       },
@@ -1661,13 +1658,18 @@
         "additionalProperties": false,
         "properties": {
           "firstname": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
           },
           "lastname": {
-            "type": "string"
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 0
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "role": {
             "nullable": true,
@@ -1684,6 +1686,7 @@
           "balance": {
             "type": "number",
             "format": "decimal",
+            "minimum": 0.0,
             "nullable": true
           }
         }
@@ -1691,45 +1694,32 @@
       "CreateWinningBoardDto": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "winningNumbers"
+        ],
         "properties": {
           "winningNumbers": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CreateWinningNumberDto"
+              "type": "integer",
+              "format": "int32"
             }
-          }
-        }
-      },
-      "CreateWinningNumberDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "number": {
-            "type": "integer",
-            "format": "int32"
           }
         }
       },
       "UpdateWinningBoardDto": {
         "type": "object",
         "additionalProperties": false,
+        "required": [
+          "winningNumbers"
+        ],
         "properties": {
           "winningNumbers": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/CreateWinningNumberDto"
+              "type": "integer",
+              "format": "int32"
             }
-          }
-        }
-      },
-      "UpdateWinningNumberDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "number": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
           }
         }
       }

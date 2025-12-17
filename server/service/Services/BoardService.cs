@@ -1,5 +1,4 @@
-using System.Linq;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 using Contracts.BoardDTOs;
 using Contracts;
 using dataaccess.Entities;
@@ -25,15 +24,104 @@ namespace service.Services
 
         public async Task<BoardDto?> GetByIdAsync(string id)
         {
-            var board = await _boardRepository.GetByIdAsync(id);
-            return board == null ? null : BoardMapper.ToDto(board);
+            var entity = await _boardRepository.AsQueryable()
+                .Include(b => b.Numbers)
+                .FirstOrDefaultAsync(b => b.BoardID == id);
+
+            return entity == null ? null : BoardMapper.ToDto(entity);
         }
 
         public async Task<PagedResult<BoardDto>> GetAllAsync(SieveModel? parameters)
         {
-            var query = _boardRepository.AsQueryable();
+            var query = _boardRepository.AsQueryable().Include(b => b.Numbers);
             var sieveModel = parameters ?? new SieveModel();
+            var totalCount = await query.CountAsync();
+            var processedQuery = _sieveProcessor.Apply(sieveModel, query);
+            var items = await processedQuery.ToListAsync();
 
+            var dtoItems = items.Select(BoardMapper.ToDto).ToList();
+
+            return new PagedResult<BoardDto>
+            {
+                Items = dtoItems,
+                TotalCount = totalCount,
+                Page = sieveModel.Page ?? 1,
+                PageSize = sieveModel.PageSize ?? dtoItems.Count
+            };
+        }
+
+        public async Task<BoardDto> CreateAsync(CreateBoardDto createDto)
+        {
+            if (createDto == null)
+                throw new ArgumentNullException(nameof(createDto));
+
+            if (createDto.Numbers == null)
+                throw new ValidationException("Numbers are required.");
+
+            if (createDto.BoardSize <= 0)
+                throw new ValidationException("Must choose Boardsize between 5-8");
+
+            if (createDto.Numbers.Count != createDto.BoardSize)
+                throw new ValidationException($"Numbers count must equal BoardSize ({createDto.BoardSize}).");
+
+            var entity = BoardMapper.ToEntity(createDto);
+            
+            if (string.IsNullOrWhiteSpace(entity.BoardID))
+                entity.BoardID = Guid.NewGuid().ToString();
+
+            if (entity.Numbers == null)
+                entity.Numbers = new System.Collections.Generic.List<BoardNumber>();
+
+            foreach (var n in entity.Numbers)
+            {
+                if (string.IsNullOrWhiteSpace(n.BoardNumberID))
+                    n.BoardNumberID = Guid.NewGuid().ToString();
+                n.BoardID = entity.BoardID;
+            }
+
+            await _boardRepository.AddAsync(entity);
+            await _boardRepository.SaveChangesAsync();
+
+            return BoardMapper.ToDto(entity);
+        }
+
+        public async Task<BoardDto?> UpdateAsync(string id, UpdateBoardDto updateDto)
+        {
+            var existing = await _boardRepository.GetByIdAsync(id);
+            if (existing == null) return null;
+
+            // If numbers are being updated validate them
+            if (updateDto?.Numbers != null)
+            {
+                var numbers = updateDto.Numbers.ToList(); // ints directly
+                var targetBoardSize = updateDto.BoardSize ?? existing.BoardSize;
+                if (numbers.Count != targetBoardSize)
+                    throw new ValidationException($"Numbers count must equal BoardSize ({targetBoardSize}).");
+                
+            }
+
+            BoardMapper.ApplyUpdate(existing, updateDto);
+
+            await _boardRepository.UpdateAsync(existing);
+            await _boardRepository.SaveChangesAsync();
+
+            return BoardMapper.ToDto(existing);
+        }
+
+        public async Task<bool> DeleteAsync(string id)
+        {
+            var existing = await _boardRepository.GetByIdAsync(id);
+            if (existing == null) return false;
+            
+            await _boardRepository.DeleteAsync(existing);
+            await _boardRepository.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<PagedResult<BoardDto>> getAllByUserIdAsync(string userId, BoardQueryParameters? parameters)
+        {
+            var query = _boardRepository.AsQueryable().Where(b => b.UserID == userId).Include(b => b.Numbers);
+            var sieveModel = parameters ?? new BoardQueryParameters();
             var totalCount = await query.CountAsync();
             var processedQuery = _sieveProcessor.Apply(sieveModel, query);
             var boards = await processedQuery.ToListAsync();
@@ -45,36 +133,6 @@ namespace service.Services
                 Page = sieveModel.Page ?? 1,
                 PageSize = sieveModel.PageSize ?? boards.Count
             };
-        }
-
-        public async Task<BoardDto> CreateAsync(CreateBoardDto dto)
-        {
-            var entity = BoardMapper.ToEntity(dto);
-            await _boardRepository.AddAsync(entity);
-            await _boardRepository.SaveChangesAsync();
-            return BoardMapper.ToDto(entity);
-        }
-
-        public async Task<BoardDto?> UpdateAsync(string id, UpdateBoardDto dto)
-        {
-            var existing = await _boardRepository.GetByIdAsync(id);
-            if (existing == null) return null;
-
-            BoardMapper.ApplyUpdate(existing, dto);
-            await _boardRepository.UpdateAsync(existing);
-            await _boardRepository.SaveChangesAsync();
-
-            return BoardMapper.ToDto(existing);
-        }
-
-        public async Task<bool> DeleteAsync(string id)
-        {
-            var existing = await _boardRepository.GetByIdAsync(id);
-            if (existing == null) return false;
-
-            await _boardRepository.DeleteAsync(existing);
-            await _boardRepository.SaveChangesAsync();
-            return true;
         }
     }
 }

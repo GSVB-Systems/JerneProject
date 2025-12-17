@@ -1,10 +1,12 @@
 using Contracts.WinningBoardDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using service.Services.Interfaces;
 using Sieve.Models;
 
 namespace api.Controllers;
 
+[AllowAnonymous]
 [ApiController]
 [Route("api/[controller]")]
 public class WinningBoardController : ControllerBase
@@ -16,35 +18,35 @@ public class WinningBoardController : ControllerBase
         _winningBoardService = winningBoardService;
     }
 
-    [HttpGet]
+    [HttpGet("GetAllWinningBoards")]
     public async Task<IActionResult> GetAll([FromQuery] SieveModel? sieveModel)
     {
         var result = await _winningBoardService.GetAllAsync(sieveModel);
         return Ok(result);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("GetWinningBoardBy{id}")]
     public async Task<IActionResult> GetById(string id)
     {
         var winningBoard = await _winningBoardService.GetByIdAsync(id);
         return winningBoard == null ? NotFound() : Ok(winningBoard);
     }
 
-    [HttpPost]
+    [HttpPost("CreateWinningBoard")]
     public async Task<IActionResult> Create([FromBody] CreateWinningBoardDto dto)
     {
         var created = await _winningBoardService.CreateAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = created.WinningBoardID }, created);
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("UpdateWinningBoardBy{id}")]
     public async Task<IActionResult> Update(string id, [FromBody] UpdateWinningBoardDto dto)
     {
         var updated = await _winningBoardService.UpdateAsync(id, dto);
         return updated == null ? NotFound() : Ok(updated);
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("DeleteWinningBoardBy{id}")]
     public async Task<IActionResult> Delete(string id)
     {
         var deleted = await _winningBoardService.DeleteAsync(id);

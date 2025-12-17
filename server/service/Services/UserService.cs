@@ -2,7 +2,6 @@ using Contracts.UserDTOs;
 using Contracts;
 using dataaccess.Entities;
 using Microsoft.EntityFrameworkCore;
-using service.Repositories;
 using service.Repositories.Interfaces;
 using service.Mappers;
 using service.Services.Interfaces;
@@ -16,13 +15,15 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
     private readonly IUserRepository _userRepository;
     private readonly PasswordService _passwordService;
     private readonly ISieveProcessor _sieveProcessor;
-
-    public UserService(IUserRepository userRepository, PasswordService passwordService, ISieveProcessor sieveProcessor)
+    private readonly ITransactionRepository _transactionRepository;
+    
+    public UserService(IUserRepository userRepository, PasswordService passwordService, ISieveProcessor sieveProcessor, ITransactionRepository transactionRepository)
         : base(userRepository)
     {
         _userRepository = userRepository;
         _passwordService = passwordService;
         _sieveProcessor = sieveProcessor;
+        _transactionRepository = transactionRepository;
     }
     
     public async Task<UserDto?> GetByIdAsync(string id)
@@ -123,5 +124,27 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
 
         return UserMapper.ToDto(user);
     }
-    
+
+    public async Task<UserDto?> UpdateBalanceAsync(string userId)
+    {
+        var user = await base.GetByIdAsync(userId);
+        if (user == null) return null;
+
+        var transactions = await _transactionRepository
+            .AsQueryable()
+            .Where(t => t.UserID == userId)
+            .ToListAsync();
+
+        var summed = transactions
+            .Where(t => !t.Pending)
+            .Sum(t => t.Amount);
+
+        user.Balance = summed;
+
+        await _userRepository.UpdateAsync(user);
+        await _userRepository.SaveChangesAsync();
+
+        return UserMapper.ToDto(user);
+    }
+
 }

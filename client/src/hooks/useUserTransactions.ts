@@ -32,7 +32,7 @@ type UseUserTransactionsResult = {
   refresh: () => Promise<void>;
 };
 
-export type TransactionSortField = "transactionDate" | "amount" | "transactionString";
+export type TransactionSortField = "transactionDate" | "amount" | "pending" | "transactionString";
 export type TransactionTypeFilter = "all" | "credit" | "debit";
 export type SortDirection = "asc" | "desc";
 

@@ -1,62 +1,18 @@
-import { type FormEvent, useState } from "react";
-import { useNavigate } from "react-router";
 import logo from "../../resources/Logo1.png";
-import { useAtom } from "jotai";
-import { tokenAtom } from "../atoms/token.ts";
+import { useFirstLogin } from "../hooks/useFirstLogin";
 
 export default function FirstLoginPage() {
-    const [currentPassword, setCurrentPassword] = useState("");
-    const [newPassword, setNewPassword] = useState("");
-    const [repeatPassword, setRepeatPassword] = useState("");
-    const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
-    const [token] = useAtom(tokenAtom);
-
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setError(null);
-
-        if (newPassword !== repeatPassword) {
-            setError("New passwords do not match");
-            return;
-        }
-
-        if (!currentPassword || !newPassword) {
-            setError("Please fill all fields");
-            return;
-        }
-
-        setLoading(true);
-
-        try {
-            const res = await fetch("/api/Auth/reset-password", { // !!adjust endpoint as needed, not implemented on the backend yet
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    ...(token ? { Authorization: `Bearer ${token}` } : {}), // include token if needed
-                },
-                body: JSON.stringify({
-                    currentPassword,
-                    newPassword,
-                }),
-            });
-
-            if (!res.ok) {
-                const errText = await res.text().catch(() => "Failed to reset password");
-                setError(errText || "Failed to reset password");
-                setLoading(false);
-                return;
-            }
-
-            // assume success -> navigate to main page
-            navigate("/");
-        } catch {
-            setError("Network error");
-        } finally {
-            setLoading(false);
-        }
-    };
+    const {
+        currentPassword,
+        setCurrentPassword,
+        newPassword,
+        setNewPassword,
+        repeatPassword,
+        setRepeatPassword,
+        error,
+        loading,
+        handleSubmit,
+    } = useFirstLogin();
 
     return (
         <>

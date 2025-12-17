@@ -1,7 +1,7 @@
 import "./App.css";
 import LoginPage from "./Components/LoginPage.tsx";
 import Dashboard from "./Components/Dashboard.tsx";
-import BoardHistory from "./Components/BoardHistory.tsx";
+import BoardHistory from "./Components/BoardPages/BoardHistory.tsx";
 import ProtectedRoute from "./Components/ProtectedRouting/ProtectedRoute.tsx";
 import AdminProtectedRoute from "./Components/ProtectedRouting/AdminProtectedRouting.tsx";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router";
@@ -10,6 +10,7 @@ import ViewUserDetails from "./Components/AdminPages/ViewUserDetails.tsx";
 import FirstLoginPage from "./Components/FirstLoginPage.tsx";
 import UserTransactions from "./Components/TransactionPages/UserTransactions.tsx";
 import UserProtectedRoute from "./Components/ProtectedRouting/UserProtectedRouting.tsx";
+import AdminTransaction from "./Components/AdminPages/AdminTransaction.tsx";
 
 function App() {
 
@@ -42,6 +43,14 @@ function App() {
                             <UserProtectedRoute>
                                 <UserTransactions/>
                             </UserProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/admintransactions",
+                        element: (
+                            <AdminProtectedRoute>
+                                <AdminTransaction/>
+                            </AdminProtectedRoute>
                         )
                     },
                     {

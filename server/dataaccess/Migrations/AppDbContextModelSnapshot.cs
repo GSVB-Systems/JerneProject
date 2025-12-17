@@ -36,12 +36,12 @@ namespace dataaccess.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsRepeating")
-                        .HasColumnType("boolean");
-
                     b.Property<string>("UserID")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("Week")
+                        .HasColumnType("integer");
 
                     b.HasKey("BoardID");
 
@@ -62,10 +62,6 @@ namespace dataaccess.Migrations
                     b.Property<int>("Number")
                         .HasColumnType("integer");
 
-                    b.Property<string>("WinningBoardID")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasKey("BoardNumberID");
 
                     b.HasIndex("BoardID");
@@ -80,6 +76,9 @@ namespace dataaccess.Migrations
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
+
+                    b.Property<bool>("Pending")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime>("TransactionDate")
                         .HasColumnType("timestamp with time zone");
@@ -175,11 +174,13 @@ namespace dataaccess.Migrations
 
             modelBuilder.Entity("dataaccess.Entities.Board", b =>
                 {
-                    b.HasOne("dataaccess.Entities.User", null)
+                    b.HasOne("dataaccess.Entities.User", "User")
                         .WithMany("Boards")
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("dataaccess.Entities.BoardNumber", b =>

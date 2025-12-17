@@ -72,6 +72,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 
 
+
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
@@ -89,6 +90,9 @@ builder.Services.AddScoped<IBoardNumberRepository, BoardNumberRepository>();
 builder.Services.AddScoped<IWinningNumberRepository, WinningNumberRepository>();
 builder.Services.AddScoped<IBoardNumberService, BoardNumberService>();
 builder.Services.AddScoped<IWinningNumberService, WinningNumberService>();
+builder.Services.AddScoped<IWinningBoardService, WinningBoardService>();
+builder.Services.AddScoped<IBoardMatcherService, BoardMatchService>();
+builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 
 
 builder.Services.AddAuthorization();

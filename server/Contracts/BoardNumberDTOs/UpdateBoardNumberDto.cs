@@ -1,8 +1,14 @@
-﻿namespace Contracts.BoardNumberDTOs
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+
+namespace Contracts.BoardNumberDTOs
 {
     public class UpdateBoardNumberDto
     {
+        [Range(1,16)]
         public int? Number { get; set; }
-        public string WinningBoardID { get; set; }
+        
+        [MinLength(1)]
+        public string? BoardID { get; set; }
     }
 }

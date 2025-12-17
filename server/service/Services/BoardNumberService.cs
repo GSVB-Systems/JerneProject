@@ -1,77 +1,94 @@
-﻿using Contracts;
+﻿
+using System.ComponentModel.DataAnnotations;
 using Contracts.BoardNumberDTOs;
+using Contracts;
 using dataaccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using service.Mappers;
 using service.Repositories.Interfaces;
 using service.Services.Interfaces;
 using Sieve.Models;
-using Sieve.Services;
 
-namespace service.Services;
 
-public class BoardNumberService : IBoardNumberService
+namespace service.Services
 {
-    private readonly IBoardNumberRepository _boardNumberRepository;
-    private readonly ISieveProcessor _sieveProcessor;
-
-    public BoardNumberService(IBoardNumberRepository repository, ISieveProcessor sieveProcessor)
+    public class BoardNumberService : Service<BoardNumber, CreateBoardNumberDto, UpdateBoardNumberDto>, IBoardNumberService
     {
-        _boardNumberRepository = repository;
-        _sieveProcessor = sieveProcessor;
-    }
+        private readonly IRepository<BoardNumber> _repo;
 
-    public async Task<BoardNumberDto?> GetByIdAsync(string id)
-    {
-        var entity = await _boardNumberRepository.GetByIdAsync(id);
-        return entity == null ? null : BoardNumberMapper.ToDto(entity);
-    }
-
-    public async Task<PagedResult<BoardNumberDto>> GetAllAsync(SieveModel? parameters)
-    {
-        var query = _boardNumberRepository.AsQueryable();
-        var sieveModel = parameters ?? new SieveModel();
-
-        var totalCount = await query.CountAsync();
-        var processedQuery = _sieveProcessor.Apply(sieveModel, query);
-        var entities = await processedQuery.ToListAsync();
-
-        return new PagedResult<BoardNumberDto>
+        public BoardNumberService(IRepository<BoardNumber> repo)
+            : base(repo)
         {
-            Items = entities.Select(BoardNumberMapper.ToDto).ToList(),
-            TotalCount = totalCount,
-            Page = sieveModel.Page ?? 1,
-            PageSize = sieveModel.PageSize ?? entities.Count
-        };
-    }
+            _repo = repo;
+        }
 
-    public async Task<BoardNumberDto> CreateAsync(CreateBoardNumberDto createDto)
-    {
-        var entity = BoardNumberMapper.ToEntity(createDto);
-        await _boardNumberRepository.AddAsync(entity);
-        await _boardNumberRepository.SaveChangesAsync();
-        return BoardNumberMapper.ToDto(entity);
-    }
+        public async Task<BoardNumberDto?> GetByIdAsync(string id)
+        {
+            var entity = await _repo.AsQueryable()
+                .FirstOrDefaultAsync(n => n.BoardNumberID == id);
 
-    public async Task<BoardNumberDto?> UpdateAsync(string id, UpdateBoardNumberDto updateDto)
-    {
-        var existing = await _boardNumberRepository.GetByIdAsync(id);
-        if (existing == null) return null;
+            return entity == null ? null : BoardNumberMapper.ToDto(entity);
+        }
 
-        BoardNumberMapper.ApplyUpdate(existing, updateDto);
-        await _boardNumberRepository.UpdateAsync(existing);
-        await _boardNumberRepository.SaveChangesAsync();
+        public async Task<PagedResult<BoardNumberDto>> GetAllAsync(SieveModel? parameters)
+        {
+            var query = _repo.AsQueryable();
 
-        return BoardNumberMapper.ToDto(existing);
-    }
+            var items = await query.ToListAsync();
+            var dtoItems = items.Select(BoardNumberMapper.ToDto).ToList();
+            var count = dtoItems.Count;
+            var page = parameters?.Page ?? 1;
+            var pageSize = parameters?.PageSize ?? count;
 
-    public async Task<bool> DeleteAsync(string id)
-    {
-        var existing = await _boardNumberRepository.GetByIdAsync(id);
-        if (existing == null) return false;
+            return new PagedResult<BoardNumberDto>
+            {
+                Items = dtoItems,
+                TotalCount = count,
+                Page = page,
+                PageSize = pageSize
+            };
+        }
 
-        await _boardNumberRepository.DeleteAsync(existing);
-        await _boardNumberRepository.SaveChangesAsync();
-        return true;
+        public async Task<BoardNumberDto> CreateAsync(CreateBoardNumberDto createDto)
+        {
+            if (createDto == null) throw new ArgumentNullException(nameof(createDto));
+            if (createDto.Number < 1 || createDto.Number > 16)
+                throw new ValidationException("Number must be between 1 and 16.");
+
+            var entity = BoardNumberMapper.ToEntity(createDto) ?? new BoardNumber();
+            if (string.IsNullOrWhiteSpace(entity.BoardNumberID))
+                entity.BoardNumberID = Guid.NewGuid().ToString();
+
+            await _repo.AddAsync(entity);
+            await _repo.SaveChangesAsync();
+
+            return BoardNumberMapper.ToDto(entity);
+        }
+
+        public async Task<BoardNumberDto?> UpdateAsync(string id, UpdateBoardNumberDto updateDto)
+        {
+            var existing = await base.GetByIdAsync(id);
+            if (existing == null) return null;
+
+            // validate number if provided
+            if (updateDto?.Number.HasValue == true)
+            {
+                var val = updateDto.Number.Value;
+                if (val < 1 || val > 16)
+                    throw new ValidationException("Number must be between 1 and 16.");
+            }
+
+            BoardNumberMapper.ApplyUpdate(existing, updateDto);
+
+            await _repo.UpdateAsync(existing);
+            await _repo.SaveChangesAsync();
+
+            return BoardNumberMapper.ToDto(existing);
+        }
+
+        public async Task<bool> DeleteAsync(string id)
+        {
+            return await base.DeleteAsync(id);
+        }
     }
 }

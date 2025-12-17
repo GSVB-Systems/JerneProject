@@ -7,6 +7,8 @@ using service.Mappers;
 using service.Repositories.Interfaces;
 using service.Services.Interfaces;
 using Sieve.Models;
+using System.ComponentModel.DataAnnotations; // for ValidationContext
+using Contracts.Validation; // for PasswordComplexityAttribute
 
 namespace service.Services;
 
@@ -64,4 +66,50 @@ public class AuthService : Service<User, User, User>, IAuthService
     {
         return await _authRepository.getUserByEmailAsync(email);
     }
+
+    private static void EnsurePasswordComplexity(string password)
+    {
+        if (string.IsNullOrWhiteSpace(password))
+            throw new InvalidOperationException("New password is required.");
+
+        var attribute = new PasswordComplexityAttribute();
+        var result = attribute.GetValidationResult(password, new ValidationContext(new object()));
+        if (result != ValidationResult.Success)
+            throw new InvalidOperationException(result?.ErrorMessage ?? "Password does not meet complexity requirements.");
+    }
+
+    public async Task<User> UpdateUserPasswordAsync(string userId, string oldPassword, string newPassword)
+    {
+        var user = await base.GetByIdAsync(userId);
+        if (user is null)
+            throw new InvalidOperationException("User not found.");
+
+        if (!_passwordService.VerifyPassword(oldPassword, user.Hash))
+            throw new InvalidOperationException("Old password is incorrect.");
+
+        // Enforce password policy
+        EnsurePasswordComplexity(newPassword);
+
+        // Optional: prevent re-use of the same password
+        if (_passwordService.VerifyPassword(newPassword, user.Hash))
+            throw new InvalidOperationException("New password must be different from the old password.");
+
+        var newHashedPassword = _passwordService.HashPassword(newPassword);
+        return await _authRepository.updateUserPasswordAsync(userId, newHashedPassword);
+   }
+	public async Task<User> AdminResetUserPasswordAsync(string userId, string newPassword)
+{
+    var user = await base.GetByIdAsync(userId);
+    if (user is null)
+        throw new InvalidOperationException("User not found.");
+
+    // Enforce the same password policy for admin resets
+    EnsurePasswordComplexity(newPassword);
+
+    var newHashedPassword = _passwordService.HashPassword(newPassword);
+    
+    var updatedUser = await _authRepository.updateUserPasswordAsync(userId, newHashedPassword);
+    return updatedUser;
+
+	}
 }
