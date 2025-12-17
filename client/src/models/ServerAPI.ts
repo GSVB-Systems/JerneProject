@@ -1386,10 +1386,10 @@ export interface TransactionDto {
 }
 
 export interface CreateTransactionDto {
-    transactionString: string;
+    transactionString?: string | undefined;
     transactionDate?: string | undefined;
     amount?: number;
-    userID: string;
+    userID?: string | undefined;
     pending?: boolean | undefined;
 }
 
