@@ -69,7 +69,7 @@ namespace service.Services
             IQueryable<Board> query = _boardRepo.AsQueryable()
                 .Include(b => b.Numbers)
                 .Include(b => b.User)
-                .Where(b => b.Week == winning.Week && b.Year == winning.WeekYear);
+                .Where(b => b.Week == winning.Week && b.Year == winning.WeekYear && b.IsActive);
 
             foreach (var n in numbers)
             {
@@ -84,7 +84,7 @@ namespace service.Services
             {
                 await _boardRepo
                     .AsQueryable()
-                    .Where(b => boardIds.Contains(b.BoardID))
+                    .Where(b => boardIds.Contains(b.BoardID) && b.IsActive)
                     .ExecuteUpdateAsync(setters => setters
                         .SetProperty(b => b.Win, b => true));
             }
