@@ -1,12 +1,12 @@
 ﻿import { useCallback, useEffect, useMemo, useState } from "react";
 import { boardMatcherClient, winningBoardClient } from "../api-clients.ts";
-import type { WinningBoardDto } from "../models/ServerAPI.ts";
+import type { WinnerResultDto, WinningBoardDto } from "../models/ServerAPI.ts";
 
 const DEFAULT_SORT = "-createdAt";
 const DEFAULT_PAGE_SIZE = 10;
 
 interface WinningBoardWithMatches extends WinningBoardDto {
-    matchingBoardIds: string[];
+    matchingBoards: WinnerResultDto[];
     matchesLoaded: boolean;
 }
 
@@ -25,7 +25,7 @@ export const useWinningBoards = () => {
         try {
             const payload = await winningBoardClient.getAll(undefined, DEFAULT_SORT, page, pageSize);
             const boards = Array.isArray(payload?.items) ? payload.items : [];
-            setWinningBoards(boards.map((board) => ({ ...board, matchingBoardIds: [], matchesLoaded: false })));
+            setWinningBoards(boards.map((board) => ({ ...board, matchingBoards: [], matchesLoaded: false })));
             setTotal(payload?.totalCount ?? boards.length);
         } catch (err) {
             setError("Kunne ikke hente vindende boards.");
@@ -42,7 +42,7 @@ export const useWinningBoards = () => {
         try {
             const result = await boardMatcherClient.getBoardsContainingNumbers(winningBoardId);
             setWinningBoards((prev) => prev.map((board) => board.winningBoardID === winningBoardId
-                ? { ...board, matchingBoardIds: result, matchesLoaded: true }
+                ? { ...board, matchingBoards: result ?? [], matchesLoaded: true }
                 : board));
         } catch {
             setError("Kunne ikke hente matchende boards.");
@@ -88,7 +88,7 @@ export const useWinningBoards = () => {
         });
     }, [totalPages]);
 
-    const activeBoardMatches = useMemo(() => winningBoards.find((board) => board.winningBoardID === activeBoardId)?.matchingBoardIds ?? [], [activeBoardId, winningBoards]);
+    const activeBoardMatches = useMemo(() => winningBoards.find((board) => board.winningBoardID === activeBoardId)?.matchingBoards ?? [], [activeBoardId, winningBoards]);
 
     return {
         winningBoards,

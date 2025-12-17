@@ -66,21 +66,34 @@ export default function WinnerHistory(): JSX.Element {
                                     </button>
                                     {activeBoardId === board.winningBoardID && (
                                         <div className="bg-base-100 rounded-lg p-3">
-                                            <p className="text-sm font-medium mb-2">Matchende board IDs:</p>
+                                            <p className="text-sm font-medium mb-2">Matchende boards og brugere:</p>
                                             {activeBoardMatches.length === 0 ? (
                                                 <p className="text-sm text-gray-500">Ingen boards fundet.</p>
                                             ) : (
-                                                <ul className="text-sm space-y-1">
-                                                    {activeBoardMatches.map((id) => (
-                                                        <li key={id} className="font-mono break-all">{typeof id === "string" ? id : JSON.stringify(id)}</li>
+                                                <ul className="space-y-3">
+                                                    {activeBoardMatches.map((match) => (
+                                                        <li key={match.board?.boardID ?? match.user?.userID ?? crypto.randomUUID()} className="border rounded-md p-3 text-sm">
+                                                            <div className="flex flex-wrap gap-4 text-gray-700">
+                                                                <span><span className="font-semibold">Board ID:</span> {match.board?.boardID ?? "Ukendt"}</span>
+                                                                <span><span className="font-semibold">Bruger:</span> {match.user?.firstname} {match.user?.lastname}</span>
+                                                                <span><span className="font-semibold">Email:</span> {match.user?.email ?? "Ukendt"}</span>
+                                                            </div>
+                                                            {Array.isArray(match.board?.numbers) && match.board?.numbers?.length ? (
+                                                                <div className="mt-2 text-xs text-gray-600">
+                                                                    <span className="font-semibold">Tal:</span> {match.board.numbers.map((n) => n?.number ?? "-").filter((n) => typeof n === "number").sort((a, b) => (a as number) - (b as number)).join(", ")}
+                                                                </div>
+                                                            ) : (
+                                                                <div className="mt-2 text-xs text-gray-400">Ingen tal fundet.</div>
+                                                            )}
+                                                        </li>
                                                     ))}
                                                 </ul>
                                             )}
                                         </div>
                                     )}
-                                </div>
-                            ))
-                        )}
+                                 </div>
+                             ))
+                         )}
                     </section>
                 )}
             </main>
