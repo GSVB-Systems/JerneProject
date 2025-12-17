@@ -1348,6 +1348,7 @@ export interface BoardDto {
     createdAt?: string;
     userID?: string;
     numbers?: BoardNumberDto[];
+    win?: boolean;
 }
 
 export interface BoardNumberDto {
@@ -1385,6 +1386,7 @@ export interface CreateBoardDto {
     week?: number;
     userID: string;
     numbers: number[];
+    win?: boolean;
 }
 
 export interface UpdateBoardDto {

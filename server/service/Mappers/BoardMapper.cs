@@ -16,6 +16,7 @@ namespace service.Mappers
                 Week = b.Week,
                 CreatedAt = b.CreatedAt,
                 UserID = b.UserID,
+                Win = b.Win,
                 Numbers = b.Numbers?.Select(BoardNumberMapper.ToDto).ToList() ?? new System.Collections.Generic.List<BoardNumberDto>()
             };
 
@@ -31,6 +32,7 @@ namespace service.Mappers
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 UserID = dto.UserID,
+                Win = false,
                 Numbers = dto.Numbers?.Select(n => new BoardNumber
                 {
                     BoardNumberID = Guid.NewGuid().ToString(),

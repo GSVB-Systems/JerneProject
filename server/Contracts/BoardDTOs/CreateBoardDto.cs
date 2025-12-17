@@ -17,6 +17,8 @@ namespace Contracts.BoardDTOs
 
         [Required]
         public List<int> Numbers { get; set; } = new();
+        
+        public bool Win { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

@@ -27,4 +27,7 @@ public class Board
     
     [Sieve(CanSort = true, CanFilter = true)]
     public User? User { get; set; }
+    
+    [Sieve(CanSort = true, CanFilter = true)]
+    public bool Win { get; set; }
 }

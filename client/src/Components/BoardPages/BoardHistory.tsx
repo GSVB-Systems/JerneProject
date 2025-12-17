@@ -136,6 +136,8 @@ export default function BoardHistory(): JSX.Element {
                                     .filter((num) => !Number.isNaN(num))
                                     .sort((a, b) => a - b)}
                                 creationTimestamp={board.createdAt ? Date.parse(board.createdAt) / 1000 : undefined}
+                                weeksRemaining={board.week}
+                                hasWon={board.win}
                             />
                         ))}
                      </section>

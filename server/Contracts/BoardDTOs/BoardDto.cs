@@ -12,5 +12,6 @@ namespace Contracts.BoardDTOs
         public DateTime CreatedAt { get; set; }
         public string UserID { get; set; }
         public List<BoardNumberDto> Numbers { get; set; } = new List<BoardNumberDto>();
+        public bool Win { get; set; }
     }
 }

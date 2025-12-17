@@ -1312,6 +1312,9 @@
             "items": {
               "$ref": "#/components/schemas/BoardNumberDto"
             }
+          },
+          "win": {
+            "type": "boolean"
           }
         }
       },
@@ -1445,6 +1448,9 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          "win": {
+            "type": "boolean"
           }
         }
       },

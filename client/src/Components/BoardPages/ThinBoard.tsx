@@ -1,11 +1,13 @@
 export default function ThinBoard({
     selectedNumbers,
     creationTimestamp,
-    expirationTimestamp
+    weeksRemaining,
+    hasWon
 }: {
     selectedNumbers: number[];
     creationTimestamp?: number;
-    expirationTimestamp?: number;
+    weeksRemaining?: number;
+    hasWon?: boolean;
 }) {
     const getWeekAndYear = (unix?: number) => {
         if (!unix) return "";
@@ -16,13 +18,12 @@ export default function ThinBoard({
         return `Uge ${weekNumber}, ${year}`;
     };
 
-    const getWeeksRemaining = (unix?: number) => {
-        if (!unix) return 0;
-        const now = new Date();
-        const target = new Date(unix * 1000);
-        const weeksRemaining = Math.ceil((target.getTime() - now.getTime()) / (7 * 24 * 60 * 60 * 1000));
-        return Math.max(0, weeksRemaining);
-    };
+    const normalizedWeeksRemaining = typeof weeksRemaining === "number"
+        ? Math.max(0, Math.floor(weeksRemaining))
+        : undefined;
+    const boardWrapperClasses = `border-2 rounded-lg h-16 sm:h-20 flex items-center justify-center overflow-x-auto flex-1 ${
+        hasWon ? "border-green-500 bg-green-50 shadow-lg" : "border-gray-400 bg-gray-50"
+    }`;
 
     return (
         <div className="w-full flex items-center justify-center p-4">
@@ -33,14 +34,20 @@ export default function ThinBoard({
                     </div>
                 )}
 
-                    <div className="border-2 border-gray-400 rounded-lg bg-gray-50 h-16 sm:h-20 flex items-center justify-center overflow-x-auto flex-1">
-                        <div className="flex gap-2">
-                            <div className="flex items-center justify-center gap-4">
-                                {expirationTimestamp && (
-                                    <div className="text-3xl sm:text-5xl font-bold text-gray-800 text-center">
-                                        {getWeeksRemaining(expirationTimestamp)}
-                                    </div>
-                                )}
+                <div className={`${boardWrapperClasses} relative`}>
+                    {hasWon && (
+                        <div className="absolute -mt-12 self-start text-xs font-semibold text-green-700" aria-live="polite">
+                            <span className="px-2 py-1 bg-green-100 border border-green-500 rounded-full">Winner</span>
+                            <span className="sr-only">This board has already won</span>
+                        </div>
+                    )}
+                    <div className="flex gap-2">
+                        <div className="flex items-center justify-center gap-4">
+                            {typeof normalizedWeeksRemaining === "number" && (
+                                <div className="text-3xl sm:text-5xl font-bold text-gray-800 text-center">
+                                    {normalizedWeeksRemaining}
+                                </div>
+                            )}
                             {[...selectedNumbers].sort((a, b) => a - b).map((num) => (
                                 <div
                                     key={num}

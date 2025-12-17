@@ -60,6 +60,8 @@ export default function WinnerHistory(): JSX.Element {
                                     >
                                         <ThinBoard
                                             selectedNumbers={(board.winningNumbers ?? []).map((entry) => Number(entry?.number ?? 0)).filter((num) => !Number.isNaN(num))}
+                                            weeksRemaining={undefined}
+                                            hasWon={undefined}
                                         />
                                     </button>
                                     {activeBoardId === board.winningBoardID && (
