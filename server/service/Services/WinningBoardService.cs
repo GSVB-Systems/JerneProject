@@ -1,4 +1,3 @@
-
 using System.ComponentModel.DataAnnotations;
 using Contracts;
 using Contracts.WinningBoardDTOs;
@@ -16,11 +15,13 @@ namespace service.Services
     {
         private readonly IWinningboardRepository _winningBoardRepository;
         private readonly ISieveProcessor _sieveProcessor;
+        private readonly IBoardMatcherService _boardMatcherService;
 
-        public WinningBoardService(IWinningboardRepository winningBoardRepository, ISieveProcessor sieveProcessor)
+        public WinningBoardService(IWinningboardRepository winningBoardRepository, ISieveProcessor sieveProcessor, IBoardMatcherService boardMatcherService)
         {
             _winningBoardRepository = winningBoardRepository;
             _sieveProcessor = sieveProcessor;
+            _boardMatcherService = boardMatcherService;
         }
 
         public async Task<WinningBoardDto?> GetByIdAsync(string id)
@@ -99,6 +100,8 @@ namespace service.Services
 
             await _winningBoardRepository.AddAsync(entity);
             await _winningBoardRepository.SaveChangesAsync();
+
+            await _boardMatcherService.GetBoardsContainingNumbersWithDecrementerAsync(entity.WinningBoardID);
 
             return WinningBoardMapper.ToDto(entity);
         }

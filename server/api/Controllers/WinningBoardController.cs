@@ -37,7 +37,7 @@ public class WinningBoardController : ControllerBase
     public async Task<ActionResult<WinningBoardDto>> Create([FromBody] CreateWinningBoardDto dto)
     {
         var created = await _winningBoardService.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = created.WinningBoardID }, created);
+        return Ok(created);
     }
 
     [HttpPut("UpdateWinningBoardBy{id}")]

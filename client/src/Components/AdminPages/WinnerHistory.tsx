@@ -25,7 +25,7 @@ export default function WinnerHistory(): JSX.Element {
             <Navbar />
             <main className="p-6 max-w-5xl mx-auto w-full space-y-6 flex-1">
                 <header className="flex items-center justify-between">
-                    <h1 className="text-2xl font-semibold">Vindertavler</h1>
+                    <h1 className="text-2xl font-semibold">Vinderbræt</h1>
                     <button className="btn btn-sm" onClick={refresh} type="button">Opdater</button>
                 </header>
 
@@ -58,6 +58,7 @@ export default function WinnerHistory(): JSX.Element {
                                         onClick={() => board.winningBoardID && toggleBoard(board.winningBoardID)}
                                         type="button"
                                     >
+                                        <p>Uge: {board.week}</p>
                                         <ThinBoard
                                             selectedNumbers={(board.winningNumbers ?? []).map((entry) => Number(entry?.number ?? 0)).filter((num) => !Number.isNaN(num))}
                                             weeksRemaining={undefined}
