@@ -27,9 +27,7 @@ namespace service.Mappers
         {
             if (dto == null) return null;
             var boardId = Guid.NewGuid().ToString();
-            // Use UTC for storage
-            var nowUtc = DateTime.UtcNow; 
-            // Use local time for week/year calculation
+            var nowUtc = DateTime.UtcNow;
             var nowLocal = DateTime.Now;
             var cal = CultureInfo.CurrentCulture.Calendar;
             var weekOfYear = cal.GetWeekOfYear(nowLocal, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
@@ -42,7 +40,7 @@ namespace service.Mappers
                 IsActive = true,
                 CreatedAt = nowUtc,
                 Year = year,
-                WeeksPurchased = dto.Week,
+                WeeksPurchased = 1,
                 UserID = dto.UserID,
                 Numbers = dto.Numbers?.Select(n => new BoardNumber
                 {
@@ -52,6 +50,55 @@ namespace service.Mappers
                 }).ToList() ?? new System.Collections.Generic.List<BoardNumber>()
             };
             return board;
+        }
+
+        public static IReadOnlyCollection<Board> ToWeeklyEntities(CreateBoardDto dto)
+        {
+            if (dto?.Week <= 0)
+                return Array.Empty<Board>();
+
+            var cal = CultureInfo.CurrentCulture.Calendar;
+            var baseUtc = DateTime.UtcNow;
+            var baseLocal = DateTime.Now;
+            var currentWeek = cal.GetWeekOfYear(baseLocal, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+            var currentYear = baseLocal.Year;
+
+            var boards = new List<Board>(dto.Week);
+            for (var offset = 0; offset < dto.Week; offset++)
+            {
+                if (offset > 0)
+                {
+                    currentWeek++;
+                    if (currentWeek > 52)
+                    {
+                        currentWeek = 1;
+                        currentYear++;
+                    }
+                }
+                var boardId = Guid.NewGuid().ToString();
+
+                var board = new Board
+                {
+                    BoardID = boardId,
+                    BoardSize = dto.BoardSize,
+                    IsActive = true,
+                    Week = currentWeek,
+                    Year = currentYear,
+                    CreatedAt = baseUtc,
+                    WeeksPurchased = offset + 1,
+                    UserID = dto.UserID,
+                    Numbers = dto.Numbers?.Select(n => new BoardNumber
+                    {
+                        BoardNumberID = Guid.NewGuid().ToString(),
+                        Number = n,
+                        BoardID = boardId
+                    }).ToList() ?? new System.Collections.Generic.List<BoardNumber>()
+                };
+
+                boards.Add(board);
+            }
+
+            return boards;
         }
 
         public static void ApplyUpdate(Board target, UpdateBoardDto dto)

@@ -33,6 +33,11 @@ namespace Contracts.BoardDTOs
                 yield return new ValidationResult($"Selected Numbers must match your board size: ({BoardSize}).", new[] { nameof(Numbers), nameof(BoardSize) });
             }
 
+            if (Week <= 0)
+            {
+                yield return new ValidationResult("Week count must be at least 1.", new[] { nameof(Week) });
+            }
+
             foreach (var n in Numbers)
             {
                 if (n < 1 || n > 16)

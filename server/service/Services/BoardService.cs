@@ -63,26 +63,21 @@ namespace service.Services
 
             if (createDto.Numbers.Count != createDto.BoardSize)
                 throw new ValidationException($"Numbers count must equal BoardSize ({createDto.BoardSize}).");
+            if (createDto.Week <= 0)
+                throw new ValidationException("Week count must be at least 1.");
 
-            var entity = BoardMapper.ToEntity(createDto);
-            
-            if (string.IsNullOrWhiteSpace(entity.BoardID))
-                entity.BoardID = Guid.NewGuid().ToString();
+            var entities = BoardMapper.ToWeeklyEntities(createDto);
+            if (!entities.Any())
+                throw new ValidationException("Unable to create boards for the requested week range.");
 
-            if (entity.Numbers == null)
-                entity.Numbers = new System.Collections.Generic.List<BoardNumber>();
-
-            foreach (var n in entity.Numbers)
+            foreach (var entity in entities)
             {
-                if (string.IsNullOrWhiteSpace(n.BoardNumberID))
-                    n.BoardNumberID = Guid.NewGuid().ToString();
-                n.BoardID = entity.BoardID;
+                await _boardRepository.AddAsync(entity);
             }
 
-            await _boardRepository.AddAsync(entity);
             await _boardRepository.SaveChangesAsync();
 
-            return BoardMapper.ToDto(entity);
+            return BoardMapper.ToDto(entities.First());
         }
 
         public async Task<BoardDto?> UpdateAsync(string id, UpdateBoardDto updateDto)
