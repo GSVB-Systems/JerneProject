@@ -1,7 +1,8 @@
- import { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import type { CreateTransactionDto } from "../models/ServerAPI.ts";
 import { transactionClient } from "../api-clients.ts";
 import {useJWT} from "./useJWT.ts";
+import { useParseValidationMessage } from "./useParseValidationMessage.ts";
 
 export type UseCreateTransactionResult = {
   amount: string;
@@ -35,6 +36,7 @@ function getUserIdFromJwt(jwt: string | null | undefined): string | null {
 
 export const useCreateTransaction = (): UseCreateTransactionResult => {
   const jwt = useJWT();
+  const parseValidationMessage = useParseValidationMessage("Kunne ikke oprette transaktion.");
 
   const [amount, setAmount] = useState("");
   const [transactionString, setTransactionString] = useState("");
@@ -50,6 +52,11 @@ export const useCreateTransaction = (): UseCreateTransactionResult => {
     const parsedAmount = parseAmount(amount);
     if (parsedAmount === null) {
       setError("Ugyldigt beløb.");
+      return false;
+    }
+
+    if (parsedAmount <= 0) {
+      setError("Beløbet skal være større end nul.");
       return false;
     }
 
@@ -77,12 +84,12 @@ export const useCreateTransaction = (): UseCreateTransactionResult => {
       await transactionClient.create(dto);
       return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunne ikke oprette transaktion.");
+      setError(parseValidationMessage(err));
       return false;
     } finally {
       setIsSubmitting(false);
     }
-  }, [amount, transactionString, jwt]);
+  }, [amount, transactionString, jwt, parseValidationMessage]);
 
   return {
     amount,

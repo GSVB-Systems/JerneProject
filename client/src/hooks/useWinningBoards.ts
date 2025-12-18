@@ -1,6 +1,7 @@
 ﻿import { useCallback, useEffect, useMemo, useState } from "react";
 import { boardMatcherClient, winningBoardClient } from "../api-clients.ts";
 import type { WinnerResultDto, WinningBoardDto } from "../models/ServerAPI.ts";
+import { useParseValidationMessage } from "./useParseValidationMessage.ts";
 
 const DEFAULT_SORT = "-createdAt";
 const DEFAULT_PAGE_SIZE = 10;
@@ -19,6 +20,8 @@ export const useWinningBoards = () => {
     const [pageSize] = useState(DEFAULT_PAGE_SIZE);
     const [total, setTotal] = useState(0);
 
+    const parseValidationMessage = useParseValidationMessage("Kunne ikke hente vindende boards.");
+
     const fetchWinningBoards = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -28,11 +31,11 @@ export const useWinningBoards = () => {
             setWinningBoards(boards.map((board) => ({ ...board, matchingBoards: [], matchesLoaded: false })));
             setTotal(payload?.totalCount ?? boards.length);
         } catch (err) {
-            setError("Kunne ikke hente vindende boards.");
+            setError(parseValidationMessage(err));
         } finally {
             setLoading(false);
         }
-    }, [page, pageSize]);
+    }, [page, pageSize, parseValidationMessage]);
 
     useEffect(() => {
         void fetchWinningBoards();
@@ -44,10 +47,10 @@ export const useWinningBoards = () => {
             setWinningBoards((prev) => prev.map((board) => board.winningBoardID === winningBoardId
                 ? { ...board, matchingBoards: result ?? [], matchesLoaded: true }
                 : board));
-        } catch {
-            setError("Kunne ikke hente matchende boards.");
+        } catch (cause) {
+            setError(parseValidationMessage(cause));
         }
-    }, []);
+    }, [parseValidationMessage]);
 
     const toggleBoard = useCallback((winningBoardId: string) => {
         setActiveBoardId((prev) => {

@@ -11,6 +11,7 @@ import type {
   TransactionSortField,
   TransactionTypeFilter,
 } from "./useUserTransactions.ts";
+import { useParseValidationMessage } from "./useParseValidationMessage.ts";
 
 const DEFAULT_PAGE_SIZE = 25;
 const DEFAULT_SORT_FIELD: TransactionSortField = "transactionDate";
@@ -148,6 +149,8 @@ export const useAdminTransactions = (): UseAdminTransactionsResult => {
   const [transactionTypeFilter, setTransactionTypeFilterState] = useState<TransactionTypeFilter>("all");
   const [pendingTypeFilter, setPendingTypeFilter] = useState<TransactionPendingTypeFilter>("all");
 
+  const parseValidationMessage = useParseValidationMessage("Kunne ikke hente transaktioner.");
+
 
   const filters = useMemo(
       () => buildSieveFilters(searchTerm, transactionTypeFilter, pendingTypeFilter),
@@ -176,14 +179,14 @@ export const useAdminTransactions = (): UseAdminTransactionsResult => {
       setPageSize(serverPageSize);
       setPage(serverPage);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunne ikke hente transaktioner.");
+      setError(parseValidationMessage(err));
       setTransactions([]);
       setTotal(0);
     } finally {
       setLoading(false);
       setHasLoadedOnce(true);
     }
-  }, [filters, page, pageSize, sorts]);
+  }, [filters, page, pageSize, sorts, parseValidationMessage]);
 
   const fetchUsersByIds = useCallback(
     async (userIds: Array<string | undefined>) => {
