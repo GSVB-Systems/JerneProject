@@ -7,7 +7,7 @@ using Sieve.Models;
 
 namespace api.Controllers;
 
-[AllowAnonymous]
+
 [ApiController]
 [Route("api/[controller]")]
 public class WinningBoardController : ControllerBase
@@ -20,6 +20,7 @@ public class WinningBoardController : ControllerBase
     }
 
     [HttpGet("GetAllWinningBoards")]
+    [Authorize(Roles = "Administrator")]
     public async Task<ActionResult<PagedResult<WinningBoardDto>>> GetAll([FromQuery] SieveModel? sieveModel)
     {
         var result = await _winningBoardService.GetAllAsync(sieveModel);
@@ -27,6 +28,7 @@ public class WinningBoardController : ControllerBase
     }
 
     [HttpGet("GetWinningBoardBy{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<ActionResult<WinningBoardDto>> GetById(string id)
     {
         var winningBoard = await _winningBoardService.GetByIdAsync(id);
@@ -34,6 +36,7 @@ public class WinningBoardController : ControllerBase
     }
 
     [HttpPost("CreateWinningBoard")]
+    [Authorize(Roles = "Administrator")]
     public async Task<ActionResult<WinningBoardDto>> Create([FromBody] CreateWinningBoardDto dto)
     {
         var created = await _winningBoardService.CreateAsync(dto);
@@ -41,6 +44,7 @@ public class WinningBoardController : ControllerBase
     }
 
     [HttpPut("UpdateWinningBoardBy{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<ActionResult<WinningBoardDto>> Update(string id, [FromBody] UpdateWinningBoardDto dto)
     {
         var updated = await _winningBoardService.UpdateAsync(id, dto);
@@ -48,6 +52,7 @@ public class WinningBoardController : ControllerBase
     }
 
     [HttpDelete("DeleteWinningBoardBy{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<ActionResult> Delete(string id)
     {
         var deleted = await _winningBoardService.DeleteAsync(id);

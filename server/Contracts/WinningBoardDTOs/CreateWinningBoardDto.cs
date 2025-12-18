@@ -12,28 +12,28 @@ namespace Contracts.WinningBoardDTOs
         {
             if (WinningNumbers == null)
             {
-                yield return new ValidationResult("WinningNumbers is required.", new[] { nameof(WinningNumbers) });
+                yield return new ValidationResult("Udfyld felterne med de trukkede numre.", new[] { nameof(WinningNumbers) });
                 yield break;
             }
 
             var count = WinningNumbers.Count;
             if (count != 3 && count != 5)
             {
-                yield return new ValidationResult("WinningNumbers must contain exactly 3 or 5 items.", new[] { nameof(WinningNumbers) });
+                yield return new ValidationResult("Der må kun trækkes 3 eller 5 numre", new[] { nameof(WinningNumbers) });
             }
 
             foreach (var n in WinningNumbers)
             {
                 if (n < 1 || n > 16)
                 {
-                    yield return new ValidationResult("Each winning number must be between 1 and 16.", new[] { nameof(WinningNumbers) });
+                    yield return new ValidationResult("De trukkede numre må kun være mellem 1 og 16", new[] { nameof(WinningNumbers) });
                     break;
                 }
             }
 
             if (WinningNumbers.Count != new HashSet<int>(WinningNumbers).Count)
             {
-                yield return new ValidationResult("WinningNumbers must be unique.", new[] { nameof(WinningNumbers) });
+                yield return new ValidationResult("De trukkede numre skal være unikke", new[] { nameof(WinningNumbers) });
             }
         }
     }

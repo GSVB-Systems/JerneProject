@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using service.Services.Interfaces;
 using Sieve.Models;
 
-[AllowAnonymous]
+
 [ApiController]
 [Route("api/[controller]")]
 public class TransactionController : ControllerBase
@@ -25,6 +25,7 @@ public class TransactionController : ControllerBase
     }
     
     [HttpGet]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> GetAll([FromQuery] SieveModel? sieveModel)
     {
         var result = await _transactionService.GetAllAsync(sieveModel);
@@ -40,6 +41,7 @@ public class TransactionController : ControllerBase
     }
 
     [HttpGet("GetBy{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> GetById(string id)
     {
         var transaction = await _transactionService.GetByIdAsync(id);
@@ -47,6 +49,7 @@ public class TransactionController : ControllerBase
     }
 
     [HttpPost("CreateTransaction")]
+    [Authorize(Roles = "Bruger")]
     public async Task<IActionResult> Create([FromBody] CreateTransactionDto createDto)
     {
         var created = await _transactionService.CreateAsync(createDto);
@@ -54,6 +57,7 @@ public class TransactionController : ControllerBase
     }
 
     [HttpPut("UpdateTransactionBy{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Update(string id, [FromBody] UpdateTransactionDto dto)
     {
         var updated = await _transactionService.UpdateAsync(id, dto);
@@ -61,6 +65,7 @@ public class TransactionController : ControllerBase
     }
 
     [HttpDelete("DeleteTransactionBy{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Delete(string id)
     {
         var deleted = await _transactionService.DeleteAsync(id);
@@ -68,7 +73,7 @@ public class TransactionController : ControllerBase
     }
 
     [HttpPost("Purchase")]
-    [Authorize(Roles = "Administrator, Bruger")]
+    [Authorize(Roles = "Bruger")]
     public async Task<IActionResult> Purchase([FromBody] PurchaseDTO purchaseDto )
     {
         var result = await _purchaseService.ProcessPurchaseAsync(purchaseDto.Board, purchaseDto.Transaction);

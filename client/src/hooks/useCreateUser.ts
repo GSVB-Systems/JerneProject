@@ -31,8 +31,14 @@ export function useCreateUser(onSuccess?: () => void) {
       await userClient.create(dto ?? formValues);
       resetForm();
       onSuccess?.();
-    } catch {
-      setError("Network error"); //
+    } catch (cause) {
+      if (cause instanceof Error && cause.message) {
+        setError(cause);
+      } else if (typeof cause === "string" && cause.trim().length > 0) {
+        setError(cause);
+      } else {
+        setError("Network error");
+      }
     }
   };
 
