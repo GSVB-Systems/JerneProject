@@ -26,6 +26,7 @@ public class User
     
     public DateTime? SubscriptionExpiresAt { get; set; }
     
+    [Sieve(CanFilter = true, CanSort = true)]
     public decimal Balance { get; set; }
     public ICollection<Transaction> Transactions { get; set; }
     public ICollection<Board> Boards { get; set; }

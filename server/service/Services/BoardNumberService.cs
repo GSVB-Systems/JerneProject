@@ -1,4 +1,4 @@
-﻿
+﻿using service.Rules.RuleInterfaces;
 using System.ComponentModel.DataAnnotations;
 using Contracts.BoardNumberDTOs;
 using Contracts;
@@ -15,11 +15,13 @@ namespace service.Services
     public class BoardNumberService : Service<BoardNumber, CreateBoardNumberDto, UpdateBoardNumberDto>, IBoardNumberService
     {
         private readonly IRepository<BoardNumber> _repo;
+		private readonly IBoardNumberRules _boardNumberRules;
 
-        public BoardNumberService(IRepository<BoardNumber> repo)
+        public BoardNumberService(IRepository<BoardNumber> repo, IBoardNumberRules boardNumberRules)
             : base(repo)
         {
             _repo = repo;
+			_boardNumberRules = boardNumberRules ?? throw new ArgumentNullException(nameof(boardNumberRules));
         }
 
         public async Task<BoardNumberDto?> GetByIdAsync(string id)
@@ -51,6 +53,9 @@ namespace service.Services
 
         public async Task<BoardNumberDto> CreateAsync(CreateBoardNumberDto createDto)
         {
+			
+			await _boardNumberRules.ValidateCreateAsync(createDto);
+			
             if (createDto == null) throw new ArgumentNullException(nameof(createDto));
             if (createDto.Number < 1 || createDto.Number > 16)
                 throw new ValidationException("Number must be between 1 and 16.");
@@ -67,15 +72,18 @@ namespace service.Services
 
         public async Task<BoardNumberDto?> UpdateAsync(string id, UpdateBoardNumberDto updateDto)
         {
+
+			await _boardNumberRules.ValidateUpdateAsync(id, updateDto);
+
             var existing = await base.GetByIdAsync(id);
             if (existing == null) return null;
 
-            // validate number if provided
+            
             if (updateDto?.Number.HasValue == true)
             {
                 var val = updateDto.Number.Value;
                 if (val < 1 || val > 16)
-                    throw new ValidationException("Number must be between 1 and 16.");
+                    throw new ValidationException("De valgte tal skal være mellem 1 og 16.");
             }
 
             BoardNumberMapper.ApplyUpdate(existing, updateDto);
@@ -88,6 +96,7 @@ namespace service.Services
 
         public async Task<bool> DeleteAsync(string id)
         {
+			await _boardNumberRules.ValidateDeleteAsync(id);
             return await base.DeleteAsync(id);
         }
     }

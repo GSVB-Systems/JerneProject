@@ -17,6 +17,8 @@ namespace Contracts.BoardDTOs
 
         [Required]
         public List<int> Numbers { get; set; } = new();
+        
+        public bool Win { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
@@ -29,6 +31,11 @@ namespace Contracts.BoardDTOs
             if (Numbers.Count != BoardSize)
             {
                 yield return new ValidationResult($"Selected Numbers must match your board size: ({BoardSize}).", new[] { nameof(Numbers), nameof(BoardSize) });
+            }
+
+            if (Week <= 0)
+            {
+                yield return new ValidationResult("Week count must be at least 1.", new[] { nameof(Week) });
             }
 
             foreach (var n in Numbers)

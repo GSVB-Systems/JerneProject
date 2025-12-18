@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useBalance } from "../hooks/useNavbar";
 
 export default function Navbar() {
-    const { loadUserBalance } = useBalance();
+    const { loadUserBalance, isAdmin } = useBalance();
     const [balance, setBalance] = useState<number>(0);
     const navigate = useNavigate();
 
@@ -30,12 +30,14 @@ export default function Navbar() {
             </div>
 
             <div className="flex-none flex items-center gap-4">
-                <div
-                    className="btn btn-ghost normal-case text-lg"
-                    onClick={() => navigate("/transactions")}
-                >
-                    {formattedDKK}
-                </div>
+                {!isAdmin && (
+                    <div
+                        className="btn btn-ghost normal-case text-lg"
+                        onClick={() => navigate("/transactions")}
+                    >
+                        {formattedDKK}
+                    </div>
+                )}
 
                 <div className="dropdown dropdown-end">
                     <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
@@ -43,9 +45,9 @@ export default function Navbar() {
                     </div>
 
                     <ul className="menu menu-sm dropdown-content bg-base-100 rounded-box z-50 mt-3 w-52 p-2 shadow">
-                        <li><Link to="/profile">Profil</Link></li>
-                        <li><Link to="/aktiveboards">Aktive Boards</Link></li>
-                        <li><Link to="/boardhistory">Board Historik</Link></li>
+                        {!isAdmin && (
+                            <li><Link to="/boardhistory">Board Historik</Link></li>
+                        )}
                         <li>
                             <Link
                                 to="/login"

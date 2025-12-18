@@ -19,6 +19,12 @@ public class Board
     [Sieve(CanSort = true, CanFilter = true)]
     public DateTime CreatedAt { get; set; }
     
+    [Sieve(CanSort = true, CanFilter = true)]
+    public int Year { get; set; }
+
+    [Sieve(CanSort = true, CanFilter = true)]
+    public int WeeksPurchased { get; set; }
+    
     public String UserID { get; set; }
     
     public ICollection<BoardNumber> Numbers { get; set; }
@@ -27,4 +33,7 @@ public class Board
     
     [Sieve(CanSort = true, CanFilter = true)]
     public User? User { get; set; }
+    
+    [Sieve(CanSort = true, CanFilter = true)]
+    public bool Win { get; set; }
 }

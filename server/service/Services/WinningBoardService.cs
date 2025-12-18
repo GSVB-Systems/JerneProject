@@ -1,4 +1,3 @@
-
 using System.ComponentModel.DataAnnotations;
 using Contracts;
 using Contracts.WinningBoardDTOs;
@@ -8,22 +7,26 @@ using service.Repositories.Interfaces;
 using service.Services.Interfaces;
 using service.Mappers;
 using Sieve.Models;
+using Sieve.Services;
 
 namespace service.Services
 {
-    public class WinningBoardService : Service<WinningBoard, CreateWinningBoardDto, UpdateWinningBoardDto>, IWinningBoardService
+    public class WinningBoardService : IWinningBoardService
     {
-        private readonly IRepository<WinningBoard> _winningBoardRepo;
+        private readonly IWinningboardRepository _winningBoardRepository;
+        private readonly ISieveProcessor _sieveProcessor;
+        private readonly IBoardMatcherService _boardMatcherService;
 
-        public WinningBoardService(IRepository<WinningBoard> winningBoardRepo)
-            : base(winningBoardRepo)
+        public WinningBoardService(IWinningboardRepository winningBoardRepository, ISieveProcessor sieveProcessor, IBoardMatcherService boardMatcherService)
         {
-            _winningBoardRepo = winningBoardRepo;
+            _winningBoardRepository = winningBoardRepository;
+            _sieveProcessor = sieveProcessor;
+            _boardMatcherService = boardMatcherService;
         }
 
         public async Task<WinningBoardDto?> GetByIdAsync(string id)
         {
-            var entity = await _winningBoardRepo.AsQueryable()
+            var entity = await _winningBoardRepository.AsQueryable()
                 .Include(w => w.WinningNumbers)
                 .FirstOrDefaultAsync(w => w.WinningBoardID == id);
 
@@ -32,23 +35,22 @@ namespace service.Services
 
         public async Task<PagedResult<WinningBoardDto>> GetAllAsync(SieveModel? parameters)
         {
-          
-            var query = _winningBoardRepo.AsQueryable().Include(w => w.WinningNumbers);
 
-            var items = await query.ToListAsync();
+            var query = _winningBoardRepository.AsQueryable().Include(w => w.WinningNumbers);
+            var sieveModel = parameters ?? new SieveModel();
+            var totalCount = await query.CountAsync();
+            var processedQuery = _sieveProcessor.Apply(sieveModel, query);
+            var items = await processedQuery.ToListAsync();
+
 
             var dtoItems = items.Select(WinningBoardMapper.ToDto).ToList();
-            var count = dtoItems.Count;
-
-            var page = parameters?.Page ?? 1;
-            var pageSize = parameters?.PageSize ?? count;
 
             return new PagedResult<WinningBoardDto>
             {
                 Items = dtoItems,
-                TotalCount = count,
-                Page = page,
-                PageSize = pageSize
+                TotalCount = totalCount,
+                Page = sieveModel.Page ?? 1,
+                PageSize = sieveModel.PageSize ?? dtoItems.Count
             };
         }
 
@@ -58,7 +60,7 @@ namespace service.Services
                 throw new ArgumentNullException(nameof(createDto));
 
             if (createDto.WinningNumbers == null)
-                throw new ValidationException("WinningNumbers are required.");
+                throw new ValidationException("Udfyld felterne med de trukkede numre.");
 
            //checker om der er duplikater af tal på samme board
             var duplicateValues = createDto.WinningNumbers
@@ -68,12 +70,12 @@ namespace service.Services
                 .ToList();
 
             if (duplicateValues.Any())
-                throw new ValidationException($"WinningNumbers must be unique within a winning board. Duplicates: {string.Join(',', duplicateValues)}");
+                throw new ValidationException($"De trukkede numre skal være unikke. Dublikater: {string.Join(',', duplicateValues)}");
 
             //sikrer at vi kun har 3 eller 5 tal på et WinningBoard
             var count = createDto.WinningNumbers.Count;
             if (count != 3 && count != 5)
-                throw new ValidationException("WinningNumbers must contain exactly 3 or 5 items.");
+                throw new ValidationException("Der må kune trækkes endten 3 eller 5 numre.");
 
             var entity = WinningBoardMapper.ToEntity(createDto);
 
@@ -94,41 +96,48 @@ namespace service.Services
             //checker efter mapping om der er duplikater af tal på samme board
             var dupAfterMap = entity.WinningNumbers.GroupBy(w => w.Number).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
             if (dupAfterMap.Any())
-                throw new ValidationException($"WinningNumbers must be unique within a winning board. Duplicates: {string.Join(',', dupAfterMap)}");
+                throw new ValidationException($"De trukkede numre skal være unikke. Dublikater: {string.Join(',', dupAfterMap)}");
 
-            await _winningBoardRepo.AddAsync(entity);
-            await _winningBoardRepo.SaveChangesAsync();
+            await _winningBoardRepository.AddAsync(entity);
+            await _winningBoardRepository.SaveChangesAsync();
+
+            await _boardMatcherService.GetBoardsContainingNumbersWithDecrementerAsync(entity.WinningBoardID);
 
             return WinningBoardMapper.ToDto(entity);
         }
 
         public async Task<WinningBoardDto?> UpdateAsync(string id, UpdateWinningBoardDto updateDto)
         {
-            var existing = await base.GetByIdAsync(id);
+            var existing = await _winningBoardRepository.GetByIdAsync(id);
             if (existing == null) return null;
 
             
             if (updateDto?.WinningNumbers == null)
-                throw new ValidationException("WinningNumbers are required.");
+                throw new ValidationException("Udfyld felterne med de trukkede numre.");
 
             var count = updateDto.WinningNumbers.Count;
             if (count != 3 && count != 5)
-                throw new ValidationException("WinningNumbers must contain exactly 3 or 5 items.");
+                throw new ValidationException("Der må kune trækkes endten 3 eller 5 numre.");
 
             if (updateDto.WinningNumbers.Count != updateDto.WinningNumbers.Distinct().Count())
-                throw new ValidationException("WinningNumbers must be unique.");
+                throw new ValidationException("De trukkede numre skal være unikke.");
 
             WinningBoardMapper.ApplyUpdate(existing, updateDto);
 
-            await _winningBoardRepo.UpdateAsync(existing);
-            await _winningBoardRepo.SaveChangesAsync();
+            await _winningBoardRepository.UpdateAsync(existing);
+            await _winningBoardRepository.SaveChangesAsync();
 
             return WinningBoardMapper.ToDto(existing);
         }
 
         public async Task<bool> DeleteAsync(string id)
         {
-            return await base.DeleteAsync(id);
+            var existing = await _winningBoardRepository.GetByIdAsync(id);
+            if (existing == null) return false;
+
+            await _winningBoardRepository.DeleteAsync(existing);
+            await _winningBoardRepository.SaveChangesAsync();
+            return true;
         }
     }
 }

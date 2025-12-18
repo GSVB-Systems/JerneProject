@@ -7,5 +7,8 @@ namespace service.Services.Interfaces
     public interface IBoardMatcherService
     {
         Task<List<WinnerResultDto>> GetBoardsContainingNumbersAsync(string winningBoardId);
+        
+        Task<List<WinnerResultDto>> GetBoardsContainingNumbersWithDecrementerAsync(string winningBoardId);
+        
     }
 }

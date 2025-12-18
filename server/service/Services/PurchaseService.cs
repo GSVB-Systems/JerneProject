@@ -55,13 +55,12 @@ public class PurchaseService: IPurchaseService
             catch
             {
                 await tx.RollbackAsync();
-                throw;
+               // throw new Exception ("Det var ikke muligt at gennemføre købet.");
+                // return Exception;
             }
-        }else
-        {
-            return false;
-
         }
+        return false;
+        
         
 
         

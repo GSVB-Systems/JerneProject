@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { userClient, authClient } from "../api-clients.ts";
 import type { UserDto, UserRole, UpdateUserDto } from "../models/ServerAPI";
+import { useParseValidationMessage } from "./useParseValidationMessage.ts";
 
 export type UserFormState = {
   firstname: string;
@@ -48,6 +49,7 @@ export const useUserDetails = (userId?: string): UseUserDetailsResult => {
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const isMounted = useRef(false);
+  const parseValidationMessage = useParseValidationMessage("Ukendt fejl ved hentning af bruger.");
 
   const mapUserToFormState = useCallback((payload: UserDto): UserFormState => ({
     firstname: payload.firstname ?? "",
@@ -86,7 +88,7 @@ export const useUserDetails = (userId?: string): UseUserDetailsResult => {
       }
     } catch (err) {
       if (!isMounted.current) return;
-      setError(err instanceof Error ? err.message : "Ukendt fejl ved hentning af bruger.");
+      setError(parseValidationMessage(err));
       setUser(null);
       setFormState(null);
       setEditing(false);
@@ -96,7 +98,7 @@ export const useUserDetails = (userId?: string): UseUserDetailsResult => {
         setLoading(false);
       }
     }
-  }, [mapUserToFormState, userId]);
+  }, [mapUserToFormState, userId, parseValidationMessage]);
 
   const beginEdit = useCallback(() => {
     if (!formState) return;
@@ -195,18 +197,18 @@ export const useUserDetails = (userId?: string): UseUserDetailsResult => {
         setEditing(false);
       }
     } catch (error) {
-
+      const message = parseValidationMessage(error);
       if (!updateSucceeded) {
-        setSaveError("Der opstod en fejl under opdatering af brugeroplysninger.");
+        setSaveError(message);
       } else if (passwordAttempted && !passwordSucceeded) {
-        setSaveError("Der opstod en fejl under nulstilling af adgangskode.");
+        setSaveError(message);
       } else {
-        setSaveError(error instanceof Error ? error.message : "Der opstod en ukendt fejl.");
+        setSaveError(message);
       }
     } finally {
       setSaving(false);
     }
-  }, [fetchUser, formState, userId]);
+  }, [fetchUser, formState, userId, parseValidationMessage]);
 
   const deleteUser = useCallback(async (): Promise<boolean> => {
     if (!userId) return false;
@@ -215,13 +217,13 @@ export const useUserDetails = (userId?: string): UseUserDetailsResult => {
     try {
       await userClient.delete(userId);
       return true;
-    } catch {
-      setDeleteError("Kunne ikke slette brugeren. Prøv igen.");
+    } catch (cause) {
+      setDeleteError(parseValidationMessage(cause));
       return false;
     } finally {
       setDeleting(false);
     }
-  }, [userId]);
+  }, [userId, parseValidationMessage]);
 
   const resetDeleteState = useCallback(() => {
     setDeleteError(null);

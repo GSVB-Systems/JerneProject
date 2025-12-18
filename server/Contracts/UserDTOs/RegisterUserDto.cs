@@ -18,7 +18,6 @@ public class RegisterUserDto
     public string Email { get; set; }
 
     [Required]
-    [MinLength(8)]
     [PasswordComplexity(8)]
     public string Password { get; set; }
     

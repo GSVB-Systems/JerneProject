@@ -11,7 +11,6 @@ namespace api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[AllowAnonymous]
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -30,6 +29,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpGet("GetUserByID/{id}")]
+    [Authorize(Roles = "Administrator, Bruger")]
     public async Task<IActionResult> GetById(string id)
     {
         var user = await _userService.GetByIdAsync(id);
@@ -45,6 +45,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPut("UpdateUserBy{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Update(string id, UpdateUserDto dto)
     {
         var updated = await _userService.UpdateAsync(id, dto);
@@ -52,6 +53,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpDelete("DeleteUserBy{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Delete(string id)
     {
         var deleted = await _userService.DeleteAsync(id);

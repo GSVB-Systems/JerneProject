@@ -1,3 +1,4 @@
+using service.Rules.RuleInterfaces;
 using Contracts.UserDTOs;
 using Contracts;
 using dataaccess.Entities;
@@ -16,27 +17,33 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
     private readonly PasswordService _passwordService;
     private readonly ISieveProcessor _sieveProcessor;
     private readonly ITransactionRepository _transactionRepository;
+    private readonly IUserRules _userRules;
     
-    public UserService(IUserRepository userRepository, PasswordService passwordService, ISieveProcessor sieveProcessor, ITransactionRepository transactionRepository)
+    public UserService(IUserRepository userRepository, PasswordService passwordService, ISieveProcessor sieveProcessor, ITransactionRepository transactionRepository, IUserRules userRules)
         : base(userRepository)
     {
         _userRepository = userRepository;
         _passwordService = passwordService;
         _sieveProcessor = sieveProcessor;
         _transactionRepository = transactionRepository;
+        _userRules = userRules ?? throw new ArgumentNullException(nameof(userRules));
     }
     
     public async Task<UserDto?> GetByIdAsync(string id)
     {
+        await _userRules.ValidateGetByIdAsync(id);
+        
         var user = await base.GetByIdAsync(id);
         return user == null ? null : UserMapper.ToDto(user);
     }
 
     public async Task<PagedResult<UserDto>> GetAllAsync(SieveModel? parameters)
     {
-        var query = _userRepository.AsQueryable();
         var sieveModel = parameters ?? new UserQueryParameters();
-
+        
+        await _userRules.ValidateGetAllAsync(sieveModel);
+        
+        var query = _userRepository.AsQueryable();
         var totalCount = await query.CountAsync();
         var processedQuery = _sieveProcessor.Apply(sieveModel, query);
         var users = await processedQuery.ToListAsync();
@@ -52,6 +59,8 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
 
     public async Task<UserDto> CreateAsync(RegisterUserDto createDto)
     {
+        await _userRules.ValidateCreateAsync(createDto);
+        
         var entity = UserMapper.ToEntity(createDto);
         entity.Hash = _passwordService.HashPassword(createDto.Password);
         entity.Firstlogin = true;
@@ -67,6 +76,8 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
 
     public async Task<UserDto?> UpdateAsync(string id, UpdateUserDto updateDto)
     {
+        await _userRules.ValidateUpdateAsync(id, updateDto);
+        
         var existing = await base.GetByIdAsync(id);
         if (existing == null) return null;
 
@@ -82,21 +93,14 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
 
     public async Task<bool> DeleteAsync(string id)
     {
+        await _userRules.ValidateDeleteAsync(id);
         return await base.DeleteAsync(id);
     }
     
-    
-
-    public async Task<bool> VerifyUserPasswordAsync(string userId, string plainPassword)
-    {
-        var user = await base.GetByIdAsync(userId); 
-        if (user == null) return false;
-
-        return _passwordService.VerifyPassword(plainPassword, user.Hash);
-    }
-
     public async Task<bool> IsSubscriptionActiveAsync(string userId)
     {
+        await _userRules.ValidateIsSubscriptionActiveAsync(userId);
+        
         var user = await base.GetByIdAsync(userId);
         if (user == null) return false;
         return IsSubscriptionActiveHelper(user);
@@ -110,6 +114,8 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
 
     public async Task<UserDto?> ExtendSubscriptionAsync(string userId, int months)
     {
+        await _userRules.ValidateExtendSubscriptionAsync(userId, months);
+        
         var user = await base.GetByIdAsync(userId);
         if (user == null) return null;
 
@@ -127,6 +133,8 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
 
     public async Task<UserDto?> UpdateBalanceAsync(string userId)
     {
+        await _userRules.ValidateUpdateBalanceAsync(userId);
+        
         var user = await base.GetByIdAsync(userId);
         if (user == null) return null;
 

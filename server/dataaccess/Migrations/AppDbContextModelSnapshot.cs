@@ -43,6 +43,15 @@ namespace dataaccess.Migrations
                     b.Property<int>("Week")
                         .HasColumnType("integer");
 
+                    b.Property<int>("WeeksPurchased")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("Win")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("integer");
+
                     b.HasKey("BoardID");
 
                     b.HasIndex("UserID");
@@ -147,6 +156,12 @@ namespace dataaccess.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Week")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WeekYear")
+                        .HasColumnType("integer");
 
                     b.HasKey("WinningBoardID");
 

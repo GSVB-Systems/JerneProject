@@ -56,33 +56,28 @@ namespace service.Services
                 throw new ArgumentNullException(nameof(createDto));
 
             if (createDto.Numbers == null)
-                throw new ValidationException("Numbers are required.");
+                throw new ValidationException("Tal er påkrævet.");
 
             if (createDto.BoardSize <= 0)
-                throw new ValidationException("Must choose Boardsize between 5-8");
+                throw new ValidationException("Størrelse på brættet skal være mindst 5 valgte tal og maksimalt 8 valgte tal.");
 
             if (createDto.Numbers.Count != createDto.BoardSize)
-                throw new ValidationException($"Numbers count must equal BoardSize ({createDto.BoardSize}).");
+                throw new ValidationException($"De valgte tal skal stemme over ens med pladens størrelse på ({createDto.BoardSize}).");
+            if (createDto.Week <= 0)
+                throw new ValidationException("Du skal miminum have 1 trækning på din plade.");
 
-            var entity = BoardMapper.ToEntity(createDto);
-            
-            if (string.IsNullOrWhiteSpace(entity.BoardID))
-                entity.BoardID = Guid.NewGuid().ToString();
+            var entities = BoardMapper.ToWeeklyEntities(createDto);
+            if (!entities.Any())
+                throw new ValidationException("Det var ikke muligt at oprette plade for de valgte uger.");
 
-            if (entity.Numbers == null)
-                entity.Numbers = new System.Collections.Generic.List<BoardNumber>();
-
-            foreach (var n in entity.Numbers)
+            foreach (var entity in entities)
             {
-                if (string.IsNullOrWhiteSpace(n.BoardNumberID))
-                    n.BoardNumberID = Guid.NewGuid().ToString();
-                n.BoardID = entity.BoardID;
+                await _boardRepository.AddAsync(entity);
             }
 
-            await _boardRepository.AddAsync(entity);
             await _boardRepository.SaveChangesAsync();
 
-            return BoardMapper.ToDto(entity);
+            return BoardMapper.ToDto(entities.First());
         }
 
         public async Task<BoardDto?> UpdateAsync(string id, UpdateBoardDto updateDto)
@@ -96,7 +91,7 @@ namespace service.Services
                 var numbers = updateDto.Numbers.ToList(); // ints directly
                 var targetBoardSize = updateDto.BoardSize ?? existing.BoardSize;
                 if (numbers.Count != targetBoardSize)
-                    throw new ValidationException($"Numbers count must equal BoardSize ({targetBoardSize}).");
+                    throw new ValidationException($"De valgte tal skal stemme over ens med pladens størrelse på ({targetBoardSize}).");
                 
             }
 

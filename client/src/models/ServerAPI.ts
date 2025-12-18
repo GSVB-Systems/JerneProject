@@ -17,7 +17,7 @@ export class BoardMatcherClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getBoardsContainingNumbers(winningBoardId: string): Promise<string[]> {
+    getBoardsContainingNumbers(winningBoardId: string): Promise<WinnerResultDto[]> {
         let url_ = this.baseUrl + "/api/BoardMatcher/FindAllBoardsMathingWinningBoardID/{winningBoardId}";
         if (winningBoardId === undefined || winningBoardId === null)
             throw new globalThis.Error("The parameter 'winningBoardId' must be defined.");
@@ -36,13 +36,13 @@ export class BoardMatcherClient {
         });
     }
 
-    protected processGetBoardsContainingNumbers(response: Response): Promise<string[]> {
+    protected processGetBoardsContainingNumbers(response: Response): Promise<WinnerResultDto[]> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
         if (status === 200) {
             return response.text().then((_responseText) => {
             let result200: any = null;
-            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as string[];
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as WinnerResultDto[];
             return result200;
             });
         } else if (status !== 200 && status !== 204) {
@@ -50,7 +50,43 @@ export class BoardMatcherClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<string[]>(null as any);
+        return Promise.resolve<WinnerResultDto[]>(null as any);
+    }
+
+    getBoardsContainingNumbersWithDecrementer(winningBoardId: string): Promise<WinnerResultDto[]> {
+        let url_ = this.baseUrl + "/api/BoardMatcher/FindAllBoardsMathingWinningBoardIDWithDecrementer/{winningBoardId}";
+        if (winningBoardId === undefined || winningBoardId === null)
+            throw new globalThis.Error("The parameter 'winningBoardId' must be defined.");
+        url_ = url_.replace("{winningBoardId}", encodeURIComponent("" + winningBoardId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: RequestInit = {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processGetBoardsContainingNumbersWithDecrementer(_response);
+        });
+    }
+
+    protected processGetBoardsContainingNumbersWithDecrementer(response: Response): Promise<WinnerResultDto[]> {
+        const status = response.status;
+        let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as WinnerResultDto[];
+            return result200;
+            });
+        } else if (status !== 200 && status !== 204) {
+            return response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            });
+        }
+        return Promise.resolve<WinnerResultDto[]>(null as any);
     }
 }
 
@@ -1103,7 +1139,7 @@ export class WinningBoardClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getAll(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<FileResponse> {
+    getAll(filters: string | null | undefined, sorts: string | null | undefined, page: number | null | undefined, pageSize: number | null | undefined): Promise<PagedResultOfWinningBoardDto> {
         let url_ = this.baseUrl + "/api/WinningBoard/GetAllWinningBoards?";
         if (filters !== undefined && filters !== null)
             url_ += "Filters=" + encodeURIComponent("" + filters) + "&";
@@ -1118,7 +1154,7 @@ export class WinningBoardClient {
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                "Accept": "application/octet-stream"
+                "Accept": "application/json"
             }
         };
 
@@ -1127,29 +1163,24 @@ export class WinningBoardClient {
         });
     }
 
-    protected processGetAll(response: Response): Promise<FileResponse> {
+    protected processGetAll(response: Response): Promise<PagedResultOfWinningBoardDto> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as PagedResultOfWinningBoardDto;
+            return result200;
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<FileResponse>(null as any);
+        return Promise.resolve<PagedResultOfWinningBoardDto>(null as any);
     }
 
-    getById(id: string): Promise<FileResponse> {
+    getById(id: string): Promise<WinningBoardDto> {
         let url_ = this.baseUrl + "/api/WinningBoard/GetWinningBoardBy{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
@@ -1159,7 +1190,7 @@ export class WinningBoardClient {
         let options_: RequestInit = {
             method: "GET",
             headers: {
-                "Accept": "application/octet-stream"
+                "Accept": "application/json"
             }
         };
 
@@ -1168,29 +1199,24 @@ export class WinningBoardClient {
         });
     }
 
-    protected processGetById(response: Response): Promise<FileResponse> {
+    protected processGetById(response: Response): Promise<WinningBoardDto> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as WinningBoardDto;
+            return result200;
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<FileResponse>(null as any);
+        return Promise.resolve<WinningBoardDto>(null as any);
     }
 
-    create(dto: CreateWinningBoardDto): Promise<FileResponse> {
+    create(dto: CreateWinningBoardDto): Promise<WinningBoardDto> {
         let url_ = this.baseUrl + "/api/WinningBoard/CreateWinningBoard";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1201,7 +1227,7 @@ export class WinningBoardClient {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/octet-stream"
+                "Accept": "application/json"
             }
         };
 
@@ -1210,29 +1236,24 @@ export class WinningBoardClient {
         });
     }
 
-    protected processCreate(response: Response): Promise<FileResponse> {
+    protected processCreate(response: Response): Promise<WinningBoardDto> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as WinningBoardDto;
+            return result200;
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<FileResponse>(null as any);
+        return Promise.resolve<WinningBoardDto>(null as any);
     }
 
-    update(id: string, dto: UpdateWinningBoardDto): Promise<FileResponse> {
+    update(id: string, dto: UpdateWinningBoardDto): Promise<WinningBoardDto> {
         let url_ = this.baseUrl + "/api/WinningBoard/UpdateWinningBoardBy{id}";
         if (id === undefined || id === null)
             throw new globalThis.Error("The parameter 'id' must be defined.");
@@ -1246,7 +1267,7 @@ export class WinningBoardClient {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/octet-stream"
+                "Accept": "application/json"
             }
         };
 
@@ -1255,26 +1276,21 @@ export class WinningBoardClient {
         });
     }
 
-    protected processUpdate(response: Response): Promise<FileResponse> {
+    protected processUpdate(response: Response): Promise<WinningBoardDto> {
         const status = response.status;
         let _headers: any = {}; if (response.headers && response.headers.forEach) { response.headers.forEach((v: any, k: any) => _headers[k] = v); };
-        if (status === 200 || status === 206) {
-            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
-            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
-            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
-            if (fileName) {
-                fileName = decodeURIComponent(fileName);
-            } else {
-                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
-                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
-            }
-            return response.blob().then(blob => { return { fileName: fileName, data: blob, status: status, headers: _headers }; });
+        if (status === 200) {
+            return response.text().then((_responseText) => {
+            let result200: any = null;
+            result200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver) as WinningBoardDto;
+            return result200;
+            });
         } else if (status !== 200 && status !== 204) {
             return response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
             });
         }
-        return Promise.resolve<FileResponse>(null as any);
+        return Promise.resolve<WinningBoardDto>(null as any);
     }
 
     delete(id: string): Promise<FileResponse> {
@@ -1319,6 +1335,45 @@ export class WinningBoardClient {
     }
 }
 
+export interface WinnerResultDto {
+    board?: BoardDto;
+    user?: UserDto;
+}
+
+export interface BoardDto {
+    boardID?: string;
+    boardSize?: number;
+    isActive?: boolean;
+    week?: number;
+    year?: number;
+    createdAt?: string;
+    userID?: string;
+    win?: boolean;
+    weeksPurchased?: number;
+    numbers?: BoardNumberDto[];
+}
+
+export interface BoardNumberDto {
+    boardNumberID?: string;
+    boardID?: string;
+    number?: number;
+}
+
+export interface UserDto {
+    userID?: string;
+    firstname?: string;
+    lastname?: string;
+    email?: string;
+    role?: UserRole;
+    firstlogin?: boolean;
+    isActive?: boolean;
+    balance?: number;
+    subscriptionExpiresAtUtc?: string | undefined;
+    daysUntilExpiry?: number | undefined;
+}
+
+export type UserRole = 0 | 1;
+
 export interface LoginRequest {
     username: string;
     password: string;
@@ -1333,6 +1388,7 @@ export interface CreateBoardDto {
     week?: number;
     userID: string;
     numbers: number[];
+    win?: boolean;
 }
 
 export interface UpdateBoardDto {
@@ -1351,22 +1407,6 @@ export interface PagedResultOfBoardDto {
     totalCount?: number;
     page?: number;
     pageSize?: number;
-}
-
-export interface BoardDto {
-    boardID?: string;
-    boardSize?: number;
-    isActive?: boolean;
-    week?: number;
-    createdAt?: string;
-    userID?: string;
-    numbers?: BoardNumberDto[];
-}
-
-export interface BoardNumberDto {
-    boardNumberID?: string;
-    boardID?: string;
-    number?: number;
 }
 
 export interface PagedResultOfTransactionDto {
@@ -1413,21 +1453,6 @@ export interface PagedResultOfUserDto {
     pageSize?: number;
 }
 
-export interface UserDto {
-    userID?: string;
-    firstname?: string;
-    lastname?: string;
-    email?: string;
-    role?: UserRole;
-    firstlogin?: boolean;
-    isActive?: boolean;
-    balance?: number;
-    subscriptionExpiresAtUtc?: string | undefined;
-    daysUntilExpiry?: number | undefined;
-}
-
-export type UserRole = 0 | 1;
-
 export interface RegisterUserDto {
     firstname: string;
     lastname: string;
@@ -1443,6 +1468,27 @@ export interface UpdateUserDto {
     role?: UserRole | undefined;
     isActive?: boolean | undefined;
     balance?: number | undefined;
+}
+
+export interface PagedResultOfWinningBoardDto {
+    items?: WinningBoardDto[];
+    totalCount?: number;
+    page?: number;
+    pageSize?: number;
+}
+
+export interface WinningBoardDto {
+    winningBoardID?: string;
+    createdAt?: string;
+    week?: number;
+    weekYear?: number;
+    winningNumbers?: WinningNumberDto[];
+}
+
+export interface WinningNumberDto {
+    winningNumberID?: string;
+    winningBoardID?: string;
+    number?: number;
 }
 
 export interface CreateWinningBoardDto {

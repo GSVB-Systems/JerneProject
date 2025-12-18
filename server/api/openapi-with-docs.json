@@ -31,7 +31,41 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "type": "string"
+                    "$ref": "#/components/schemas/WinnerResultDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/BoardMatcher/FindAllBoardsMathingWinningBoardIDWithDecrementer/{winningBoardId}": {
+      "get": {
+        "tags": [
+          "BoardMatcher"
+        ],
+        "operationId": "BoardMatcher_GetBoardsContainingNumbersWithDecrementer",
+        "parameters": [
+          {
+            "name": "winningBoardId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WinnerResultDto"
                   }
                 }
               }
@@ -1085,10 +1119,9 @@
           "200": {
             "description": "",
             "content": {
-              "application/octet-stream": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "binary"
+                  "$ref": "#/components/schemas/PagedResultOfWinningBoardDto"
                 }
               }
             }
@@ -1117,10 +1150,9 @@
           "200": {
             "description": "",
             "content": {
-              "application/octet-stream": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "binary"
+                  "$ref": "#/components/schemas/WinningBoardDto"
                 }
               }
             }
@@ -1150,10 +1182,9 @@
           "200": {
             "description": "",
             "content": {
-              "application/octet-stream": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "binary"
+                  "$ref": "#/components/schemas/WinningBoardDto"
                 }
               }
             }
@@ -1194,10 +1225,9 @@
           "200": {
             "description": "",
             "content": {
-              "application/octet-stream": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "format": "binary"
+                  "$ref": "#/components/schemas/WinningBoardDto"
                 }
               }
             }
@@ -1240,6 +1270,131 @@
   },
   "components": {
     "schemas": {
+      "WinnerResultDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "board": {
+            "$ref": "#/components/schemas/BoardDto"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserDto"
+          }
+        }
+      },
+      "BoardDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "boardID": {
+            "type": "string"
+          },
+          "boardSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "week": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "year": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "userID": {
+            "type": "string"
+          },
+          "win": {
+            "type": "boolean"
+          },
+          "weeksPurchased": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numbers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BoardNumberDto"
+            }
+          }
+        }
+      },
+      "BoardNumberDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "boardNumberID": {
+            "type": "string"
+          },
+          "boardID": {
+            "type": "string"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "UserDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userID": {
+            "type": "string"
+          },
+          "firstname": {
+            "type": "string"
+          },
+          "lastname": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "firstlogin": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "balance": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "subscriptionExpiresAtUtc": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "daysUntilExpiry": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        }
+      },
+      "UserRole": {
+        "type": "integer",
+        "description": "",
+        "x-enumNames": [
+          "Bruger",
+          "Administrator"
+        ],
+        "enum": [
+          0,
+          1
+        ]
+      },
       "LoginRequest": {
         "type": "object",
         "additionalProperties": false,
@@ -1268,7 +1423,7 @@
         "properties": {
           "newPassword": {
             "type": "string",
-            "minLength": 8
+            "minLength": 1
           }
         }
       },
@@ -1301,6 +1456,9 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          "win": {
+            "type": "boolean"
           }
         }
       },
@@ -1361,55 +1519,6 @@
             "format": "int32"
           },
           "pageSize": {
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
-      "BoardDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "boardID": {
-            "type": "string"
-          },
-          "boardSize": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "week": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "userID": {
-            "type": "string"
-          },
-          "numbers": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/BoardNumberDto"
-            }
-          }
-        }
-      },
-      "BoardNumberDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "boardNumberID": {
-            "type": "string"
-          },
-          "boardID": {
-            "type": "string"
-          },
-          "number": {
             "type": "integer",
             "format": "int32"
           }
@@ -1560,59 +1669,6 @@
           }
         }
       },
-      "UserDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "userID": {
-            "type": "string"
-          },
-          "firstname": {
-            "type": "string"
-          },
-          "lastname": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "role": {
-            "$ref": "#/components/schemas/UserRole"
-          },
-          "firstlogin": {
-            "type": "boolean"
-          },
-          "isActive": {
-            "type": "boolean"
-          },
-          "balance": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "subscriptionExpiresAtUtc": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "daysUntilExpiry": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          }
-        }
-      },
-      "UserRole": {
-        "type": "integer",
-        "description": "",
-        "x-enumNames": [
-          "Bruger",
-          "Administrator"
-        ],
-        "enum": [
-          0,
-          1
-        ]
-      },
       "RegisterUserDto": {
         "type": "object",
         "additionalProperties": false,
@@ -1641,7 +1697,7 @@
           },
           "password": {
             "type": "string",
-            "minLength": 8
+            "minLength": 1
           },
           "role": {
             "type": "string",
@@ -1685,6 +1741,73 @@
             "format": "decimal",
             "minimum": 0.0,
             "nullable": true
+          }
+        }
+      },
+      "PagedResultOfWinningBoardDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WinningBoardDto"
+            }
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "WinningBoardDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "winningBoardID": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "week": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "weekYear": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "winningNumbers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WinningNumberDto"
+            }
+          }
+        }
+      },
+      "WinningNumberDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "winningNumberID": {
+            "type": "string"
+          },
+          "winningBoardID": {
+            "type": "string"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

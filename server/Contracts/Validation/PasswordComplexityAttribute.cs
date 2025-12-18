@@ -19,7 +19,7 @@ public sealed class PasswordComplexityAttribute : ValidationAttribute
         _regex = new Regex(pattern, RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
         ErrorMessage = ErrorMessage ??
-            $"Password must be at least {MinimumLength} characters and include at least one uppercase letter, one lowercase letter, one digit, and one special character; spaces are not allowed.";
+            $"Adgangskoden skal minimum være {MinimumLength} Karakterer lang og indeholde mindst et stort bogstav, et lille bogstav, et tal og et specialtegn.";
     }
 
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)

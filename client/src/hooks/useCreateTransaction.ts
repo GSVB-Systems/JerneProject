@@ -1,7 +1,8 @@
- import { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import type { CreateTransactionDto } from "../models/ServerAPI.ts";
 import { transactionClient } from "../api-clients.ts";
 import {useJWT} from "./useJWT.ts";
+import { useParseValidationMessage } from "./useParseValidationMessage.ts";
 
 export type UseCreateTransactionResult = {
   amount: string;
@@ -35,6 +36,7 @@ function getUserIdFromJwt(jwt: string | null | undefined): string | null {
 
 export const useCreateTransaction = (): UseCreateTransactionResult => {
   const jwt = useJWT();
+  const parseValidationMessage = useParseValidationMessage("Kunne ikke oprette transaktion.");
 
   const [amount, setAmount] = useState("");
   const [transactionString, setTransactionString] = useState("");
@@ -53,24 +55,41 @@ export const useCreateTransaction = (): UseCreateTransactionResult => {
       return false;
     }
 
+    if (parsedAmount <= 0) {
+      setError("Beløbet skal være større end nul.");
+      return false;
+    }
+
+    const normalizedTransactionString = transactionString.trim();
+    if (!normalizedTransactionString) {
+      setError("Transaktions ID er påkrævet.");
+      return false;
+    }
+
+    const userId = getUserIdFromJwt(jwt);
+    if (!userId) {
+      setError("Kunne ikke bestemme bruger ID.");
+      return false;
+    }
+
     setIsSubmitting(true);
     setError(null);
     const dto: CreateTransactionDto = {
       amount: parsedAmount,
-      transactionString: transactionString.trim() || undefined,
-      userID: getUserIdFromJwt(jwt) ?? undefined,
+      transactionString: normalizedTransactionString,
+      userID: userId,
     };
 
     try {
       await transactionClient.create(dto);
       return true;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunne ikke oprette transaktion.");
+      setError(parseValidationMessage(err));
       return false;
     } finally {
       setIsSubmitting(false);
     }
-  }, [amount, transactionString]);
+  }, [amount, transactionString, jwt, parseValidationMessage]);
 
   return {
     amount,
@@ -83,4 +102,3 @@ export const useCreateTransaction = (): UseCreateTransactionResult => {
     isSubmitting,
   };
 };
-

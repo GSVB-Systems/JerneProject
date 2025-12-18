@@ -1,50 +1,53 @@
 export default function ThinBoard({
     selectedNumbers,
-    creationTimestamp,
-    expirationTimestamp
+    playingWeek,
+    playingYear,
+    hasWon,
+    isActive,
 }: {
     selectedNumbers: number[];
-    creationTimestamp?: number;
-    expirationTimestamp?: number;
+    playingWeek?: number;
+    playingYear?: number;
+    hasWon?: boolean;
+    isActive?: boolean;
 }) {
-    const getWeekAndYear = (unix?: number) => {
-        if (!unix) return "";
-        const date = new Date(unix * 1000);
-        const yearStart = new Date(date.getFullYear(), 0, 1);
-        const weekNumber = Math.ceil((date.getTime() - yearStart.getTime()) / 86400000 / 7);
-        const year = date.getFullYear();
-        return `Uge ${weekNumber}, ${year}`;
+    const hasPlayingPeriod = typeof playingWeek === "number" && typeof playingYear === "number";
+    const numberClasses = isActive
+        ? "border-red-600 bg-red-300 text-gray-900"
+        : "border-gray-400 bg-gray-200 text-gray-500";
+
+    const getWeekAndYear = () => {
+        if (!hasPlayingPeriod) return "";
+        return `Uge ${playingWeek}, ${playingYear}`;
     };
 
-    const getWeeksRemaining = (unix?: number) => {
-        if (!unix) return 0;
-        const now = new Date();
-        const target = new Date(unix * 1000);
-        const weeksRemaining = Math.ceil((target.getTime() - now.getTime()) / (7 * 24 * 60 * 60 * 1000));
-        return Math.max(0, weeksRemaining);
-    };
+    const boardWrapperClasses = `border-2 rounded-lg h-16 sm:h-20 flex items-center justify-center overflow-x-auto flex-1 ${
+        hasWon ? "border-green-500 bg-green-50 shadow-lg" : "border-gray-400 bg-gray-50"
+    }`;
 
     return (
         <div className="w-full flex items-center justify-center p-4">
             <div className="w-full max-w-2xl">
-                {creationTimestamp && (
+                {hasPlayingPeriod && (
                     <div className="text-center text-sm font-semibold mb-2 text-gray-700">
-                        {getWeekAndYear(creationTimestamp)}
+                        {getWeekAndYear()}
                     </div>
                 )}
 
-                    <div className="border-2 border-gray-400 rounded-lg bg-gray-50 h-16 sm:h-20 flex items-center justify-center overflow-x-auto flex-1">
-                        <div className="flex gap-2">
-                            <div className="flex items-center justify-center gap-4">
-                                {expirationTimestamp && (
-                                    <div className="text-3xl sm:text-5xl font-bold text-gray-800 text-center">
-                                        {getWeeksRemaining(expirationTimestamp)}
-                                    </div>
-                                )}
+                <div className={`${boardWrapperClasses} relative`}>
+                    {hasWon && (
+                        <div className="absolute -mt-12 self-start text-xs font-semibold text-green-700" aria-live="polite">
+                            <span className="px-2 py-1 bg-green-100 border border-green-500 rounded-full">Winner</span>
+                            <span className="sr-only">This board has already won</span>
+                        </div>
+                    )}
+
+                    <div className="flex gap-2">
+                        <div className="flex items-center justify-center gap-4">
                             {[...selectedNumbers].sort((a, b) => a - b).map((num) => (
                                 <div
                                     key={num}
-                                    className="w-8 h-8 sm:w-12 sm:h-12 flex-shrink-0 flex items-center justify-center rounded-lg border-2 border-red-600 bg-red-300 text-sm sm:text-lg font-bold"
+                                    className={`w-8 h-8 sm:w-12 sm:h-12 flex-shrink-0 flex items-center justify-center rounded-lg border-2 text-sm sm:text-lg font-bold ${numberClasses}`}
                                 >
                                     {num}
                                 </div>
