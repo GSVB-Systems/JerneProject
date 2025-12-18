@@ -4,10 +4,12 @@ on:
   push:
     branches:
       - main
+      - Winning-board-changes
       - development
   pull_request:
     branches:
       - main
+      - Winning-board-changes
       - development
 
 jobs:
