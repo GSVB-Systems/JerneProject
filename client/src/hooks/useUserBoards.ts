@@ -44,7 +44,7 @@ interface UseUserBoardsResult {
 
 export function useUserBoards(): UseUserBoardsResult {
     const [selected, setSelected] = useState<number[]>([]);
-    const [value, setValue] = useState("");
+    const [value, setValue] = useState("1");
     const [error, setError] = useState<string | null>(null);
 
     const jwt = useJWT();
@@ -126,7 +126,7 @@ export function useUserBoards(): UseUserBoardsResult {
         try {
             await transactionClient.purchase(dto);
             setSelected([]);
-            setValue("");
+            setValue("1");
             return true;
         } catch (err) {
             setError(parseValidationMessage(err));

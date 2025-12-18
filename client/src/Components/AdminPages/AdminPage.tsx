@@ -10,6 +10,7 @@ export default function AdminPage(): JSX.Element {
   const redirectToUsers = () => navigate("/brugere");
   const redirectToTransactions = () => navigate("/admintransactions");
   const redirectToWinners = () => navigate("/winnerhistory");
+  const redirectToHistory = () => navigate("/fullboardhistory");
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-start justify-center py-12">
@@ -25,6 +26,9 @@ export default function AdminPage(): JSX.Element {
           </button>
           <button className="btn" onClick={redirectToWinners}>
             Se Vinderhistorik
+          </button>
+          <button className="btn" onClick={redirectToHistory}>
+            Se Board Historik
           </button>
         </div>
         <AdminBoard></AdminBoard>

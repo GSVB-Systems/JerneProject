@@ -12,6 +12,7 @@ import UserTransactions from "./Components/TransactionPages/UserTransactions.tsx
 import UserProtectedRoute from "./Components/ProtectedRouting/UserProtectedRouting.tsx";
 import AdminTransaction from "./Components/AdminPages/AdminTransaction.tsx";
 import WinnerHistory from "./Components/AdminPages/WinnerHistory.tsx";
+import AdminBoardHistory from "./Components/AdminPages/AdminBoardHistory.tsx";
 
 function App() {
 
@@ -36,6 +37,14 @@ function App() {
                             <ProtectedRoute>
                                 <BoardHistory/>
                             </ProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/fullboardhistory",
+                        element: (
+                            <AdminProtectedRoute>
+                                <AdminBoardHistory/>
+                            </AdminProtectedRoute>
                         )
                     },
                     {
