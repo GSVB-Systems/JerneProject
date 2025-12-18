@@ -60,7 +60,7 @@ namespace service.Services
                 throw new ArgumentNullException(nameof(createDto));
 
             if (createDto.WinningNumbers == null)
-                throw new ValidationException("WinningNumbers are required.");
+                throw new ValidationException("Udfyld felterne med de trukkede numre.");
 
            //checker om der er duplikater af tal på samme board
             var duplicateValues = createDto.WinningNumbers
@@ -70,12 +70,12 @@ namespace service.Services
                 .ToList();
 
             if (duplicateValues.Any())
-                throw new ValidationException($"WinningNumbers must be unique within a winning board. Duplicates: {string.Join(',', duplicateValues)}");
+                throw new ValidationException($"De trukkede numre skal være unikke. Dublikater: {string.Join(',', duplicateValues)}");
 
             //sikrer at vi kun har 3 eller 5 tal på et WinningBoard
             var count = createDto.WinningNumbers.Count;
             if (count != 3 && count != 5)
-                throw new ValidationException("WinningNumbers must contain exactly 3 or 5 items.");
+                throw new ValidationException("Der må kune trækkes endten 3 eller 5 numre.");
 
             var entity = WinningBoardMapper.ToEntity(createDto);
 
@@ -96,7 +96,7 @@ namespace service.Services
             //checker efter mapping om der er duplikater af tal på samme board
             var dupAfterMap = entity.WinningNumbers.GroupBy(w => w.Number).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
             if (dupAfterMap.Any())
-                throw new ValidationException($"WinningNumbers must be unique within a winning board. Duplicates: {string.Join(',', dupAfterMap)}");
+                throw new ValidationException($"De trukkede numre skal være unikke. Dublikater: {string.Join(',', dupAfterMap)}");
 
             await _winningBoardRepository.AddAsync(entity);
             await _winningBoardRepository.SaveChangesAsync();
@@ -113,14 +113,14 @@ namespace service.Services
 
             
             if (updateDto?.WinningNumbers == null)
-                throw new ValidationException("WinningNumbers are required.");
+                throw new ValidationException("Udfyld felterne med de trukkede numre.");
 
             var count = updateDto.WinningNumbers.Count;
             if (count != 3 && count != 5)
-                throw new ValidationException("WinningNumbers must contain exactly 3 or 5 items.");
+                throw new ValidationException("Der må kune trækkes endten 3 eller 5 numre.");
 
             if (updateDto.WinningNumbers.Count != updateDto.WinningNumbers.Distinct().Count())
-                throw new ValidationException("WinningNumbers must be unique.");
+                throw new ValidationException("De trukkede numre skal være unikke.");
 
             WinningBoardMapper.ApplyUpdate(existing, updateDto);
 

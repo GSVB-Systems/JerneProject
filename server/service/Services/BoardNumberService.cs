@@ -75,7 +75,7 @@ namespace service.Services
             {
                 var val = updateDto.Number.Value;
                 if (val < 1 || val > 16)
-                    throw new ValidationException("Number must be between 1 and 16.");
+                    throw new ValidationException("De valgte tal skal være mellem 1 og 16.");
             }
 
             BoardNumberMapper.ApplyUpdate(existing, updateDto);

@@ -70,29 +70,29 @@ public class AuthService : Service<User, User, User>, IAuthService
     private static void EnsurePasswordComplexity(string password)
     {
         if (string.IsNullOrWhiteSpace(password))
-            throw new InvalidOperationException("New password is required.");
+            throw new InvalidOperationException("Ny adgangskode nødvendig.");
 
         var attribute = new PasswordComplexityAttribute();
         var result = attribute.GetValidationResult(password, new ValidationContext(new object()));
         if (result != ValidationResult.Success)
-            throw new InvalidOperationException(result?.ErrorMessage ?? "Password does not meet complexity requirements.");
+            throw new InvalidOperationException(result?.ErrorMessage ?? "Adgangskoden opfylder ikke kravene.");
     }
 
     public async Task<User> UpdateUserPasswordAsync(string userId, string oldPassword, string newPassword)
     {
         var user = await base.GetByIdAsync(userId);
         if (user is null)
-            throw new InvalidOperationException("User not found.");
+            throw new InvalidOperationException("Brugeren ikke fundet.");
 
         if (!_passwordService.VerifyPassword(oldPassword, user.Hash))
-            throw new InvalidOperationException("Old password is incorrect.");
+            throw new InvalidOperationException("Eksisterende adgangskode er forkert.");
 
         // Enforce password policy
         EnsurePasswordComplexity(newPassword);
 
         // Optional: prevent re-use of the same password
         if (_passwordService.VerifyPassword(newPassword, user.Hash))
-            throw new InvalidOperationException("New password must be different from the old password.");
+            throw new InvalidOperationException("Den nye adgangskode må ikke være den samme som den eksisterende.");
 
         var newHashedPassword = _passwordService.HashPassword(newPassword);
         return await _authRepository.updateUserPasswordAsync(userId, newHashedPassword);
@@ -101,7 +101,7 @@ public class AuthService : Service<User, User, User>, IAuthService
 {
     var user = await base.GetByIdAsync(userId);
     if (user is null)
-        throw new InvalidOperationException("User not found.");
+        throw new InvalidOperationException("Brugeren ikke fundet.");
 
     // Enforce the same password policy for admin resets
     EnsurePasswordComplexity(newPassword);
