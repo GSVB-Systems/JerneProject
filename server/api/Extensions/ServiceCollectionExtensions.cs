@@ -1,12 +1,8 @@
-using System;
-using System.Threading.Tasks;
 using api.Models;
 using dataaccess;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using service.Repositories;
 using service.Repositories.Interfaces;
 using service.Rules;

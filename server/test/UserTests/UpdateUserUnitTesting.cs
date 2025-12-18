@@ -33,10 +33,10 @@ public class UpdateUnitTesting(IUserService userService, AppDbContext ctx)
             
         };
 
-        // act
+      
         await userService.UpdateAsync(id, dto);
 
-        // assert
+      
         var u = ctx.Users.Single(u => u.UserID == id);
         Assert.Equal("New", u.Firstname);
         Assert.Equal("new@example.dk", u.Email);
@@ -61,7 +61,7 @@ public class UpdateUnitTesting(IUserService userService, AppDbContext ctx)
     [Fact]
     public async Task UpdateUserInvalid_InvalidEmail()
     {
-        // arrange
+       
         var id = Guid.NewGuid().ToString();
         ctx.Users.Add(new()
         {
@@ -77,14 +77,14 @@ public class UpdateUnitTesting(IUserService userService, AppDbContext ctx)
 
         var dto = new UpdateUserDto { Email = "invalid-email" };
 
-        // act / assert
+       
         await Assert.ThrowsAsync<RangeValidationException>(() => userService.UpdateAsync(id, dto));
     }
 
     [Fact]
     public async Task UpdateUserInvalid_DuplicateEmail()
     {
-        // arrange: existing user with the target email
+        
         ctx.Users.Add(new()
         {
             UserID = Guid.NewGuid().ToString(),
@@ -112,14 +112,14 @@ public class UpdateUnitTesting(IUserService userService, AppDbContext ctx)
 
         var dto = new UpdateUserDto { Email = "existing@example.dk" };
 
-        // act / assert
+        
         await Assert.ThrowsAsync<DuplicateResourceException>(() => userService.UpdateAsync(targetId, dto));
     }
 
     [Fact]
     public async Task UpdateUserInvalid_NegativeBalance()
     {
-        // arrange
+        
         var id = Guid.NewGuid().ToString();
         ctx.Users.Add(new()
         {
@@ -136,14 +136,14 @@ public class UpdateUnitTesting(IUserService userService, AppDbContext ctx)
 
         var dto = new UpdateUserDto { Balance = -5m };
 
-        // act / assert
+        
         await Assert.ThrowsAsync<RangeValidationException>(() => userService.UpdateAsync(id, dto));
     }
 
     [Fact]
     public async Task UpdateUserInvalid_InvalidRole()
     {
-        // arrange
+        
         var id = Guid.NewGuid().ToString();
         ctx.Users.Add(new()
         {
@@ -157,7 +157,7 @@ public class UpdateUnitTesting(IUserService userService, AppDbContext ctx)
         });
         await ctx.SaveChangesAsync();
 
-        // assign an undefined enum value to trigger validation
+     
         var dto = new UpdateUserDto { Role = (UserRole)999 };
 
         // act / assert
@@ -167,7 +167,7 @@ public class UpdateUnitTesting(IUserService userService, AppDbContext ctx)
     [Fact]
     public async Task UpdateUser_NoOp_WhenDtoNull()
     {
-        // arrange
+        
         var id = Guid.NewGuid().ToString();
         ctx.Users.Add(new()
         {
@@ -181,7 +181,7 @@ public class UpdateUnitTesting(IUserService userService, AppDbContext ctx)
         });
         await ctx.SaveChangesAsync();
 
-        // act - should not throw and should leave entity unchanged
+        
         await userService.UpdateAsync(id, null);
 
         var u = ctx.Users.Single(u => u.UserID == id);
