@@ -1,26 +1,26 @@
 export default function ThinBoard({
     selectedNumbers,
-    weeksRemaining,
     playingWeek,
     playingYear,
-    hasWon
+    hasWon,
+    isActive,
 }: {
     selectedNumbers: number[];
-    weeksRemaining?: number;
     playingWeek?: number;
     playingYear?: number;
     hasWon?: boolean;
+    isActive?: boolean;
 }) {
     const hasPlayingPeriod = typeof playingWeek === "number" && typeof playingYear === "number";
+    const numberClasses = isActive
+        ? "border-red-600 bg-red-300 text-gray-900"
+        : "border-gray-400 bg-gray-200 text-gray-500";
 
     const getWeekAndYear = () => {
         if (!hasPlayingPeriod) return "";
         return `Uge ${playingWeek}, ${playingYear}`;
     };
 
-    const normalizedWeeksRemaining = typeof weeksRemaining === "number"
-        ? Math.max(0, Math.floor(weeksRemaining))
-        : undefined;
     const boardWrapperClasses = `border-2 rounded-lg h-16 sm:h-20 flex items-center justify-center overflow-x-auto flex-1 ${
         hasWon ? "border-green-500 bg-green-50 shadow-lg" : "border-gray-400 bg-gray-50"
     }`;
@@ -41,17 +41,13 @@ export default function ThinBoard({
                             <span className="sr-only">This board has already won</span>
                         </div>
                     )}
+
                     <div className="flex gap-2">
                         <div className="flex items-center justify-center gap-4">
-                            {typeof normalizedWeeksRemaining === "number" && (
-                                <div className="text-3xl sm:text-5xl font-bold text-gray-800 text-center">
-                                    {normalizedWeeksRemaining}
-                                </div>
-                            )}
                             {[...selectedNumbers].sort((a, b) => a - b).map((num) => (
                                 <div
                                     key={num}
-                                    className="w-8 h-8 sm:w-12 sm:h-12 flex-shrink-0 flex items-center justify-center rounded-lg border-2 border-red-600 bg-red-300 text-sm sm:text-lg font-bold"
+                                    className={`w-8 h-8 sm:w-12 sm:h-12 flex-shrink-0 flex items-center justify-center rounded-lg border-2 text-sm sm:text-lg font-bold ${numberClasses}`}
                                 >
                                     {num}
                                 </div>

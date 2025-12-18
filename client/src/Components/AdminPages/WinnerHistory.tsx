@@ -7,7 +7,6 @@ export default function WinnerHistory(): JSX.Element {
     const {
         winningBoards,
         loading,
-        error,
         activeBoardId,
         activeBoardMatches,
         toggleBoard,
@@ -28,9 +27,7 @@ export default function WinnerHistory(): JSX.Element {
                     <h1 className="text-2xl font-semibold">Vinderbræt</h1>
                     <button className="btn btn-sm" onClick={refresh} type="button">Opdater</button>
                 </header>
-
-                {error && <div className="alert alert-error"><span>{error}</span></div>}
-
+                
                 {loading ? (
                     <div className="flex items-center justify-center py-12">
                         <div className="text-center">
@@ -61,10 +58,10 @@ export default function WinnerHistory(): JSX.Element {
                                         <p>Uge: {board.week}</p>
                                         <ThinBoard
                                             selectedNumbers={(board.winningNumbers ?? []).map((entry) => Number(entry?.number ?? 0)).filter((num) => !Number.isNaN(num))}
-                                            weeksRemaining={undefined}
                                             playingWeek={undefined}
                                             playingYear={undefined}
                                             hasWon={undefined}
+                                            isActive={true}
                                         />
                                     </button>
                                     {activeBoardId === board.winningBoardID && (

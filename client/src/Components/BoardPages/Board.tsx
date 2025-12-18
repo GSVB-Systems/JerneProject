@@ -22,6 +22,7 @@ export default function MultiSelectableBoard() {
         e.preventDefault();
         const succeeded = await createBoardTransaction();
         if (succeeded) {
+
             const modal = document.getElementById("my_modal_2");
             if (modal instanceof HTMLDialogElement) {
                 modal.showModal();

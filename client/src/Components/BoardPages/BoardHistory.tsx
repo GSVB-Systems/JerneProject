@@ -2,7 +2,7 @@ import Navbar from "../Navbar.tsx";
 import ThinBoard from "./ThinBoard.tsx";
 import { useUserBoardHistory } from "../../hooks/useUserBoardHistory.ts";
 import type { JSX } from "react";
-import { useMemo } from "react";
+
 
 export default function BoardHistory(): JSX.Element {
     const {
@@ -15,30 +15,17 @@ export default function BoardHistory(): JSX.Element {
         loading,
         hasLoadedOnce,
         error,
-        searchTerm,
         sortDirection,
-        setSearchTerm,
         toggleSortDirection,
         handlePageChange,
         resetFilters,
         refresh,
     } = useUserBoardHistory();
 
-    const debouncedSearch = useMemo(() => {
-        let timeout: ReturnType<typeof setTimeout> | null = null;
-        return (value: string) => {
-            if (timeout) clearTimeout(timeout);
-            timeout = setTimeout(() => {
-                setSearchTerm(value);
-            }, 300);
-        };
-    }, [setSearchTerm]);
-
-    const handleSearchChange = (value: string) => {
-        debouncedSearch(value);
-    };
 
     const showEmptyState = !loading && boards.length === 0 && !error;
+
+    const sortLabel = sortDirection === "asc" ? "Stigende" : "Faldende";
 
     return (
         <div className="flex flex-col min-h-screen w-full bg-base-100">
@@ -52,38 +39,35 @@ export default function BoardHistory(): JSX.Element {
                     <div className="text-sm text-gray-500">{`Antal: ${total}`}</div>
                 </header>
 
-                <section className="bg-base-200 rounded-lg p-4 space-y-4">
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <label className="form-control">
-                            <span className="label-text text-sm font-medium">Søg</span>
-                            <input
-                                className="input input-bordered w-full"
-                                placeholder="Søg efter tal"
-                                type="text"
-                                defaultValue={searchTerm}
-                                onChange={(event) => {
-                                    handleSearchChange(event.target.value);
-                                }}
-                            />
-                        </label>
+                <section className="bg-base-200 rounded-lg p-4 space-y-6">
+
+                    <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                         <div className="flex flex-col gap-2">
                             <span className="label-text text-sm font-medium">Sortering</span>
-                            <div className="flex items-center gap-3">
+                            <div className="flex flex-wrap items-center gap-3 text-sm">
                                 <span className="text-sm text-gray-600">Spilleuge</span>
-                                <button className="btn btn-sm" onClick={toggleSortDirection} type="button">
-                                    {sortDirection === "asc" ? "Stigende" : "Faldende"}
+                                <button
+                                    className="btn btn-sm btn-outline flex items-center gap-2 border-base-300"
+                                    onClick={toggleSortDirection}
+                                    type="button"
+                                    disabled={loading}
+                                >
+                                    <span className="font-semibold">{sortLabel}</span>
+                                    <span className="text-xs text-gray-500">
+                                        {sortDirection === "asc" ? "Ældste først" : "Nyeste først"}
+                                    </span>
                                 </button>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="flex flex-wrap items-center gap-3 text-sm">
-                        <button className="btn btn-sm" onClick={resetFilters} type="button">
-                            Nulstil filtre
-                        </button>
-                        <button className="btn btn-sm" onClick={refresh} type="button">
-                            Opdater
-                        </button>
+                        <div className="flex flex-wrap items-center gap-3 text-sm">
+                            <button className="btn btn-sm btn-ghost border border-base-300" disabled={loading} onClick={resetFilters} type="button">
+                                Nulstil filtre
+                            </button>
+                            <button className="btn btn-sm border border-base-300 bg-base-100" onClick={refresh} type="button">
+                                {loading ? "Opdaterer…" : "Opdater"}
+                            </button>
+                        </div>
                     </div>
                 </section>
 
@@ -117,7 +101,7 @@ export default function BoardHistory(): JSX.Element {
                                     .sort((a, b) => a - b)}
                                 playingWeek={board.week}
                                 playingYear={board.year}
-                                weeksRemaining={board.weeksPurchased}
+                                isActive={board.isActive}
                                 hasWon={board.win}
                             />
                         ))}
@@ -128,15 +112,15 @@ export default function BoardHistory(): JSX.Element {
                     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between pt-4">
                         <p className="text-sm text-gray-600">{`Viser ${visibleStart}-${visibleEnd} af ${total}`}</p>
                         <div className="flex items-center gap-2">
-                            <button className="btn btn-sm" disabled={page === 1} onClick={() => handlePageChange("prev")}
-                                    type="button">
-                                Tidligere
-                            </button>
-                            <span className="text-sm font-medium">{`Side ${page} af ${totalPages}`}</span>
-                            <button className="btn btn-sm" disabled={page >= totalPages} onClick={() => handlePageChange("next")}
-                                    type="button">
-                                Næste
-                            </button>
+                            <button className="btn btn-sm border border-base-300" disabled={page === 1} onClick={() => handlePageChange("prev")}
+                                     type="button">
+                                 Tidligere
+                             </button>
+                             <span className="text-sm font-medium">{`Side ${page} af ${totalPages}`}</span>
+                            <button className="btn btn-sm border border-base-300" disabled={page >= totalPages} onClick={() => handlePageChange("next")}
+                                     type="button">
+                                 Næste
+                             </button>
                         </div>
                     </div>
                 )}
