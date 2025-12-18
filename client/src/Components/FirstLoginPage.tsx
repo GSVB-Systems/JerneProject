@@ -19,11 +19,11 @@ export default function FirstLoginPage() {
             <div style={styles.container}>
                 <form style={styles.form} onSubmit={handleSubmit}>
                     <img src={logo} alt="Club Logo" style={styles.logo} />
-                    <h2>Reset Password</h2>
+                    <h2>Nulstil Adgangskode</h2>
 
                     <input
                         type="password"
-                        placeholder="Current Password"
+                        placeholder="Nuværnede Adgangskode"
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
                         style={styles.input}
@@ -32,7 +32,7 @@ export default function FirstLoginPage() {
 
                     <input
                         type="password"
-                        placeholder="New Password"
+                        placeholder="Ny Adgangskode"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         style={styles.input}
@@ -41,7 +41,7 @@ export default function FirstLoginPage() {
 
                     <input
                         type="password"
-                        placeholder="Repeat New Password"
+                        placeholder="Gentag Ny Adgangskode"
                         value={repeatPassword}
                         onChange={(e) => setRepeatPassword(e.target.value)}
                         style={styles.input}
@@ -51,7 +51,7 @@ export default function FirstLoginPage() {
                     {error && <div style={{ color: "red", fontSize: "14px" }}>{error}</div>}
 
                     <button type="submit" style={styles.button} disabled={loading}>
-                        {loading ? "Resetting..." : "Reset Password"}
+                        {loading ? "Nulstiller..." : "Nulstil Adgangskode "}
                     </button>
                 </form>
             </div>
