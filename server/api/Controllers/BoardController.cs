@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using service.Services.Interfaces;
 using Sieve.Models;
 
-[AllowAnonymous]
+
 [ApiController]
 [Route("api/[controller]")]
 public class BoardController : ControllerBase
@@ -20,6 +20,7 @@ public class BoardController : ControllerBase
     }
 
     [HttpGet("GetAllBoards")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> GetAll([FromQuery] SieveModel? sieveModel)
     {
         var result = await _boardService.GetAllAsync(sieveModel);
@@ -27,6 +28,7 @@ public class BoardController : ControllerBase
     }
 
     [HttpGet("GetBoardsById{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> GetById(string id)
     {
         var board = await _boardService.GetByIdAsync(id);
@@ -34,6 +36,7 @@ public class BoardController : ControllerBase
     }
 
     [HttpPost("CreateBoard")]
+    [Authorize(Roles = "Bruger")]
     public async Task<IActionResult> Create([FromBody] CreateBoardDto dto)
     {
         var created = await _boardService.CreateAsync(dto);
@@ -41,6 +44,7 @@ public class BoardController : ControllerBase
     }
 
     [HttpPut("UpdateBoard{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Update(string id, [FromBody] UpdateBoardDto dto)
     {
         var updated = await _boardService.UpdateAsync(id, dto);
@@ -48,6 +52,7 @@ public class BoardController : ControllerBase
     }
 
     [HttpDelete("DeleteBoard{id}")]
+    [Authorize(Roles = "Administrator")]
     public async Task<IActionResult> Delete(string id)
     {
         var deleted = await _boardService.DeleteAsync(id);

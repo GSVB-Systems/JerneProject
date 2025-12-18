@@ -7,7 +7,7 @@ using Contracts.WinnerResultDTO;
 
 namespace service.Controllers
 {
-    [AllowAnonymous]
+    
     [ApiController]
     [Route("api/[controller]")]
     public class BoardMatcherController : ControllerBase
@@ -20,6 +20,7 @@ namespace service.Controllers
         }
 
         [HttpGet("FindAllBoardsMathingWinningBoardID/{winningBoardId}")]
+        [Authorize(Roles = "Administrator")]
         public async Task<ActionResult<List<WinnerResultDto>>> GetBoardsContainingNumbers(string winningBoardId)
         {
             if (string.IsNullOrWhiteSpace(winningBoardId))
@@ -34,6 +35,7 @@ namespace service.Controllers
         }
         
         [HttpGet("FindAllBoardsMathingWinningBoardIDWithDecrementer/{winningBoardId}")]
+        [Authorize(Roles = "Administrator")]
         public async Task<ActionResult<List<WinnerResultDto>>> GetBoardsContainingNumbersWithDecrementer(string winningBoardId)
         {
             if (string.IsNullOrWhiteSpace(winningBoardId))
