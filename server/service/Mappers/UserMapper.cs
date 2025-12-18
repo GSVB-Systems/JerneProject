@@ -37,6 +37,7 @@ public static class UserMapper
     
     public static void ApplyUpdate(User target, UpdateUserDto dto)
     {
+        if (dto == null) return;
         if (dto.Firstname != null) target.Firstname = dto.Firstname;
         if (dto.Lastname != null) target.Lastname = dto.Lastname;
         if (dto.Email != null) target.Email = dto.Email;

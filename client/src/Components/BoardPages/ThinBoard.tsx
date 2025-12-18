@@ -1,21 +1,21 @@
 export default function ThinBoard({
     selectedNumbers,
-    creationTimestamp,
     weeksRemaining,
+    playingWeek,
+    playingYear,
     hasWon
 }: {
     selectedNumbers: number[];
-    creationTimestamp?: number;
     weeksRemaining?: number;
+    playingWeek?: number;
+    playingYear?: number;
     hasWon?: boolean;
 }) {
-    const getWeekAndYear = (unix?: number) => {
-        if (!unix) return "";
-        const date = new Date(unix * 1000);
-        const yearStart = new Date(date.getFullYear(), 0, 1);
-        const weekNumber = Math.ceil((date.getTime() - yearStart.getTime()) / 86400000 / 7);
-        const year = date.getFullYear();
-        return `Uge ${weekNumber}, ${year}`;
+    const hasPlayingPeriod = typeof playingWeek === "number" && typeof playingYear === "number";
+
+    const getWeekAndYear = () => {
+        if (!hasPlayingPeriod) return "";
+        return `Uge ${playingWeek}, ${playingYear}`;
     };
 
     const normalizedWeeksRemaining = typeof weeksRemaining === "number"
@@ -28,9 +28,9 @@ export default function ThinBoard({
     return (
         <div className="w-full flex items-center justify-center p-4">
             <div className="w-full max-w-2xl">
-                {creationTimestamp && (
+                {hasPlayingPeriod && (
                     <div className="text-center text-sm font-semibold mb-2 text-gray-700">
-                        {getWeekAndYear(creationTimestamp)}
+                        {getWeekAndYear()}
                     </div>
                 )}
 

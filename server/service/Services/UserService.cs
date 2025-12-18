@@ -1,3 +1,4 @@
+using service.Rules.RuleInterfaces;
 using Contracts.UserDTOs;
 using Contracts;
 using dataaccess.Entities;
@@ -16,14 +17,16 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
     private readonly PasswordService _passwordService;
     private readonly ISieveProcessor _sieveProcessor;
     private readonly ITransactionRepository _transactionRepository;
+    private readonly IUserRules _userRules;
     
-    public UserService(IUserRepository userRepository, PasswordService passwordService, ISieveProcessor sieveProcessor, ITransactionRepository transactionRepository)
+    public UserService(IUserRepository userRepository, PasswordService passwordService, ISieveProcessor sieveProcessor, ITransactionRepository transactionRepository, IUserRules userRules)
         : base(userRepository)
     {
         _userRepository = userRepository;
         _passwordService = passwordService;
         _sieveProcessor = sieveProcessor;
         _transactionRepository = transactionRepository;
+        _userRules = userRules ?? throw new ArgumentNullException(nameof(userRules));
     }
     
     public async Task<UserDto?> GetByIdAsync(string id)
@@ -52,6 +55,8 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
 
     public async Task<UserDto> CreateAsync(RegisterUserDto createDto)
     {
+        await _userRules.ValidateCreateAsync(createDto);
+        
         var entity = UserMapper.ToEntity(createDto);
         entity.Hash = _passwordService.HashPassword(createDto.Password);
         entity.Firstlogin = true;
@@ -67,6 +72,8 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
 
     public async Task<UserDto?> UpdateAsync(string id, UpdateUserDto updateDto)
     {
+        await _userRules.ValidateUpdateAsync(id, updateDto);
+        
         var existing = await base.GetByIdAsync(id);
         if (existing == null) return null;
 
@@ -82,6 +89,7 @@ public class UserService : Service<User, RegisterUserDto, UpdateUserDto>, IUserS
 
     public async Task<bool> DeleteAsync(string id)
     {
+        await _userRules.ValidateDeleteAsync(id);
         return await base.DeleteAsync(id);
     }
     

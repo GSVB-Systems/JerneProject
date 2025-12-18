@@ -9,6 +9,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using service.Repositories;
 using service.Repositories.Interfaces;
+using service.Rules;
+using service.Rules.RuleInterfaces;
 using service.Services;
 using service.Services.Interfaces;
 using Sieve.Models;
@@ -89,6 +91,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IWinningBoardService, WinningBoardService>();
         services.AddScoped<IBoardMatcherService, BoardMatchService>();
         services.AddScoped<IPurchaseService, PurchaseService>();
+        services.AddScoped<IUserRules, UserRules>();
+        services.AddScoped<IBoardNumberRules, BoardNumberRules>();
 
         services.AddAuthorization();
         services.AddCors();
