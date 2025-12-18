@@ -7,8 +7,9 @@ using service.Mappers;
 using service.Repositories.Interfaces;
 using service.Services.Interfaces;
 using Sieve.Models;
-using System.ComponentModel.DataAnnotations; // for ValidationContext
-using Contracts.Validation; // for PasswordComplexityAttribute
+using System.ComponentModel.DataAnnotations;
+using Contracts.Validation;
+using service.Rules.RuleInterfaces;
 
 namespace service.Services;
 
@@ -16,10 +17,12 @@ public class AuthService : Service<User, User, User>, IAuthService
 {
     protected readonly IAuthRepository _authRepository;
     protected readonly PasswordService _passwordService;
+    protected readonly IAuthRules _authRules;
 
-    public AuthService(IAuthRepository authRepository, PasswordService passwordService)
+    public AuthService(IAuthRepository authRepository, PasswordService passwordService, IAuthRules authRules)
         : base(authRepository)
     {
+        _authRules = authRules;
         _authRepository = authRepository;
         _passwordService = passwordService;
     }
@@ -31,6 +34,7 @@ public class AuthService : Service<User, User, User>, IAuthService
 
     public async Task<PagedResult<UserDto>> GetAllAsync(SieveModel? parameters = null)
     {
+        _authRules.ValidateGetAllAsync(parameters);
         var result = await base.GetAllAsync(parameters);
         return new PagedResult<UserDto>
         {
@@ -41,21 +45,25 @@ public class AuthService : Service<User, User, User>, IAuthService
 
     public Task<User> CreateAsync(User entity)
     {
+        _authRules.ValidateCreateAsync(entity);
         return base.CreateAsync(entity);
     }
 
     public Task<User?> UpdateAsync(string id, User entity)
     {
+        _authRules.ValidateUpdateAsync(id, entity);
         return base.UpdateAsync(id, entity);
     }
 
     public Task<bool> DeleteAsync(string id)
     {
+        _authRules.ValidateDeleteAsync(id);
         return base.DeleteAsync(id);
     }
 
     public async Task<bool> verifyPasswordByEmailAsync(string email, string plainPassword)
     {
+        _authRules.ValidateVerifyPasswordByEmailAsync(email, plainPassword);
         var user = await GetUserByEmailAsync(email);
         if (user == null) return false;
 
@@ -64,6 +72,7 @@ public class AuthService : Service<User, User, User>, IAuthService
 
     public async Task<User> GetUserByEmailAsync(string email)
     {
+        _authRules.ValidateGetUserByEmailAsync(email);
         return await _authRepository.getUserByEmailAsync(email);
     }
 
@@ -80,6 +89,7 @@ public class AuthService : Service<User, User, User>, IAuthService
 
     public async Task<User> UpdateUserPasswordAsync(string userId, string oldPassword, string newPassword)
     {
+        _authRules.ValidateUpdateUserPasswordAsync(userId, oldPassword, newPassword);
         var user = await base.GetByIdAsync(userId);
         if (user is null)
             throw new InvalidOperationException("Brugeren ikke fundet.");
@@ -87,10 +97,10 @@ public class AuthService : Service<User, User, User>, IAuthService
         if (!_passwordService.VerifyPassword(oldPassword, user.Hash))
             throw new InvalidOperationException("Eksisterende adgangskode er forkert.");
 
-        // Enforce password policy
+
         EnsurePasswordComplexity(newPassword);
 
-        // Optional: prevent re-use of the same password
+
         if (_passwordService.VerifyPassword(newPassword, user.Hash))
             throw new InvalidOperationException("Den nye adgangskode må ikke være den samme som den eksisterende.");
 
@@ -99,17 +109,14 @@ public class AuthService : Service<User, User, User>, IAuthService
    }
 	public async Task<User> AdminResetUserPasswordAsync(string userId, string newPassword)
 {
+    _authRules.ValidateAdminResetUserPasswordAsync(userId, newPassword);
     var user = await base.GetByIdAsync(userId);
     if (user is null)
         throw new InvalidOperationException("Brugeren ikke fundet.");
 
-    // Enforce the same password policy for admin resets
-    EnsurePasswordComplexity(newPassword);
+        EnsurePasswordComplexity(newPassword);
 
-    var newHashedPassword = _passwordService.HashPassword(newPassword);
-    
-    var updatedUser = await _authRepository.updateUserPasswordAsync(userId, newHashedPassword);
-    return updatedUser;
-
-	}
+        var newHashedPassword = _passwordService.HashPassword(newPassword);
+        return await _authRepository.updateUserPasswordAsync(userId, newHashedPassword);
+    }
 }

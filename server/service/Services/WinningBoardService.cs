@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using service.Repositories.Interfaces;
 using service.Services.Interfaces;
 using service.Mappers;
+using service.Rules.RuleInterfaces;
 using Sieve.Models;
 using Sieve.Services;
 
@@ -16,16 +17,20 @@ namespace service.Services
         private readonly IWinningboardRepository _winningBoardRepository;
         private readonly ISieveProcessor _sieveProcessor;
         private readonly IBoardMatcherService _boardMatcherService;
+        private readonly IWinningBoardRules _winningBoardRules;
 
-        public WinningBoardService(IWinningboardRepository winningBoardRepository, ISieveProcessor sieveProcessor, IBoardMatcherService boardMatcherService)
+        public WinningBoardService(IWinningboardRepository winningBoardRepository, ISieveProcessor sieveProcessor, IBoardMatcherService boardMatcherService, IWinningBoardRules winningBoardRules)
         {
             _winningBoardRepository = winningBoardRepository;
             _sieveProcessor = sieveProcessor;
             _boardMatcherService = boardMatcherService;
+            _winningBoardRules = winningBoardRules;
         }
 
         public async Task<WinningBoardDto?> GetByIdAsync(string id)
         {
+            _winningBoardRules.ValidateGetByIdAsync(id);
+            
             var entity = await _winningBoardRepository.AsQueryable()
                 .Include(w => w.WinningNumbers)
                 .FirstOrDefaultAsync(w => w.WinningBoardID == id);
@@ -36,6 +41,7 @@ namespace service.Services
         public async Task<PagedResult<WinningBoardDto>> GetAllAsync(SieveModel? parameters)
         {
 
+            await _winningBoardRules.ValidateGetAllAsync(parameters);
             var query = _winningBoardRepository.AsQueryable().Include(w => w.WinningNumbers);
             var sieveModel = parameters ?? new SieveModel();
             var totalCount = await query.CountAsync();
@@ -56,6 +62,7 @@ namespace service.Services
 
         public async Task<WinningBoardDto> CreateAsync(CreateWinningBoardDto createDto)
         {
+            _winningBoardRules.ValidateCreateAsync(createDto);
             if (createDto == null)
                 throw new ArgumentNullException(nameof(createDto));
 
@@ -108,6 +115,7 @@ namespace service.Services
 
         public async Task<WinningBoardDto?> UpdateAsync(string id, UpdateWinningBoardDto updateDto)
         {
+            _winningBoardRules.ValidateUpdateAsync(id, updateDto);
             var existing = await _winningBoardRepository.GetByIdAsync(id);
             if (existing == null) return null;
 
@@ -132,6 +140,7 @@ namespace service.Services
 
         public async Task<bool> DeleteAsync(string id)
         {
+            _winningBoardRules.ValidateDeleteAsync(id);
             var existing = await _winningBoardRepository.GetByIdAsync(id);
             if (existing == null) return false;
 

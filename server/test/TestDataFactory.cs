@@ -69,5 +69,77 @@ namespace test
             await ctx.SaveChangesAsync();
             return id;
         }
+        public static async Task<string> CreateWinningBoardAsync(AppDbContext ctx, string? winningBoardId = null, int week = 0, int? weekYear = null, DateTime? createdAt = null)
+        {
+            if (ctx == null) throw new ArgumentNullException(nameof(ctx));
+            winningBoardId ??= Guid.NewGuid().ToString();
+            createdAt ??= DateTime.UtcNow;
+            weekYear ??= createdAt.Value.Year;
+
+            var wb = new WinningBoard
+            {
+                WinningBoardID = winningBoardId,
+                CreatedAt = createdAt.Value,
+                Week = week,
+                WeekYear = weekYear.Value,
+                WinningNumbers = new List<WinningNumber>()
+            };
+
+            ctx.Set<WinningBoard>().Add(wb);
+            await ctx.SaveChangesAsync();
+            return winningBoardId;
+        }
+        public static async Task<string> CreateWinningNumberAsync(AppDbContext ctx, string winningBoardId, int number, string? winningNumberId = null)
+        {
+            if (ctx == null) throw new ArgumentNullException(nameof(ctx));
+            if (string.IsNullOrWhiteSpace(winningBoardId)) throw new ArgumentException("winningBoardId must be provided", nameof(winningBoardId));
+
+            
+            var existingBoard = await ctx.Set<WinningBoard>().FindAsync(winningBoardId);
+            if (existingBoard == null)
+            {
+                await CreateWinningBoardAsync(ctx, winningBoardId);
+            }
+
+            var id = winningNumberId ?? Guid.NewGuid().ToString();
+            var wn = new WinningNumber
+            {
+                WinningNumberID = id,
+                WinningBoardID = winningBoardId,
+                Number = number
+            };
+
+            ctx.Set<WinningNumber>().Add(wn);
+            await ctx.SaveChangesAsync();
+            return id;
+        }
+
+        public static async Task<User> CreateUserAsync(AppDbContext ctx, string passwordHash, string? userId = null, string? email = null)
+        {
+            if (ctx == null) throw new ArgumentNullException(nameof(ctx));
+            if (string.IsNullOrWhiteSpace(passwordHash)) throw new ArgumentException("passwordHash must be provided", nameof(passwordHash));
+
+            userId ??= Guid.NewGuid().ToString();
+            email ??= $"{userId}@example.local";
+
+            var user = new User
+            {
+                UserID = userId,
+                Firstname = "Test",
+                Lastname = "User",
+                Email = email,
+                Hash = passwordHash,
+                Role = UserRole.Bruger,
+                Firstlogin = false,
+                IsActive = true,
+                Balance = 0m,
+                Transactions = new List<Transaction>(),
+                Boards = new List<Board>()
+            };
+
+            ctx.Set<User>().Add(user);
+            await ctx.SaveChangesAsync();
+            return user;
+        }
     }
 }

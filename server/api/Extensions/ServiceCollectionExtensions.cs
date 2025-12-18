@@ -90,6 +90,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserRules, UserRules>();
         services.AddScoped<IBoardNumberRules, BoardNumberRules>();
         services.AddScoped<IBoardRules, BoardRules>();
+        services.AddScoped<IAuthRules, AuthRules>();
+
+        
 
         services.AddAuthorization();
         services.AddCors();

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿
 using dataaccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using service.Repositories.Interfaces;
