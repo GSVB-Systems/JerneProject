@@ -133,6 +133,11 @@ export default function ViewUsers(): JSX.Element {
               </label>
 
               <label className="flex flex-col">
+                <span className="font-medium text-sm">Bekræft password</span>
+                <input className="input" id="confirmPassword" onChange={(event) => updateField("confirmPassword", event.target.value)} placeholder="Gentag adgangskode" required type="password" value={formValues.confirmPassword ?? ""} />
+              </label>
+
+              <label className="flex flex-col">
                 <span className="font-medium text-sm">Rolle</span>
                 <select className="select" id="role" onChange={(event) => updateField("role", event.target.value)} required value={formValues.role ?? ""}>
                   <option disabled value="">

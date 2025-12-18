@@ -3,20 +3,21 @@ import type { RegisterUserDto } from "../models/ServerAPI.ts";
 import { userClient } from "../api-clients.ts";
 import { useParseValidationMessage } from "./useParseValidationMessage.ts";
 
-const createInitialFormState = (): RegisterUserDto => ({
+const createInitialFormState = (): CreateUserFormValues => ({
   firstname: "",
   lastname: "",
   email: "",
   password: "",
+  confirmPassword: "",
   role: "",
 });
 
 export function useCreateUser(onSuccess?: () => void) {
   const [error, setError] = useState<string | null>(null);
-  const [formValues, setFormValues] = useState<RegisterUserDto>(createInitialFormState());
+  const [formValues, setFormValues] = useState<CreateUserFormValues>(createInitialFormState());
   const parseValidationMessage = useParseValidationMessage();
 
-  const updateField = (field: keyof RegisterUserDto, value: string) => {
+  const updateField = (field: keyof CreateUserFormValues, value: string) => {
     setFormValues((previous) => ({
       ...previous,
       [field]: value,
@@ -29,8 +30,15 @@ export function useCreateUser(onSuccess?: () => void) {
 
   const createUser = async (dto?: RegisterUserDto) => {
     setError(null);
+    // Front-end only password confirmation check
+    if (formValues.password !== formValues.confirmPassword) {
+      setError("Adgangskoderne matcher ikke.");
+      return;
+    }
+
     try {
-      await userClient.create(dto ?? formValues);
+      const {...payload } = dto ?? formValues;
+      await userClient.create(payload);
       resetForm();
       onSuccess?.();
     } catch (cause) {
@@ -40,3 +48,5 @@ export function useCreateUser(onSuccess?: () => void) {
 
   return { error, formValues, updateField, resetForm, createUser };
 }
+
+export type CreateUserFormValues = RegisterUserDto & { confirmPassword: string };
