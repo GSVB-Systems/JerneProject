@@ -11,8 +11,10 @@ export default function ThinBoard({
     playingYear?: number;
     hasWon?: boolean;
 }) {
-    const getWeekAndYear = () => {
+    const hasPlayingPeriod = typeof playingWeek === "number" && typeof playingYear === "number";
 
+    const getWeekAndYear = () => {
+        if (!hasPlayingPeriod) return "";
         return `Uge ${playingWeek}, ${playingYear}`;
     };
 
@@ -26,7 +28,7 @@ export default function ThinBoard({
     return (
         <div className="w-full flex items-center justify-center p-4">
             <div className="w-full max-w-2xl">
-                {(
+                {hasPlayingPeriod && (
                     <div className="text-center text-sm font-semibold mb-2 text-gray-700">
                         {getWeekAndYear()}
                     </div>
