@@ -56,12 +56,11 @@ public class PurchaseService: IPurchaseService
             {
                 await tx.RollbackAsync();
                 throw;
+                
             }
-        }else
-        {
-            return false;
-
         }
+        return false;
+        
         
 
         
