@@ -92,6 +92,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IBoardMatcherService, BoardMatchService>();
         services.AddScoped<IPurchaseService, PurchaseService>();
         services.AddScoped<IUserRules, UserRules>();
+        services.AddScoped<IBoardNumberRules, BoardNumberRules>();
 
         services.AddAuthorization();
         services.AddCors();
