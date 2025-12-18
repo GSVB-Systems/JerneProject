@@ -40,7 +40,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("User-change-password")]
-    [Authorize(Roles = "Bruger")]
+    [Authorize(Roles = "Bruger, Administrator")]
     public async Task<IActionResult> UserChangePassword([FromQuery]string userId,[FromQuery] string oldPassword, [FromQuery] string newPassword)
     {
         if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(oldPassword) || string.IsNullOrWhiteSpace(newPassword))

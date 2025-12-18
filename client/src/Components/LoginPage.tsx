@@ -39,7 +39,7 @@ export default function LoginPage() {
             });
 
             if (!res.ok) {
-                setError("Invalid credentials");
+                setError("Forkert Email eller adgangskode");
                 return;
             }
 
