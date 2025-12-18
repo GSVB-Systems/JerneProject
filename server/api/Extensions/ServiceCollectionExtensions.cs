@@ -88,9 +88,14 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IBoardMatcherService, BoardMatchService>();
         services.AddScoped<IPurchaseService, PurchaseService>();
         services.AddScoped<IUserRules, UserRules>();
+        services.AddScoped<ITransactionRules, TransactionRules>();
+        services.AddScoped<IPurchaseRules, PurchaseRules>();
         services.AddScoped<IBoardNumberRules, BoardNumberRules>();
         services.AddScoped<IBoardRules, BoardRules>();
         services.AddScoped<IAuthRules, AuthRules>();
+        services.AddScoped<IWinningBoardRules, WinningBoardRules>();
+        services.AddScoped<IWinningNumberRules, WinningNumberRules>();
+        services.AddScoped<IBoardMatcherRules, BoardMatcherRules>();
 
         
 

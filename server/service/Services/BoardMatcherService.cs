@@ -1,10 +1,11 @@
-﻿
-using dataaccess.Entities;
+﻿using dataaccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using service.Repositories.Interfaces;
 using service.Services.Interfaces;
 using Contracts.WinnerResultDTO;
 using service.Mappers;
+using service.Rules.RuleInterfaces;
+
 
 namespace service.Services
 {
@@ -12,15 +13,21 @@ namespace service.Services
     {
         private readonly IRepository<WinningBoard> _winningBoardRepo;
         private readonly IRepository<Board> _boardRepo;
+        private readonly IBoardMatcherRules _boardMatcherRules;
 
-        public BoardMatchService(IRepository<WinningBoard> winningBoardRepo, IRepository<Board> boardRepo)
+
+        public BoardMatchService(IRepository<WinningBoard> winningBoardRepo, IRepository<Board> boardRepo, IBoardMatcherRules boardMatcherRules)
         {
             _winningBoardRepo = winningBoardRepo;
             _boardRepo = boardRepo;
+            _boardMatcherRules = boardMatcherRules ?? throw new ArgumentNullException(nameof(boardMatcherRules));
+
         }
         
         public async Task<List<WinnerResultDto>> GetBoardsContainingNumbersAsync(string winningBoardId)
         {
+            await _boardMatcherRules.ValidateGetBoardsContainingNumbersAsync(winningBoardId);
+
             var winning = await _winningBoardRepo.AsQueryable()
                 .Include(w => w.WinningNumbers)
                 .FirstOrDefaultAsync(w => w.WinningBoardID == winningBoardId);
@@ -48,13 +55,15 @@ namespace service.Services
                 Board = BoardMapper.ToDto(b),
                 User = UserMapper.ToDto(b.User!)
             }).ToList();
-            
+
 
             return results;
         }
 
-        public  async Task<List<WinnerResultDto>> GetBoardsContainingNumbersWithDecrementerAsync(string winningBoardId)
+        public async Task<List<WinnerResultDto>> GetBoardsContainingNumbersWithDecrementerAsync(string winningBoardId)
         {
+            await _boardMatcherRules.ValidateGetBoardsContainingNumbersWithDecrementerAsync(winningBoardId);
+
             var winning = await _winningBoardRepo.AsQueryable()
                 .Include(w => w.WinningNumbers)
                 .FirstOrDefaultAsync(w => w.WinningBoardID == winningBoardId);
@@ -93,14 +102,14 @@ namespace service.Services
                 User = UserMapper.ToDto(b.User!)
             }).ToList();
 
-            
+
             await _boardRepo
                 .AsQueryable()
                 .Where(b => b.WeeksPurchased > 0)
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(b => b.WeeksPurchased, b => b.WeeksPurchased - 1));
 
-            
+
             await _boardRepo
                 .AsQueryable()
                 .Where(b => b.WeeksPurchased == 0 && b.IsActive)
