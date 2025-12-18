@@ -4,11 +4,11 @@ import type { BoardDto } from "../models/ServerAPI";
 import { useJWT } from "./useJWT";
 import { useParseValidationMessage } from "./useParseValidationMessage.ts";
 
-export type BoardSortField = "createdAt" | "boardSize";
 type SortDirection = "asc" | "desc";
 
 const DEFAULT_PAGE_SIZE = 10;
-const DEFAULT_SORT_FIELD: BoardSortField = "createdAt";
+const PRIMARY_SORT_FIELD = "year";
+const SECONDARY_SORT_FIELD = "week";
 const DEFAULT_SORT_DIRECTION: SortDirection = "desc";
 
 const coerceNumber = (value: unknown, fallback = 0): number => {
@@ -62,14 +62,16 @@ export const useUserBoardHistory = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [searchTerm, setSearchTermState] = useState("");
-  const [sortField, setSortFieldState] = useState<BoardSortField>(DEFAULT_SORT_FIELD);
   const [sortDirection, setSortDirection] = useState<SortDirection>(DEFAULT_SORT_DIRECTION);
 
   const jwt = useJWT();
   const userId = useMemo(() => getUserIdFromJwt(jwt), [jwt]);
 
   const filters = useMemo(() => buildSieveFilters(searchTerm), [searchTerm]);
-  const sorts = useMemo(() => `${sortDirection === "desc" ? "-" : ""}${sortField}`, [sortField, sortDirection]);
+  const sorts = useMemo(() => {
+    const prefix = sortDirection === "desc" ? "-" : "";
+    return `${prefix}${PRIMARY_SORT_FIELD},${prefix}${SECONDARY_SORT_FIELD}`;
+  }, [sortDirection]);
 
   const parseValidationMessage = useParseValidationMessage("Kunne ikke hente boards.");
 
@@ -122,12 +124,6 @@ export const useUserBoardHistory = () => {
     setPage(1);
   }, []);
 
-  const setSortField = useCallback((value: BoardSortField) => {
-    setSortFieldState(value);
-    setSortDirection(DEFAULT_SORT_DIRECTION);
-    setPage(1);
-  }, []);
-
   const toggleSortDirection = useCallback(() => {
     setSortDirection(prev => prev === "asc" ? "desc" : "asc");
     setPage(1);
@@ -144,7 +140,6 @@ export const useUserBoardHistory = () => {
 
   const resetFilters = useCallback(() => {
     setSearchTermState("");
-    setSortFieldState(DEFAULT_SORT_FIELD);
     setSortDirection(DEFAULT_SORT_DIRECTION);
     setPage(1);
   }, []);
@@ -164,10 +159,8 @@ export const useUserBoardHistory = () => {
     hasLoadedOnce,
     error,
     searchTerm,
-    sortField,
     sortDirection,
     setSearchTerm,
-    setSortField,
     toggleSortDirection,
     handlePageChange,
     resetFilters,

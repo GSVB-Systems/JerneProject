@@ -1,14 +1,8 @@
 import Navbar from "../Navbar.tsx";
 import ThinBoard from "./ThinBoard.tsx";
 import { useUserBoardHistory } from "../../hooks/useUserBoardHistory.ts";
-import type { BoardSortField } from "../../hooks/useUserBoardHistory.ts";
 import type { JSX } from "react";
 import { useMemo } from "react";
-
-const SORT_OPTIONS: Array<{ label: string; field: BoardSortField }> = [
-    { label: "Oprettelsesdato", field: "createdAt" },
-    { label: "Størrelse", field: "boardSize" },
-];
 
 export default function BoardHistory(): JSX.Element {
     const {
@@ -22,10 +16,8 @@ export default function BoardHistory(): JSX.Element {
         hasLoadedOnce,
         error,
         searchTerm,
-        sortField,
         sortDirection,
         setSearchTerm,
-        setSortField,
         toggleSortDirection,
         handlePageChange,
         resetFilters,
@@ -74,26 +66,14 @@ export default function BoardHistory(): JSX.Element {
                                 }}
                             />
                         </label>
-                        <div className="flex gap-2 items-end">
-                            <label className="form-control flex-1">
-                                <span className="label-text text-sm font-medium">Sorter</span>
-                                <select
-                                    className="select select-bordered w-full"
-                                    value={sortField}
-                                    onChange={(event) => {
-                                        setSortField(event.target.value as BoardSortField);
-                                    }}
-                                >
-                                    {SORT_OPTIONS.map((option) => (
-                                        <option key={option.field} value={option.field}>
-                                            {option.label}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
-                            <button className="btn" onClick={toggleSortDirection} type="button">
-                                {sortDirection === "asc" ? "Stigende" : "Faldende"}
-                            </button>
+                        <div className="flex flex-col gap-2">
+                            <span className="label-text text-sm font-medium">Sortering</span>
+                            <div className="flex items-center gap-3">
+                                <span className="text-sm text-gray-600">Spilleuge</span>
+                                <button className="btn btn-sm" onClick={toggleSortDirection} type="button">
+                                    {sortDirection === "asc" ? "Stigende" : "Faldende"}
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -135,7 +115,8 @@ export default function BoardHistory(): JSX.Element {
                                     .map((entry) => Number(entry?.number ?? 0))
                                     .filter((num) => !Number.isNaN(num))
                                     .sort((a, b) => a - b)}
-                                creationTimestamp={board.createdAt ? Date.parse(board.createdAt) / 1000 : undefined}
+                                playingWeek={board.week}
+                                playingYear={board.year}
                                 weeksRemaining={board.weeksPurchased}
                                 hasWon={board.win}
                             />
