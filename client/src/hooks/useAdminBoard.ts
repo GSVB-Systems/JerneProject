@@ -1,6 +1,7 @@
 ﻿import { useCallback, useMemo, useState } from "react";
 import { winningBoardClient } from "../api-clients.ts";
 import { useJWT } from "./useJWT.ts";
+import { useParseValidationMessage } from "./useParseValidationMessage.ts";
 
 const BOARD_SIZE = 16;
 const MAX_SELECTION = 5;
@@ -27,6 +28,7 @@ export function useAdminBoard(): UseAdminBoardResult {
 
     const jwt = useJWT();
     const isAuthenticated = useMemo(() => Boolean(jwt), [jwt]);
+    const parseValidationMessage = useParseValidationMessage("Kunne ikke oprette vindende numre.");
 
     const toggle = useCallback((num: number) => {
         setSelected((prev) => {
@@ -60,12 +62,12 @@ export function useAdminBoard(): UseAdminBoardResult {
             setSelected([]);
             return true;
         } catch (err) {
-            setError("Kunne ikke oprette vindende numre.");
+            setError(parseValidationMessage(err));
             return false;
         } finally {
             setIsSubmitting(false);
         }
-    }, [isAuthenticated, selected]);
+    }, [isAuthenticated, selected, parseValidationMessage]);
 
     const isValid = selected.length >= MIN_SELECTION && selected.length <= MAX_SELECTION;
 
@@ -82,4 +84,3 @@ export function useAdminBoard(): UseAdminBoardResult {
         createWinningBoard,
     };
 }
-

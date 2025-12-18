@@ -3,6 +3,7 @@ import {useJWT} from "./useJWT.ts";
 import type {CreateBoardDto, CreateTransactionDto, PurchaseDTO} from "../models/ServerAPI.ts";
 import {boardClient, transactionClient} from "../api-clients.ts";
 import {useBalance} from "./useNavbar.ts";
+import { useParseValidationMessage } from "./useParseValidationMessage.ts";
 
     const PRICE_CONFIG: Record<number, number> = {
         5: 20,
@@ -49,6 +50,7 @@ export function useUserBoards(): UseUserBoardsResult {
 
     const jwt = useJWT();
     const userId = useMemo(() => getUserIdFromJwt(jwt), [jwt]) ?? "";
+    const parseValidationMessage = useParseValidationMessage("Der opstod en fejl. Prøv igen.");
 
 
 
@@ -126,10 +128,10 @@ export function useUserBoards(): UseUserBoardsResult {
             await transactionClient.purchase(dto);
             return true;
         } catch (err) {
-            setError("Fejl ved oprettelse af transaktion.");
+            setError(parseValidationMessage(err));
             return false;
         }
-    }, [getPrice, loadUserBalance, userId]);
+    }, [getPrice, loadUserBalance, userId, parseValidationMessage]);
 
 
     const createBoard = useCallback(async (): Promise<boolean> => {
@@ -155,11 +157,11 @@ export function useUserBoards(): UseUserBoardsResult {
             await boardClient.create(dto);
             return true;
         } catch (err) {
-            setError("Fejl ved oprettelse af spillebræt.");
+            setError(parseValidationMessage(err));
             return false;
         }
 
-    }, [selected, value, userId]);
+    }, [selected, value, userId, parseValidationMessage]);
 
     const isValid = selected.length >= MIN_SELECTION && selected.length <= MAX_SELECTION;
 
@@ -178,4 +180,3 @@ export function useUserBoards(): UseUserBoardsResult {
         createBoard,
     };
 }
-

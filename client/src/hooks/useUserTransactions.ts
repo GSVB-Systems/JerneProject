@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { transactionClient } from "../api-clients.ts";
 import type { TransactionDto } from "../models/ServerAPI";
 import { useJWT } from "./useJWT.ts";
+import { useParseValidationMessage } from "./useParseValidationMessage.ts";
 
 const DEFAULT_PAGE_SIZE = 25;
 const DEFAULT_SORT_FIELD: TransactionSortField = "transactionDate";
@@ -95,6 +96,7 @@ export const useUserTransactions = (): UseUserTransactionsResult => {
 
   const jwt = useJWT();
   const userId = useMemo(() => getUserIdFromJwt(jwt), [jwt]);
+  const parseValidationMessage = useParseValidationMessage("Kunne ikke hente transaktioner.");
 
   const filters = useMemo(
     () => buildSieveFilters(searchTerm, transactionTypeFilter),
@@ -129,14 +131,14 @@ export const useUserTransactions = (): UseUserTransactionsResult => {
       setPageSize(serverPageSize);
       setPage(serverPage);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunne ikke hente transaktioner.");
+      setError(parseValidationMessage(err));
       setTransactions([]);
       setTotal(0);
     } finally {
       setLoading(false);
       setHasLoadedOnce(true);
     }
-  }, [filters, page, pageSize, sorts, userId]);
+  }, [filters, page, pageSize, sorts, userId, parseValidationMessage]);
 
   useEffect(() => {
     void fetchUserTransactions();

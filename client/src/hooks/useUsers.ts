@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { userClient } from "../api-clients.ts";
 import type { UserDto } from "../models/ServerAPI";
+import { useParseValidationMessage } from "./useParseValidationMessage.ts";
 
 
 const DEFAULT_PAGE_SIZE = 25;
@@ -106,6 +107,8 @@ export const useUsers = (): UseUsersResult => {
   const [roleFilter, setRoleFilterState] = useState<RoleFilter>("all");
   const [firstLoginFilter, setFirstLoginFilterState] = useState<FirstLoginFilter>("all");
 
+  const parseValidationMessage = useParseValidationMessage("Failed to load users.");
+
   const filters = useMemo(
     () => buildSieveFilters(searchTerm, statusFilter, roleFilter, firstLoginFilter),
     [firstLoginFilter, roleFilter, searchTerm, statusFilter],
@@ -131,14 +134,14 @@ export const useUsers = (): UseUsersResult => {
       setPageSize(serverPageSize);
       setPage(serverPage);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load users.");
+      setError(parseValidationMessage(err));
       setUsers([]);
       setTotal(0);
     } finally {
       setLoading(false);
       setHasLoadedOnce(true);
     }
-  }, [filters, page, pageSize, sorts]);
+  }, [filters, page, pageSize, sorts, parseValidationMessage]);
 
   useEffect(() => {
     void fetchUsers();

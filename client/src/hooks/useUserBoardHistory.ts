@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { boardClient } from "../api-clients.ts";
 import type { BoardDto } from "../models/ServerAPI";
 import { useJWT } from "./useJWT";
+import { useParseValidationMessage } from "./useParseValidationMessage.ts";
 
 export type BoardSortField = "createdAt" | "boardSize";
 type SortDirection = "asc" | "desc";
@@ -70,6 +71,8 @@ export const useUserBoardHistory = () => {
   const filters = useMemo(() => buildSieveFilters(searchTerm), [searchTerm]);
   const sorts = useMemo(() => `${sortDirection === "desc" ? "-" : ""}${sortField}`, [sortField, sortDirection]);
 
+  const parseValidationMessage = useParseValidationMessage("Kunne ikke hente boards.");
+
   const fetchBoards = useCallback(async () => {
     if (!userId) {
       setError("Ingen gyldig bruger-session.");
@@ -93,14 +96,14 @@ export const useUserBoardHistory = () => {
       setPageSize(serverPageSize);
       setPage(serverPage);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunne ikke hente boards.");
+      setError(parseValidationMessage(err));
       setBoards([]);
       setTotal(0);
     } finally {
       setLoading(false);
       setHasLoadedOnce(true);
     }
-  }, [filters, page, pageSize, sorts, userId]);
+  }, [filters, page, pageSize, sorts, userId, parseValidationMessage]);
 
   useEffect(() => {
     void fetchBoards();

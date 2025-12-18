@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { RegisterUserDto } from "../models/ServerAPI.ts";
 import { userClient } from "../api-clients.ts";
+import { useParseValidationMessage } from "./useParseValidationMessage.ts";
 
 const createInitialFormState = (): RegisterUserDto => ({
   firstname: "",
@@ -13,6 +14,7 @@ const createInitialFormState = (): RegisterUserDto => ({
 export function useCreateUser(onSuccess?: () => void) {
   const [error, setError] = useState<string | null>(null);
   const [formValues, setFormValues] = useState<RegisterUserDto>(createInitialFormState());
+  const parseValidationMessage = useParseValidationMessage();
 
   const updateField = (field: keyof RegisterUserDto, value: string) => {
     setFormValues((previous) => ({
@@ -32,13 +34,7 @@ export function useCreateUser(onSuccess?: () => void) {
       resetForm();
       onSuccess?.();
     } catch (cause) {
-      if (cause instanceof Error && cause.message) {
-        setError(cause);
-      } else if (typeof cause === "string" && cause.trim().length > 0) {
-        setError(cause);
-      } else {
-        setError("Network error");
-      }
+      setError(parseValidationMessage(cause));
     }
   };
 
