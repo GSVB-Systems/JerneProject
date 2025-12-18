@@ -3,6 +3,7 @@ import type { RegisterUserDto } from "../models/ServerAPI.ts";
 import { userClient } from "../api-clients.ts";
 import { useParseValidationMessage } from "./useParseValidationMessage.ts";
 
+
 const createInitialFormState = (): CreateUserFormValues => ({
   firstname: "",
   lastname: "",
@@ -30,6 +31,7 @@ export function useCreateUser(onSuccess?: () => void) {
 
   const createUser = async (dto?: RegisterUserDto) => {
     setError(null);
+
     // Front-end only password confirmation check
     if (formValues.password !== formValues.confirmPassword) {
       setError("Adgangskoderne matcher ikke.");
@@ -37,8 +39,9 @@ export function useCreateUser(onSuccess?: () => void) {
     }
 
     try {
-      const {...payload } = dto ?? formValues;
-      await userClient.create(payload);
+      const { ...payload } = dto ?? formValues;
+      const normalizedPayload = { ...payload, email: payload.email.toLowerCase() };
+      await userClient.create(normalizedPayload);
       resetForm();
       onSuccess?.();
     } catch (cause) {
