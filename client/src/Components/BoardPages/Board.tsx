@@ -64,10 +64,9 @@ export default function MultiSelectableBoard() {
 
                             return (
 
-                                <button disabled={!isValid}
-                                    key={opt}
-                                    onClick={() => setValue(opt)}
-                                    className={`
+                                <button key={opt}
+                                        onClick={() => setValue(opt)}
+                                        className={`
                                         join-item btn btn-circle btn-xl
                                         transition-all
                                         !border-red-700

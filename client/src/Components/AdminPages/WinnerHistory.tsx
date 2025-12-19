@@ -55,7 +55,7 @@ export default function WinnerHistory(): JSX.Element {
                                         onClick={() => board.winningBoardID && toggleBoard(board.winningBoardID)}
                                         type="button"
                                     >
-                                        <p>Uge: {board.week}</p>
+                                        <p>Uge: {board.week}, {board.weekYear}</p>
                                         <ThinBoard
                                             selectedNumbers={(board.winningNumbers ?? []).map((entry) => Number(entry?.number ?? 0)).filter((num) => !Number.isNaN(num))}
                                             playingWeek={undefined}
