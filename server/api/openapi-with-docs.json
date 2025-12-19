@@ -1736,6 +1736,10 @@
             "type": "boolean",
             "nullable": true
           },
+          "firstlogin": {
+            "type": "boolean",
+            "nullable": true
+          },
           "balance": {
             "type": "number",
             "format": "decimal",

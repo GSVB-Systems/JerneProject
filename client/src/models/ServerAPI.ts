@@ -1467,6 +1467,7 @@ export interface UpdateUserDto {
     email?: string;
     role?: UserRole | undefined;
     isActive?: boolean | undefined;
+    firstlogin?: boolean | undefined;
     balance?: number | undefined;
 }
 

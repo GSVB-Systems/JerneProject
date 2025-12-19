@@ -109,7 +109,7 @@ public class AuthService : Service<User, User, User>, IAuthService
    }
 	public async Task<User> AdminResetUserPasswordAsync(string userId, string newPassword)
 {
-    _authRules.ValidateAdminResetUserPasswordAsync(userId, newPassword);
+    await _authRules.ValidateAdminResetUserPasswordAsync(userId, newPassword);
     var user = await base.GetByIdAsync(userId);
     if (user is null)
         throw new InvalidOperationException("Brugeren ikke fundet.");
