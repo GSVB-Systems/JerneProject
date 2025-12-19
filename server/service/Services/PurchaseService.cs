@@ -3,6 +3,7 @@ using Contracts.TransactionDTOs;
 using dataaccess;
 using service.Rules.RuleInterfaces;
 using service.Services.Interfaces;
+using service.Validators;
 
 namespace service.Services;
 
@@ -42,6 +43,10 @@ public class PurchaseService: IPurchaseService
 
     public async Task<bool> ProcessPurchaseAsync(CreateBoardDto board, CreateTransactionDto transaction)
     {
+        
+        var momentUtc = ExtractTransactionMomentUtc(transaction);
+        PurchaseWindowValidator.EnsurePurchaseAllowed(momentUtc);
+
         await _purchaseRules.ValidateProcessPurchaseAsync(board, transaction);
 
         var user = await _userService.GetByIdAsync(transaction.UserID);
@@ -71,7 +76,37 @@ public class PurchaseService: IPurchaseService
         }
 
         return false;
+    }
 
+    
+    private static DateTime? ExtractTransactionMomentUtc(CreateTransactionDto dto)
+    {
+        if (dto == null) return null;
+
+        var prop = dto.GetType().GetProperties()
+            .FirstOrDefault(p => string.Equals(p.Name, "TransactionDate", StringComparison.OrdinalIgnoreCase));
+        if (prop == null) return null;
+
+        var val = prop.GetValue(dto);
+        if (val == null) return null;
+
+        if (val is DateTime dt)
+        {
+            if (dt.Kind == DateTimeKind.Unspecified)
+                dt = DateTime.SpecifyKind(dt, DateTimeKind.Utc);
+            return dt.ToUniversalTime();
+        }
+
+        if (val is DateTimeOffset dtoff)
+            return dtoff.UtcDateTime;
+
+        if (val is string s)
+        {
+            if (DateTimeOffset.TryParse(s, out var parsed))
+                return parsed.UtcDateTime;
+        }
+
+        return null;
     }
 
 }
