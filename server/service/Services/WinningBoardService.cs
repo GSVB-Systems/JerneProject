@@ -62,7 +62,7 @@ namespace service.Services
 
         public async Task<WinningBoardDto> CreateAsync(CreateWinningBoardDto createDto)
         {
-            _winningBoardRules.ValidateCreateAsync(createDto);
+            await _winningBoardRules.ValidateCreateAsync(createDto);
             if (createDto == null)
                 throw new ArgumentNullException(nameof(createDto));
 
@@ -105,6 +105,11 @@ namespace service.Services
             if (dupAfterMap.Any())
                 throw new ValidationException($"De trukkede numre skal være unikke. Dublikater: {string.Join(',', dupAfterMap)}");
 
+            var alreadyExists = await _winningBoardRepository.AsQueryable()
+                .AnyAsync(w => w.Week == entity.Week && w.WeekYear == entity.WeekYear);
+            if (alreadyExists)
+                throw new ValidationException($"Der findes allerede et vindende board for uge {entity.Week}, {entity.WeekYear}.");
+            
             await _winningBoardRepository.AddAsync(entity);
             await _winningBoardRepository.SaveChangesAsync();
 
