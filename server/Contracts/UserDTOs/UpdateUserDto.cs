@@ -17,6 +17,8 @@ public class UpdateUserDto
     public UserRole? Role { get; set; }
     public bool? IsActive { get; set; }
     
+    public bool? Firstlogin { get; set; }
+    
     [Range(0, double.MaxValue)]
     public decimal? Balance { get; set; }
 }

@@ -30,7 +30,7 @@ export default function LoginPage() {
                     />
                     <input
                         type="password"
-                        placeholder="Password"
+                        placeholder="Adgangskode"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         style={styles.input}
@@ -38,7 +38,7 @@ export default function LoginPage() {
                     />
                     {error && <div style={{ color: "red", fontSize: "14px" }}>{error}</div>}
                     <button type="submit" style={styles.button} disabled={isLoading}>
-                        {isLoading ? "Logging in..." : "Login"}
+                        {isLoading ? "Logger ind..." : "Login"}
                     </button>
                 </form>
             </div>

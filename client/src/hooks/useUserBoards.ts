@@ -5,12 +5,12 @@ import {transactionClient} from "../api-clients.ts";
 import {useBalance} from "./useNavbar.ts";
 import { useParseValidationMessage } from "./useParseValidationMessage.ts";
 
-    const PRICE_CONFIG: Record<number, number> = {
-        5: 20,
-        6: 40,
-        7: 80,
-        8: 160,
-    };
+const PRICE_CONFIG: Record<number, number> = {
+    5: 20,
+    6: 40,
+    7: 80,
+    8: 160,
+};
 
 const MAX_SELECTION = 8;
 const MIN_SELECTION = 5;
@@ -133,7 +133,6 @@ export function useUserBoards(): UseUserBoardsResult {
             return false;
         }
     }, [getPrice, loadUserBalance, userId, parseValidationMessage]);
-
 
 
 

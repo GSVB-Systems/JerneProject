@@ -26,6 +26,8 @@ namespace service.Services
 
         public async Task<BoardNumberDto?> GetByIdAsync(string id)
         {
+            await _boardNumberRules.ValidateGetByIdAsync(id);
+            
             var entity = await _repo.AsQueryable()
                 .FirstOrDefaultAsync(n => n.BoardNumberID == id);
 
@@ -34,6 +36,7 @@ namespace service.Services
 
         public async Task<PagedResult<BoardNumberDto>> GetAllAsync(SieveModel? parameters)
         {
+            await _boardNumberRules.ValidateGetAllAsync(parameters);
             var query = _repo.AsQueryable();
 
             var items = await query.ToListAsync();

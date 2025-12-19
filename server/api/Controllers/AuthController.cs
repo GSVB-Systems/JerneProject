@@ -44,7 +44,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> UserChangePassword([FromQuery]string userId,[FromQuery] string oldPassword, [FromQuery] string newPassword)
     {
         if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(oldPassword) || string.IsNullOrWhiteSpace(newPassword))
-            return BadRequest("All fields are required.");
+            return BadRequest("Alle felter skal udfyldes.");
 
         try
         {

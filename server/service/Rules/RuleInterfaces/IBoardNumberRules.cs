@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Contracts.BoardNumberDTOs;
+using Sieve.Models;
 
 namespace service.Rules.RuleInterfaces
 {
@@ -8,5 +9,8 @@ namespace service.Rules.RuleInterfaces
         Task ValidateCreateAsync(CreateBoardNumberDto createDto);
         Task ValidateUpdateAsync(string id, UpdateBoardNumberDto updateDto);
         Task ValidateDeleteAsync(string id);
+        Task ValidateGetByIdAsync(string id);
+        Task ValidateGetAllAsync(SieveModel? parameters);
+        
     }
 }

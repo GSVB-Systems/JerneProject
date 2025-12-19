@@ -1,11 +1,10 @@
-﻿using System;
-using System.Threading.Tasks;
-using Contracts.BoardNumberDTOs;
+﻿using Contracts.BoardNumberDTOs;
 using dataaccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using service.Exceptions;
 using service.Repositories.Interfaces;
 using service.Rules.RuleInterfaces;
+using Sieve.Models;
 
 namespace service.Rules
 {
@@ -22,17 +21,16 @@ namespace service.Rules
         {
             try
             {
-                if (createDto == null) throw new InvalidRequestException("Create DTO must be provided.");
+                if (createDto == null) throw new InvalidRequestException("Oprettelses-DTO skal angives.");
 
                 if (createDto.Number < 1 || createDto.Number > 16)
-                    throw new RangeValidationException("Number must be between 1 and 16.");
+                    throw new RangeValidationException("Nummer skal være mellem 1 og 16.");
 
                 var numberInUse = await _repo.AsQueryable()
                     .AnyAsync(b => b.Number == createDto.Number);
                 if (numberInUse)
-                    throw new DuplicateResourceException($"Number '{createDto.Number}' is already in use.");
+                    throw new DuplicateResourceException($"Nummer '{createDto.Number}' er allerede i brug.");
 
-                // Intentional: do not reference BoardNumberID on the DTO — DTO does not contain that property.
             }
             catch (RuleValidationException)
             {
@@ -40,7 +38,7 @@ namespace service.Rules
             }
             catch (Exception ex)
             {
-                throw new ServiceException("Failed to validate board number creation rules.", ex);
+                throw new ServiceException("Kunne ikke validere regler for oprettelse af board-nummer.", ex);
             }
         }
 
@@ -49,12 +47,12 @@ namespace service.Rules
             try
             {
                 if (string.IsNullOrWhiteSpace(id))
-                    throw new InvalidRequestException("Id must be provided for update.");
+                    throw new InvalidRequestException("Id skal angives for opdatering.");
 
                 var exists = await _repo.AsQueryable()
                     .AnyAsync(b => b.BoardNumberID == id);
                 if (!exists)
-                    throw new ResourceNotFoundException($"Board number with id '{id}' does not exist.");
+                    throw new ResourceNotFoundException($"Board-nummer med id '{id}' findes ikke.");
 
                 if (updateDto == null) return;
 
@@ -62,12 +60,12 @@ namespace service.Rules
                 {
                     var val = updateDto.Number.Value;
                     if (val < 1 || val > 16)
-                        throw new RangeValidationException("Number must be between 1 and 16.");
+                        throw new RangeValidationException("Nummer skal være mellem 1 og 16.");
 
                     var conflict = await _repo.AsQueryable()
                         .AnyAsync(b => b.BoardNumberID != id && b.Number == val);
                     if (conflict)
-                        throw new DuplicateResourceException($"Number '{val}' is already in use by another board number.");
+                        throw new DuplicateResourceException($"Nummer '{val}' er allerede i brug af et andet board-nummer.");
                 }
             }
             catch (RuleValidationException)
@@ -76,7 +74,7 @@ namespace service.Rules
             }
             catch (Exception ex)
             {
-                throw new ServiceException($"Failed to validate board number update rules for id '{id}'.", ex);
+                throw new ServiceException($"Kunne ikke validere opdateringsregler for board-nummer med id '{id}'.", ex);
             }
         }
 
@@ -85,12 +83,12 @@ namespace service.Rules
             try
             {
                 if (string.IsNullOrWhiteSpace(id))
-                    throw new InvalidRequestException("Id must be provided for delete.");
+                    throw new InvalidRequestException("Id skal angives for sletning.");
 
                 var exists = await _repo.AsQueryable()
                     .AnyAsync(b => b.BoardNumberID == id);
                 if (!exists)
-                    throw new ResourceNotFoundException($"Board number with id '{id}' does not exist.");
+                    throw new ResourceNotFoundException($"Board-nummer med id '{id}' findes ikke.");
             }
             catch (RuleValidationException)
             {
@@ -98,7 +96,51 @@ namespace service.Rules
             }
             catch (Exception ex)
             {
-                throw new ServiceException($"Failed to validate board number delete rules for id '{id}'.", ex);
+                throw new ServiceException($"Kunne ikke validere sletningsregler for board-nummer med id '{id}'.", ex);
+            }
+        }
+
+        public async Task ValidateGetByIdAsync(string id)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(id))
+                    throw new InvalidRequestException("Id skal angives for hentning.");
+
+                var exists = await _repo.AsQueryable()
+                    .AnyAsync(b => b.BoardNumberID == id);
+                if (!exists)
+                    throw new ResourceNotFoundException($"Board-nummer med id '{id}' findes ikke.");
+            }
+            catch (RuleValidationException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ServiceException($"Kunne ikke validere regler for hentning af board-nummer med id '{id}'.", ex);
+            }
+        }
+
+        public async Task ValidateGetAllAsync(SieveModel? parameters)
+        {
+            try
+            {
+                if (parameters == null) return;
+
+                if (parameters.Page.HasValue && parameters.Page.Value <= 0)
+                    throw new RangeValidationException("Side skal være større end nul.");
+
+                if (parameters.PageSize.HasValue && (parameters.PageSize.Value <= 0 || parameters.PageSize.Value > 1000))
+                    throw new RangeValidationException("PageSize skal være mellem 1 og 1000.");
+            }
+            catch (RuleValidationException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new ServiceException("Kunne ikke validere regler for hentning af board-numre.", ex);
             }
         }
     }

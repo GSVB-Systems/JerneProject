@@ -33,6 +33,7 @@ public static class UserMapper
             Lastname = dto.Lastname,
             Email = dto.Email,
             Role = dto.Role.Equals("Administrator")? UserRole.Administrator: UserRole.Bruger
+            
         };
     
     public static void ApplyUpdate(User target, UpdateUserDto dto)
@@ -43,6 +44,7 @@ public static class UserMapper
         if (dto.Email != null) target.Email = dto.Email;
         if (dto.Role.HasValue) target.Role = dto.Role.Value;
         if (dto.IsActive.HasValue) target.IsActive = dto.IsActive.Value;
+        if (dto.Firstlogin.HasValue) target.Firstlogin = dto.Firstlogin.Value;
         if (dto.Balance.HasValue) target.Balance = dto.Balance.Value;
     }
 }
