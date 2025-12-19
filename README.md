@@ -1,83 +1,111 @@
 # JerneProject
 
-Modern web app for managing users, boards, transactions, and winning boards. The stack is a Vite/React/TypeScript client and an ASP.NET Core Web API backed by PostgreSQL. Docker Compose and Fly.io configs are included for local and hosted deployments.
+Kort pitch
+En moderne webapplikation til ugentlige lodtrækninger og automatisk match af vindende spilleplader til spillet Døde Duer for Jerne IF — med robust validering, services og en React/Vite klient.
 
-## Architecture
-- Client (`client/`): Vite + React 19 + TypeScript, Tailwind/DaisyUI for styling, React Router for navigation, Jotai for token storage, fetch-based generated API client (`src/models/ServerAPI.ts`).
-- API (`server/api/`): ASP.NET Core 10, JWT auth, role-based authorization, Swagger/OpenAPI with automatic TS client generation on startup.
-- Shared contracts (`server/Contracts/`), services (`server/service/`), data access (`server/dataaccess/`), tests (`server/test/`).
-- Infrastructure: PostgreSQL (local via Compose), containerized client/server (`client/Dockerfile`, `server/Dockerfile`), Fly.io configs in `client/fly.toml` and `server/fly.toml`.
+## Om produktet
+JerneProject er et fuldt stack system designet til at håndtere købs-flow for spilleplader, administration af ugentlige træk (WinningBoards) og automatisk matching af vindende plader. Serverdelen (C#/.NET) indeholder et lag med domænevalideringer, services og exceptions, samt services til at oprette vindere og matche brugernes plader. Klienten er skrevet med React + Vite og giver en enkel brugeroplevelse til at købe plader, se historik og følge træk.
 
-## Quick start (local)
-Prereqs: Node 22+, npm, .NET 10 SDK (see `server/global.json`), Docker (for Compose).
+Projektet er bygget med fokus på:
+- Tydelige regel-validatorer (f.eks. for at forhindre flere træk for samme uge).
+- Servicelag (services) som udfører forretningslogik og mapping mellem domain-entities og DTOs.
+- Tests (unit/integration) der dækker kritiske flows som køb og matching.
 
-```bash
-# 1) Backend (API)
-cd server
-cp api/.env.template api/.env   # fill in secrets/DB creds (see Env vars below)
-dotnet restore
-cd api
-dotnet run                       # serves on http://localhost:8080
+## Nøglefunktioner
+- Opret og administrer ugentlige vindernumre (`WinningBoard`).
+- Automatisk matching af aktive plader mod vindernumre via `BoardMatchService`.
+- Regler/valideringer der stopper ugyldige operationer, f.eks. forhindring af mere end ét vindende board pr. uge.
+- Database-lag via `dataaccess` (EF Core-migrationer og entities).
+- Integrationstests og unit tests i `test/`.
+- Frontend i `client/` (Vite + React + TypeScript).
 
-# 2) Frontend (client)
-cd ../client
-npm install
-npm run dev                      # Vite dev server, default http://localhost:5173
+## Arkitektur og mapper (kort)
+- `server/` — .NET backend (flere projekter: `dataaccess`, `service`, `api`, `test`).
+  - `service/Services` — forretningslogik (fx `WinningBoardService`, `BoardMatchService`).
+  - `service/Rules` — valideringsregler og regel-undtagelser (fx `WinningBoardRules`, `BoardMatcherRules`).
+  - `dataaccess/Entities` — EF Core entities (`WinningBoard`, `Board`, `WinningNumber`, osv.).
+  - `api/` — ASP.NET Web API-controllerne og DI-registrering (`ServiceCollectionExtensions`).
+  - `test/` — xUnit-tests.
+- `client/` — React/Vite frontend (TypeScript).
 
-# 3) Full stack via Docker Compose (runs client, server, Postgres)
-cd ..
-docker compose up --build
+## TechStack
+- Backend: .NET 10 (C#), Entity Framework Core
+- Frontend: React + Vite + TypeScript
+- Database: PostgreSQL (forbindelse konfigureres via `ConnectionStringHelper` / appsettings)
+- Test: xUnit (server/test)
+- Byg / Dev: dotnet CLI fra API'en, npm i Client
+
+## Hurtigstart (lokalt development)
+Krav:
+- Opret .env ud fra template filen. 
+- .NET 10 SDK installeret
+- Node.js + npm installeret
+- En PostgreSQL instans (eller anden kompatibel database), opret forbindelse  miljøvariabler(env)
+
+Server (CLI)
+1) Byg service-projektet:
+
+```powershell
+dotnet build 
 ```
 
-## Environment & configuration
-- API (`server/api`)
-  - `.env` (from `.env.template`): `JWT_SECRET` (base64 HMAC key), `JWT_ISSUER`, `JWT_AUDIENCE`, `POSTGRES_*` (host/db/user/password/port). `compose.yml` expects `.env` at repo root for the server container.
-  - `appsettings.json` / `appsettings.Development.json`: logging levels, hosts.
-  - CORS is wide open in `Program.cs` (AllowAnyOrigin/Method/Header) — tighten for production.
-- Client (`client`)
-  - At runtime nginx template reads `BACKEND_URL` env var (see `client/Dockerfile`); in Compose it defaults to `http://server:8080`.
-  - Vite dev proxies are not configured; set `VITE_BACKEND_URL` or update fetch baseUrl in `src/api-clients.ts` if needed.
-- Docker/Fly
-  - `compose.yml` exposes client on 80, API on 8080, Postgres on 5432 with simple creds (change for real use).
-  - `fly.toml` files define apps `jerneproject-client1` and `jerneproject-server1`; adjust names/regions and secrets before deploy.
+2) Kør hele API (fra `server/api` projektet) efter at have sat connection string i `appsettings.json` eller miljøvariabler:
 
-## Security & authorization
-- Authentication: Email/password login at `POST /api/Auth/login` issues a JWT signed with `JWT_SECRET` (HMAC SHA-512). Token includes `sub` (user id) and `role` claim.
-- Roles: `Administrator` and `Bruger` (user). Controllers enforce `[Authorize(Roles = ...)]`:
-  - Users: admin can list/create/update/delete; both roles can read their own; subscription checks require auth.
-  - Boards: create as `Bruger`; admin can list, update, delete; both roles can fetch by user id.
-  - Transactions: create/purchase as `Bruger`; admin can list/update/delete; both roles can list by user id.
-  - Winning boards: admin-only endpoints.
-  - Passwords: users can change their own (`User-change-password` requires token), admins can reset others.
-- Frontend route protection: `ProtectedRoute` blocks unauthenticated users; `AdminProtectedRoute` and `UserProtectedRoute` decode JWT `role` claim and redirect to `/login` if mismatched.
-- Token storage: sessionStorage via `TOKEN_KEY`; `api-clients.ts` attaches `Authorization: Bearer <token>` when present.
-- Secrets: `JWT_SECRET` and database credentials must be rotated and supplied via environment; the checked-in example `.env` is for local/dev only.
+```powershell
+cd 
+dotnet run
+```
 
-## Linting, formatting, testing
-- Client: ESLint configured in `client/eslint.config.js`. Commands: `npm run lint` and `npm run lint:fix`. TypeScript build check via `npm run build` (tsc + Vite).
-- API/Server: No explicit lint/format scripts; standard `dotnet format` can be added. Unit test project in `server/test/` (xUnit); run with `dotnet test` from `server/`.
+Frontend (PowerShell)
+1) Installer afhængigheder og start dev-server:
 
-## Project status
-- Working:
-  - JWT login flow and protected API endpoints.
-  - Role-gated UI routes for admin/user dashboards, transactions, board history, winner history, user management, first-login flow.
-  - TS client generation from OpenAPI on API startup keeps `client/src/models/ServerAPI.ts` in sync.
-  - Docker Compose local stack with Postgres, API, and client behind nginx.
-- Known issues / risks:
-  - CORS is fully open; restrict origins before production.
-  - `.env` sample in repo contains secrets; rotate and avoid committing real keys.
-  - `AuthController` uses `.Result` when creating the token (sync over async); could deadlock in other contexts — should be awaited.
-  - No automated CI, lint, or test hooks yet; consider adding GitHub Actions.
-  - No rate limiting or account lockout on login; consider adding to mitigate brute force.
+```powershell
+cd 
+npm install
+npm run dev
+```
 
-## Deployment (Fly.io)
-- Client: `client/fly.toml` serves built assets on port 80 via nginx; set `BACKEND_URL` secret to the API URL.
-- API: `server/fly.toml` serves on 8080. Set Fly secrets: `JWT_SECRET`, `JWT_ISSUER`, `JWT_AUDIENCE`, `POSTGRES_*` or point to managed DB. Build with `dotnet publish` (already in `server/Dockerfile`).
+Åbn den adresserede URL som Vite logger (typisk `http://localhost:5173`).
 
-## API docs
-- Swagger/OpenAPI enabled; visit `/swagger` on the API host. Generated spec also written to `server/api/openapi-with-docs.json` at runtime.
+## Kør tests
+- Kør testprojektet:
 
-## Contributing / next steps
-- Add CI pipeline for lint + tests.
-- Harden CORS, secrets management, and login throttling before production.
-- Extend README with API examples once endpoints stabilize.
+```powershell
+dotnet test 
+```
+
+Bemærk: Hvis du oplever filer låst under build (MSB3021/MSB3027), luk eventuelle kørende `dotnet`/API processer eller IDE-instanser der bruger projektets DLL'er, og kør build/tests igen.
+
+## API & brug (overblik)
+- Serveren eksponerer endpoints for brugere, boards, winning boards og matching (se `api/Controllers`).
+- Eksempel-flow:
+  1. Administrator opretter et `WinningBoard` (trukne numre).
+  2. `WinningBoardService` validerer via `IWinningBoardRules` (fx antal numre, unikke tal, og nu også: at der ikke allerede findes et `WinningBoard` for samme uge).
+  3. Efter oprettelse kaldes `BoardMatchService.GetBoardsContainingNumbersWithDecrementerAsync` for at finde vindende plader og opdatere deres status/antal uger købt.
+- Fejlhåndtering: domain/regler kaster specialiserede undtagelser (`DuplicateResourceException`, `ResourceNotFoundException`, `InvalidRequestException`), som global exception middleware bør mappe til passende HTTP-statuskoder (fx 409, 404, 400).
+
+## Sikkerhed & drift
+- JWT-baseret auth er sat op i `api` (se `TokenService` og `JWT_*` indstillinger).
+- Production-forbindelse til databasen bør styres via sikre miljøvariabler.
+
+
+## Forslag til næste forbedringer.
+- Tilføj DB-unik nøgle (unique constraint) på `(Week, WeekYear)` hos `WinningBoard` for at sikre DB-level konsistens (beskytter mod race-conditions).
+- Tilføj flere unit-tests for at dække concurrency / duplikat-scenarier.
+- Dokumentér API endpoints i `api/` OpenAPI (der er en `openapi-with-docs.json` i projektet).
+
+## Login (sample credentials)
+- Admin:
+  - Email: harper.young@example.com
+  - Password: Silk!713
+  - Rolle: Administrator
+
+- Bruger (normal bruger):
+  - Email: isabella.lopez@example.com
+  - Password: Charm?478
+  - Rolle: Bruger
+
+## Contributors
+- https://github.com/benj4515
+- https://github.com/GreenzQe
+- https://github.com/MathiasFIv
