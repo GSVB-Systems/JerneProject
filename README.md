@@ -37,6 +37,7 @@ Projektet er bygget med fokus på:
 
 ## Hurtigstart (lokalt development)
 Krav:
+- Opret .env ud fra template filen. 
 - .NET 10 SDK installeret
 - Node.js + npm installeret
 - En PostgreSQL instans (eller anden kompatibel database), opret forbindelse  miljøvariabler(env)
@@ -45,13 +46,13 @@ Server (CLI)
 1) Byg service-projektet:
 
 ```powershell
-dotnet build "C:\Users\mathi\ProgrammingProjects\JerneProject\server\service\service.csproj"
+dotnet build 
 ```
 
 2) Kør hele API (fra `server/api` projektet) efter at have sat connection string i `appsettings.json` eller miljøvariabler:
 
 ```powershell
-cd "C:\Users\mathi\ProgrammingProjects\JerneProject\server\api"
+cd 
 dotnet run
 ```
 
@@ -59,7 +60,7 @@ Frontend (PowerShell)
 1) Installer afhængigheder og start dev-server:
 
 ```powershell
-cd "C:\Users\mathi\ProgrammingProjects\JerneProject\client"
+cd 
 npm install
 npm run dev
 ```
@@ -70,7 +71,7 @@ npm run dev
 - Kør testprojektet:
 
 ```powershell
-dotnet test "C:\Users\mathi\ProgrammingProjects\JerneProject\server\test\test.csproj"
+dotnet test 
 ```
 
 Bemærk: Hvis du oplever filer låst under build (MSB3021/MSB3027), luk eventuelle kørende `dotnet`/API processer eller IDE-instanser der bruger projektets DLL'er, og kør build/tests igen.
