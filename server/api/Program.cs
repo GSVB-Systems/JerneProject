@@ -12,7 +12,7 @@ builder.Services.AddApiServices(builder.Configuration);
 
 var app = builder.Build();
 
-app.GenerateApiClientsFromOpenApi("/../../client/src/models/ServerAPI.ts").GetAwaiter().GetResult();
+//app.GenerateApiClientsFromOpenApi("/../../client/src/models/ServerAPI.ts").GetAwaiter().GetResult();
 
 app.UseCors(config => config
     .AllowAnyHeader()
