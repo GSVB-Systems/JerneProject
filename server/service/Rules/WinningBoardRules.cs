@@ -1,10 +1,10 @@
-﻿
-using Contracts.WinningBoardDTOs;
+﻿using Contracts.WinningBoardDTOs;
 using Microsoft.EntityFrameworkCore;
 using Sieve.Models;
 using service.Exceptions;
 using service.Repositories.Interfaces;
 using service.Rules.RuleInterfaces;
+using System.Globalization;
 
 namespace service.Rules
 {
@@ -63,7 +63,7 @@ namespace service.Rules
             }
         }
 
-        public Task ValidateCreateAsync(CreateWinningBoardDto createDto)
+        public async Task ValidateCreateAsync(CreateWinningBoardDto createDto)
         {
             try
             {
@@ -86,7 +86,19 @@ namespace service.Rules
                 if (createDto.WinningNumbers.Count != new HashSet<int>(createDto.WinningNumbers).Count)
                     throw new RangeValidationException("De trukkede numre skal være unikke.");
 
-                return Task.CompletedTask;
+                
+                var localNow = DateTime.Now;
+                var cal = CultureInfo.CurrentCulture.Calendar;
+                var week = cal.GetWeekOfYear(localNow, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+                var year = localNow.Year;
+
+                var existsForWeek = await _repo.AsQueryable()
+                    .AnyAsync(w => w.Week == week && w.WeekYear == year);
+
+                if (existsForWeek)
+                    throw new DuplicateResourceException($"Der findes allerede en winning board for uge {week} år {year}.");
+
+                return;
             }
             catch (RuleValidationException)
             {
