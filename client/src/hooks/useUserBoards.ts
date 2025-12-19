@@ -5,12 +5,12 @@ import {transactionClient} from "../api-clients.ts";
 import {useBalance} from "./useNavbar.ts";
 import { useParseValidationMessage } from "./useParseValidationMessage.ts";
 
-    const PRICE_CONFIG: Record<number, number> = {
-        5: 20,
-        6: 40,
-        7: 80,
-        8: 160,
-    };
+const PRICE_CONFIG: Record<number, number> = {
+    5: 20,
+    6: 40,
+    7: 80,
+    8: 160,
+};
 
 const MAX_SELECTION = 8;
 const MIN_SELECTION = 5;
@@ -44,7 +44,7 @@ interface UseUserBoardsResult {
 
 export function useUserBoards(): UseUserBoardsResult {
     const [selected, setSelected] = useState<number[]>([]);
-    const [value, setValue] = useState("1");
+    const [value, setValue] = useState("");
     const [error, setError] = useState<string | null>(null);
 
     const jwt = useJWT();
@@ -126,14 +126,13 @@ export function useUserBoards(): UseUserBoardsResult {
         try {
             await transactionClient.purchase(dto);
             setSelected([]);
-            setValue("1");
+            setValue("");
             return true;
         } catch (err) {
             setError(parseValidationMessage(err));
             return false;
         }
     }, [getPrice, loadUserBalance, userId, parseValidationMessage]);
-
 
 
 

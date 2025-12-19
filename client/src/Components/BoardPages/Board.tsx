@@ -16,39 +16,6 @@ export default function MultiSelectableBoard() {
     } = useUserBoards();
 
     const options = ["1", "2", "3", "4", "5"];
-    const [customWeeks, setCustomWeeks] = React.useState("");
-    const [presetFocused, setPresetFocused] = React.useState(false);
-
-    const handlePresetSelect = (opt: string) => {
-        setPresetFocused(true);
-        setCustomWeeks("");
-        setValue(opt);
-    };
-
-    const handleCustomWeeksChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const nextValue = event.target.value;
-        if (nextValue === "") {
-            setCustomWeeks("");
-            setValue("");
-            return;
-        }
-
-        const parsed = Number.parseInt(nextValue, 10);
-        if (Number.isNaN(parsed)) {
-            return;
-        }
-
-        const sanitized = Math.max(1, parsed);
-        const sanitizedString = sanitized.toString();
-        setCustomWeeks(sanitizedString);
-        setValue(sanitizedString);
-    };
-
-    React.useEffect(() => {
-        if (!value) {
-            setCustomWeeks("");
-        }
-    }, [value]);
 
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -90,17 +57,16 @@ export default function MultiSelectableBoard() {
                 </p>
                 <div className="flex-col">
                     <p className="mb-2 text-lg font-semibold">Vælg antal trækninger(uger) (valgt: {value})</p>
-                    <div className="join justify-center">
+                    <div className="join">
 
                         {options.map((opt) => {
                             const active = value === opt;
 
                             return (
 
-                                <button
-                                    key={opt}
-                                    onClick={() => handlePresetSelect(opt)}
-                                    className={`
+                                <button key={opt}
+                                        onClick={() => setValue(opt)}
+                                        className={`
                                         join-item btn btn-circle btn-xl
                                         transition-all
                                         !border-red-700
@@ -120,22 +86,7 @@ export default function MultiSelectableBoard() {
                             );
                         })}
                     </div>
-                    <div className="mt-4 flex flex-col items-center gap-2">
-                        <span className="text-sm font-semibold text-red-800">Eget antal uger</span>
-                        <input
-                            type="number"
-                            min={1}
-                            aria-label="Vælg custom antal uger"
-                            disabled={!isValid}
-                            value={customWeeks}
-                            onChange={handleCustomWeeksChange}
-                            onFocus={() => setPresetFocused(false)}
-                            className={`input input-bordered input-sm text-center font-semibold
-                                ${(!presetFocused && customWeeks !== "") ? "!border-red-700" : ""}`}
-                            placeholder="Fx 6"
-                        />
-                    </div>
-                 </div>
+                </div>
                 <form onSubmit={handleSubmit}>
                     <button type="submit" className="btn m-15" disabled={!isValid}>
                         Opret board
