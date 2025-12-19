@@ -1426,10 +1426,10 @@ export interface TransactionDto {
 }
 
 export interface CreateTransactionDto {
-    transactionString: string;
+    transactionString?: string | undefined;
     transactionDate?: string | undefined;
     amount?: number;
-    userID: string;
+    userID?: string | undefined;
     pending?: boolean | undefined;
 }
 
@@ -1467,6 +1467,7 @@ export interface UpdateUserDto {
     email?: string;
     role?: UserRole | undefined;
     isActive?: boolean | undefined;
+    firstlogin?: boolean | undefined;
     balance?: number | undefined;
 }
 

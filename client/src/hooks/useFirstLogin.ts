@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router";
 import {authClient} from "../api-clients.ts";
 import {useJWT} from "./useJWT.ts";
-import { useParseValidationMessage } from "./useParseValidationMessage.ts";
+
 
 export function useFirstLogin() {
     const [currentPassword, setCurrentPassword] = useState("");
@@ -12,7 +12,6 @@ export function useFirstLogin() {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const jwt = useJWT();
-    const parseValidationMessage = useParseValidationMessage("Det mislykkedes at ændre adgangskoden - tjek dine oplysninger og prøv igen.");
 
 
     function getUserIdFromJwt(jwt: string | null | undefined): string | null {
@@ -55,8 +54,8 @@ export function useFirstLogin() {
             }
 
             navigate("/");
-        } catch (cause) {
-            setError(parseValidationMessage(cause));
+        } catch {
+            setError("Det mislykkedes at ændre adgangskoden - tjek dine oplysninger og prøv igen.");
         } finally {
             setLoading(false);
         }

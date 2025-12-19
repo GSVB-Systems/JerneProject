@@ -168,6 +168,7 @@ export const useUserDetails = (userId?: string): UseUserDetailsResult => {
         email: formState.email,
         role: formState.role,
         isActive: formState.isActive,
+        firstlogin: formState.firstlogin,
         balance: formState.balance,
       };
 

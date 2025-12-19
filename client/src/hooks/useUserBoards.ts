@@ -1,16 +1,16 @@
 import { useCallback, useMemo, useState } from "react";
 import {useJWT} from "./useJWT.ts";
 import type {CreateBoardDto, CreateTransactionDto, PurchaseDTO} from "../models/ServerAPI.ts";
-import {boardClient, transactionClient} from "../api-clients.ts";
+import {transactionClient} from "../api-clients.ts";
 import {useBalance} from "./useNavbar.ts";
 import { useParseValidationMessage } from "./useParseValidationMessage.ts";
 
-    const PRICE_CONFIG: Record<number, number> = {
-        5: 20,
-        6: 40,
-        7: 80,
-        8: 160,
-    };
+const PRICE_CONFIG: Record<number, number> = {
+    5: 20,
+    6: 40,
+    7: 80,
+    8: 160,
+};
 
 const MAX_SELECTION = 8;
 const MIN_SELECTION = 5;
@@ -40,7 +40,6 @@ interface UseUserBoardsResult {
     BOARD_SIZE: number;
     error: string | null;
     createBoardTransaction: () => Promise<boolean>;
-    createBoard: () => Promise<boolean>;
 }
 
 export function useUserBoards(): UseUserBoardsResult {
@@ -126,6 +125,8 @@ export function useUserBoards(): UseUserBoardsResult {
 
         try {
             await transactionClient.purchase(dto);
+            setSelected([]);
+            setValue("");
             return true;
         } catch (err) {
             setError(parseValidationMessage(err));
@@ -134,34 +135,6 @@ export function useUserBoards(): UseUserBoardsResult {
     }, [getPrice, loadUserBalance, userId, parseValidationMessage]);
 
 
-    const createBoard = useCallback(async (): Promise<boolean> => {
-
-        const selectedNumbers = selected;
-        const repeatingWeeks = Number.parseInt(value || "1", 10);
-        const boardSize = selectedNumbers.length;
-
-        if(boardSize < MIN_SELECTION){
-            setError("Du skal vælge mindst 5 numre");
-            return false;
-        }
-
-        const dto: CreateBoardDto = {
-            boardSize,
-            week: repeatingWeeks,
-            userID: userId,
-            numbers: selectedNumbers,
-
-        };
-
-        try{
-            await boardClient.create(dto);
-            return true;
-        } catch (err) {
-            setError(parseValidationMessage(err));
-            return false;
-        }
-
-    }, [selected, value, userId, parseValidationMessage]);
 
     const isValid = selected.length >= MIN_SELECTION && selected.length <= MAX_SELECTION;
 
@@ -177,6 +150,5 @@ export function useUserBoards(): UseUserBoardsResult {
         BOARD_SIZE,
         error,
         createBoardTransaction,
-        createBoard,
     };
 }
