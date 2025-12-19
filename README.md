@@ -92,3 +92,19 @@ Bemærk: Hvis du oplever filer låst under build (MSB3021/MSB3027), luk eventuel
 - Tilføj DB-unik nøgle (unique constraint) på `(Week, WeekYear)` hos `WinningBoard` for at sikre DB-level konsistens (beskytter mod race-conditions).
 - Tilføj flere unit-tests for at dække concurrency / duplikat-scenarier.
 - Dokumentér API endpoints i `api/` OpenAPI (der er en `openapi-with-docs.json` i projektet).
+
+## Login (sample credentials)
+- Admin:
+  - Email: harper.young@example.com
+  - Password: Silk!713
+  - Rolle: Administrator
+
+- Bruger (normal bruger):
+  - Email: isabella.lopez@example.com
+  - Password: Charm?478
+  - Rolle: Bruger
+
+## Contributors
+- https://github.com/benj4515
+- https://github.com/GreenzQe
+- https://github.com/MathiasFIv
