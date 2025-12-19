@@ -1,4 +1,7 @@
-﻿using Contracts.BoardDTOs;
+﻿// csharp
+using System;
+using System.Linq;
+using Contracts.BoardDTOs;
 using Contracts.TransactionDTOs;
 using Microsoft.EntityFrameworkCore;
 using service.Exceptions;
@@ -18,13 +21,35 @@ public class PurchaseRules : IPurchaseRules
 
     public async Task ValidateProcessPurchaseAsync(CreateBoardDto boardDto, CreateTransactionDto transactionDto)
     {
+        // Basic presence check for transactionDto so we can inspect its date for the maintenance window.
+        if (transactionDto == null)
+            throw new InvalidRequestException("Transaction DTO skal medtages.");
+
+        // Determine momentUtc from transaction DTO if provided, otherwise use now.
+        var momentUtc = ExtractTransactionMomentUtc(transactionDto);
+
+        // Use local timezone (same logic as previous PurchaseWindowValidator)
+        var utc = (momentUtc?.ToUniversalTime()) ?? DateTime.UtcNow;
+        var timezone = TimeZoneInfo.Local;
+        var local = TimeZoneInfo.ConvertTimeFromUtc(utc, timezone);
+        var dow = local.DayOfWeek;
+        var tod = local.TimeOfDay;
+
+        // Window: Saturday from 17:00 (inclusive) through the end of Sunday (all Sunday)
+        var isSaturdayAfter17 = dow == DayOfWeek.Saturday && tod >= TimeSpan.FromHours(17);
+        var isSunday = dow == DayOfWeek.Sunday;
+
+        if (isSaturdayAfter17 || isSunday)
+        {
+            throw new BoardPurchaseNotAllowedException();
+        }
+
         try
         {
             if (boardDto == null)
                 throw new InvalidRequestException("Board DTO skal medtages.");
 
-            if (transactionDto == null)
-                throw new InvalidRequestException("Transaction DTO skal medtages.");
+            // transactionDto null check already done above
 
             if (string.IsNullOrWhiteSpace(transactionDto.UserID))
                 throw new InvalidRequestException("Angiv et UserID for købet.");
@@ -73,5 +98,37 @@ public class PurchaseRules : IPurchaseRules
         {
             throw new ServiceException("Kunne ikke validere købet.", ex);
         }
+    }
+
+
+    private static DateTime? ExtractTransactionMomentUtc(CreateTransactionDto dto)
+    {
+        // case-insensitive property lookup
+        var prop = dto.GetType().GetProperties()
+            .FirstOrDefault(p => string.Equals(p.Name, "TransactionDate", StringComparison.OrdinalIgnoreCase));
+        if (prop == null) return null;
+
+        var val = prop.GetValue(dto);
+        if (val == null) return null;
+
+        if (val is DateTime dt)
+        {
+            // If unspecified, assume the value was provided in UTC
+            if (dt.Kind == DateTimeKind.Unspecified)
+                dt = DateTime.SpecifyKind(dt, DateTimeKind.Utc);
+            return dt.ToUniversalTime();
+        }
+
+        if (val is DateTimeOffset dtoff)
+            return dtoff.UtcDateTime;
+
+        if (val is string s)
+        {
+            // support ISO-8601 strings (with or without 'Z')
+            if (DateTimeOffset.TryParse(s, out var parsed))
+                return parsed.UtcDateTime;
+        }
+
+        return null;
     }
 }
