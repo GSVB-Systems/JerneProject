@@ -89,7 +89,7 @@ public class AuthService : Service<User, User, User>, IAuthService
 
     public async Task<User> UpdateUserPasswordAsync(string userId, string oldPassword, string newPassword)
     {
-        _authRules.ValidateUpdateUserPasswordAsync(userId, oldPassword, newPassword);
+        await _authRules.ValidateUpdateUserPasswordAsync(userId, oldPassword, newPassword);
         var user = await base.GetByIdAsync(userId);
         if (user is null)
             throw new InvalidOperationException("Brugeren ikke fundet.");
