@@ -14,7 +14,7 @@ namespace service.Mappers
                 BoardID = e.BoardID
             };
 
-        public static BoardNumber ToEntity(CreateBoardNumberDto dto)
+        public static BoardNumber? ToEntity(CreateBoardNumberDto dto)
         {
             if (dto == null) return null;
 

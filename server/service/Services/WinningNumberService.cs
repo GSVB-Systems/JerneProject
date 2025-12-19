@@ -8,6 +8,7 @@ using service.Services.Interfaces;
 using Sieve.Models;
 using Sieve.Services;
 using Microsoft.EntityFrameworkCore;
+using service.Rules.RuleInterfaces;
 
 namespace service.Services
 {
@@ -15,21 +16,25 @@ namespace service.Services
     {
         private readonly IWinningNumberRepository _repository;
         private readonly ISieveProcessor _sieveProcessor;
+        private readonly IWinningNumberRules _winningNumberRules;
 
-        public WinningNumberService(IWinningNumberRepository repository, ISieveProcessor sieveProcessor)
+        public WinningNumberService(IWinningNumberRepository repository, ISieveProcessor sieveProcessor, IWinningNumberRules winningNumberRules)
         {
             _repository = repository;
             _sieveProcessor = sieveProcessor;
+            _winningNumberRules = winningNumberRules ?? throw new ArgumentNullException(nameof(winningNumberRules));
         }
 
         public async Task<WinningNumberDto?> GetByIdAsync(string id)
         {
+            _winningNumberRules.ValidateGetById(id);
             var entity = await _repository.GetByIdAsync(id);
             return entity == null ? null : WinningNumberMapper.ToDto(entity);
         }
 
         public async Task<PagedResult<WinningNumberDto>> GetAllAsync(SieveModel? parameters)
         {
+             _winningNumberRules.ValidateGetAll(parameters);
             var query = _repository.AsQueryable();
             var sieveModel = parameters ?? new SieveModel();
 
@@ -48,6 +53,7 @@ namespace service.Services
 
         public async Task<WinningNumberDto> CreateAsync(CreateWinningNumberDto dto)
         {
+            _winningNumberRules.ValidateCreate(dto);
             var entity = WinningNumberMapper.ToEntity(dto);
             await _repository.AddAsync(entity);
             await _repository.SaveChangesAsync();
@@ -56,6 +62,7 @@ namespace service.Services
 
         public async Task<WinningNumberDto?> UpdateAsync(string id, UpdateWinningNumberDto dto)
         {
+            _winningNumberRules.ValidateUpdate(id, dto);
             var existing = await _repository.GetByIdAsync(id);
             if (existing == null) return null;
 
@@ -68,6 +75,7 @@ namespace service.Services
 
         public async Task<bool> DeleteAsync(string id)
         {
+            _winningNumberRules.ValidateDelete(id);
             var existing = await _repository.GetByIdAsync(id);
             if (existing == null) return false;
 

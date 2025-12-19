@@ -5,6 +5,7 @@ using dataaccess.Entities;
 using Microsoft.EntityFrameworkCore;
 using service.Mappers;
 using service.Repositories.Interfaces;
+using service.Rules;
 using service.Services.Interfaces;
 using Sieve.Models;
 using Sieve.Services;
@@ -15,15 +16,19 @@ namespace service.Services
     {
         private readonly IBoardRepository _boardRepository;
         private readonly ISieveProcessor _sieveProcessor;
+        private readonly IBoardRules _boardRules;
 
-        public BoardService(IBoardRepository boardRepository, ISieveProcessor sieveProcessor)
+        public BoardService(IBoardRepository boardRepository, ISieveProcessor sieveProcessor, IBoardRules boardRules)
         {
             _boardRepository = boardRepository;
             _sieveProcessor = sieveProcessor;
+            _boardRules = boardRules ?? throw new ArgumentNullException(nameof(boardRules));
         }
 
         public async Task<BoardDto?> GetByIdAsync(string id)
         {
+            await _boardRules.ValidateGetByIdAsync(id);
+            
             var entity = await _boardRepository.AsQueryable()
                 .Include(b => b.Numbers)
                 .FirstOrDefaultAsync(b => b.BoardID == id);
@@ -33,6 +38,8 @@ namespace service.Services
 
         public async Task<PagedResult<BoardDto>> GetAllAsync(SieveModel? parameters)
         {
+            await _boardRules.ValidateGetAllAsync(parameters);
+            
             var query = _boardRepository.AsQueryable().Include(b => b.Numbers);
             var sieveModel = parameters ?? new SieveModel();
             var totalCount = await query.CountAsync();
@@ -52,19 +59,7 @@ namespace service.Services
 
         public async Task<BoardDto> CreateAsync(CreateBoardDto createDto)
         {
-            if (createDto == null)
-                throw new ArgumentNullException(nameof(createDto));
-
-            if (createDto.Numbers == null)
-                throw new ValidationException("Tal er påkrævet.");
-
-            if (createDto.BoardSize <= 0)
-                throw new ValidationException("Størrelse på brættet skal være mindst 5 valgte tal og maksimalt 8 valgte tal.");
-
-            if (createDto.Numbers.Count != createDto.BoardSize)
-                throw new ValidationException($"De valgte tal skal stemme over ens med pladens størrelse på ({createDto.BoardSize}).");
-            if (createDto.Week <= 0)
-                throw new ValidationException("Du skal miminum have 1 trækning på din plade.");
+            await _boardRules.ValidateCreateAsync(createDto);
 
             var entities = BoardMapper.ToWeeklyEntities(createDto);
             if (!entities.Any())
@@ -82,10 +77,12 @@ namespace service.Services
 
         public async Task<BoardDto?> UpdateAsync(string id, UpdateBoardDto updateDto)
         {
+            await _boardRules.ValidateUpdateAsync(id, updateDto);
+            
             var existing = await _boardRepository.GetByIdAsync(id);
             if (existing == null) return null;
 
-            // If numbers are being updated validate them
+            
             if (updateDto?.Numbers != null)
             {
                 var numbers = updateDto.Numbers.ToList(); // ints directly
@@ -105,6 +102,8 @@ namespace service.Services
 
         public async Task<bool> DeleteAsync(string id)
         {
+            
+            await _boardRules.ValidateDeleteAsync(id);
             var existing = await _boardRepository.GetByIdAsync(id);
             if (existing == null) return false;
             
@@ -115,6 +114,8 @@ namespace service.Services
 
         public async Task<PagedResult<BoardDto>> getAllByUserIdAsync(string userId, BoardQueryParameters? parameters)
         {
+            await _boardRules.ValidateGetAllByUserIdAsync(userId, parameters);
+            
             var query = _boardRepository.AsQueryable().Where(b => b.UserID == userId).Include(b => b.Numbers);
             var sieveModel = parameters ?? new BoardQueryParameters();
             var totalCount = await query.CountAsync();

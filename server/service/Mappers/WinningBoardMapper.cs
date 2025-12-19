@@ -24,7 +24,6 @@ namespace service.Mappers
             var board = new WinningBoard
             {
                 WinningBoardID = Guid.NewGuid().ToString(),
-                // Store timestamps in UTC to satisfy PostgreSQL timestamptz requirement
                 CreatedAt = DateTime.UtcNow,
                 WinningNumbers = dto.WinningNumbers.Select(n => new WinningNumber
                 {
@@ -37,7 +36,6 @@ namespace service.Mappers
             foreach (var wn in board.WinningNumbers)
                 wn.WinningBoardID = board.WinningBoardID;
 
-            // Compute week/year based on local time (preserve previous semantics)
             var localNow = DateTime.Now;
             var cal = CultureInfo.CurrentCulture.Calendar;
             board.Week = cal.GetWeekOfYear(localNow, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
